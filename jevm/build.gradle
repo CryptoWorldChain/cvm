@@ -20,7 +20,6 @@ dependencies {
 	//	 testCompile 'junit:junit:4.12'
 	compile ("org.fc.zippo:org.fc.zippo.oapi:3.3.0")
 	
-	//includeInJar 'org.ethereum:ethereumj-core:1.7.1-RELEASE'
 	includeInJar 'org.ethereum:ethereumj-core:1.4.3-RELEASE'
 	compile 'org.osgi:org.osgi.annotation:6.0.0'
 	
