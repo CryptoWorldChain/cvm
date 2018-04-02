@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package org.brewchain.cvm.pbgens;
+import "google/protobuf/any.proto";
+
+enum PModule {
+	CVM = 0;
+};
+
+enum PCommand {
+	BCD = 0; //编译Solidity源码到字节码
+	
+};
+
+message PSBuildCode{//编译
+	string code = 1;
+}
+
+message PRetBuild{//加入的返回信息
+
+	int32 ret_code = 1;//返回
+	string ret_message = 2;//返回信息
+	repeated PMContract c = 3;
+}
+
+message PMContract{
+	string name = 1;
+	string addr = 2;
+	string bin = 3 [jstype = JS_NORMAL];
+	repeated string fun_name = 4 [jstype = JS_NORMAL];
+	string abi = 5 [jstype = JS_NORMAL];
+	string metadata = 6 [jstype = JS_NORMAL];
+}
+

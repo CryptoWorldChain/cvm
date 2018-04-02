@@ -1,4 +1,4 @@
-package org.ethereum.solidity.utils;
+package org.brewchain.evm.utils;
 
 import java.io.File;
 import java.io.FileWriter;
