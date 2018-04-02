@@ -1,10 +1,11 @@
 
+version = '0.0.1'
+
 buildscript {
 	dependencies { 
 		classpath "onight.osgi:zpp-gradle:3.0.0"
 	 }
 }
-version = '3.1.0'
 
 repositories{
 	maven{ url "http://dl.bintray.com/ethereum/maven/"}
@@ -29,7 +30,7 @@ dependencies {
 jar {
 	manifest{
 		//		attributes( 'Spring-Context': 'applicationContext-common.xml, applicationContext-beans.xml')
-		attributes( 'Import-Ignore':'org.spongycastle,org.ethereum.crypto')
+		attributes( 'Import-Ignore':'org.spongycastle,org.ethereum')
 		attributes( 'provider':'org.brewchain')
 	}
 }
