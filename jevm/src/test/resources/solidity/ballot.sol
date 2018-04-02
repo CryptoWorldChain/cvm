@@ -1,4 +1,4 @@
-pragma solidity ^0.4.0;
+pragma solidity ^0.4.4;
 /// http://remix.ethereum.org/#optimize=false&version=soljson-v0.4.21+commit.dfe3193c.js
 contract Ballot {
 
