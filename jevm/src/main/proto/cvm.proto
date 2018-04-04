@@ -9,18 +9,18 @@ enum PModule {
 
 enum PCommand {
 	BCD = 0; //编译Solidity源码到字节码
-	
+	RUF = 1; //运行方法
+	RUC = 2; //运行合约
 };
 
 message PSBuildCode{//编译
 	string code = 1;
 }
 
-message PRetBuild{//加入的返回信息
-
+message PRetBuild{
 	int32 ret_code = 1;//返回
 	string ret_message = 2;//返回信息
-	repeated PMContract c = 3;
+	repeated PMContract info = 3;
 }
 
 message PMContract{
@@ -32,3 +32,42 @@ message PMContract{
 	string metadata = 6 [jstype = JS_NORMAL];
 }
 
+message PSRunFun{//运行方法
+	bool constant = 1; //默认false
+	string type = 2; //默认function
+	string name = 3; //方法名称
+	repeated PMFunPut inputs = 4;
+	repeated PMFunPut outputs = 5;
+
+	string to_addr = 6;
+	int64 gas_price = 7;
+	string ctx_sign = 8; //合约交易签名
+
+	string func_args = 10 [jstype = JS_NORMAL];
+	int64 gas_limit = 11; //默认=gas_price
+}
+
+message PMFunPut{
+	//{'name':'to', 'type':'address'}
+	string name = 1 ;
+	string type = 2 ;
+}
+message PSRunContract{//运行合约
+	string code = 1; //合约源码，"contract A { uint public num;  function set(uint a) {   num = a;    log1(0x1111, 0x2222); }}"
+	string fun_name = 2; //要运行的合约中的方法名称
+
+
+	string from = 3; // Account Seed
+	string to = 4; // 0x0000000000000000000000000000000000001234
+	string data = 5;
+	int64  gas = 6; //300000
+	int64  gas_price = 7; //10000000000
+	int64  value = 8; //
+
+}
+
+message PRetRun{
+	int32 ret_code = 1;//返回
+	string ret_message = 2;//返回信息
+	string run_info = 3 [jstype = JS_NORMAL];
+}

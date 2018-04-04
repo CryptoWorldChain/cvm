@@ -29,7 +29,7 @@ import onight.tfw.otransio.api.beans.FramePacket;
 @NActorProvider
 @Data
 @Slf4j
-public class BuildService extends SessionModules<PSBuildCode> {
+public class Txt extends SessionModules<PSBuildCode> {
 
 	// @ActorRequire
 	// CommonService commonService;
