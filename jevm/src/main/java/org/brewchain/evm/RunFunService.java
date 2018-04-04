@@ -1,15 +1,15 @@
 package org.brewchain.evm;
 
-import static org.ethereum.crypto.HashUtil.sha3;
+import static org.brewchain.core.crypto.HashUtil.sha3;
 
 import org.apache.commons.lang3.StringUtils;
+import org.brewchain.core.core.CallTransaction;
+import org.brewchain.core.core.Transaction;
 import org.brewchain.cvm.pbgens.Cvm.PCommand;
 import org.brewchain.cvm.pbgens.Cvm.PMFunPut;
 import org.brewchain.cvm.pbgens.Cvm.PModule;
 import org.brewchain.cvm.pbgens.Cvm.PRetRun;
 import org.brewchain.cvm.pbgens.Cvm.PSRunFun;
-import org.ethereum.core.CallTransaction;
-import org.ethereum.core.Transaction;
 import org.spongycastle.util.encoders.Hex;
 
 import lombok.Data;

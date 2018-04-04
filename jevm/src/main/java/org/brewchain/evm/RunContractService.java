@@ -1,19 +1,19 @@
 package org.brewchain.evm;
 
 import static java.math.BigInteger.valueOf;
-import static org.ethereum.crypto.HashUtil.sha3;
+import static org.brewchain.core.crypto.HashUtil.sha3;
 
 import org.apache.commons.lang3.StringUtils;
+import org.brewchain.core.core.CallTransaction;
+import org.brewchain.core.core.Transaction;
+import org.brewchain.core.facade.Ethereum;
+import org.brewchain.core.jsonrpc.JsonRpc;
+import org.brewchain.core.jsonrpc.TransactionReceiptDTO;
+import org.brewchain.core.jsonrpc.TypeConverter;
 import org.brewchain.cvm.pbgens.Cvm.PCommand;
 import org.brewchain.cvm.pbgens.Cvm.PModule;
 import org.brewchain.cvm.pbgens.Cvm.PRetRun;
 import org.brewchain.cvm.pbgens.Cvm.PSRunContract;
-import org.ethereum.core.CallTransaction;
-import org.ethereum.core.Transaction;
-import org.ethereum.facade.Ethereum;
-import org.ethereum.jsonrpc.JsonRpc;
-import org.ethereum.jsonrpc.TransactionReceiptDTO;
-import org.ethereum.jsonrpc.TypeConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import lombok.Data;
