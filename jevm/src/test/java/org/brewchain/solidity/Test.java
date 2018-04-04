@@ -1,20 +1,20 @@
 package org.brewchain.solidity;
 
-import static org.ethereum.solidity.compiler.SolidityCompiler.Options.ABI;
-import static org.ethereum.solidity.compiler.SolidityCompiler.Options.BIN;
-import static org.ethereum.solidity.compiler.SolidityCompiler.Options.INTERFACE;
-import static org.ethereum.solidity.compiler.SolidityCompiler.Options.METADATA;
+import static org.brewchain.core.solidity.compiler.SolidityCompiler.Options.ABI;
+import static org.brewchain.core.solidity.compiler.SolidityCompiler.Options.BIN;
+import static org.brewchain.core.solidity.compiler.SolidityCompiler.Options.INTERFACE;
+import static org.brewchain.core.solidity.compiler.SolidityCompiler.Options.METADATA;
 
 import java.io.File;
 import java.io.IOException;
 
-import org.ethereum.core.CallTransaction;
-import org.ethereum.crypto.ECKey;
-import org.ethereum.crypto.HashUtil;
-import org.ethereum.solidity.Abi;
-import org.ethereum.solidity.Abi.Entry;
-import org.ethereum.solidity.compiler.CompilationResult;
-import org.ethereum.solidity.compiler.SolidityCompiler;
+import org.brewchain.core.core.CallTransaction;
+import org.brewchain.core.crypto.ECKey;
+import org.brewchain.core.crypto.HashUtil;
+import org.brewchain.core.solidity.Abi;
+import org.brewchain.core.solidity.Abi.Entry;
+import org.brewchain.core.solidity.compiler.CompilationResult;
+import org.brewchain.core.solidity.compiler.SolidityCompiler;
 import org.codehaus.plexus.util.StringUtils;
 import org.spongycastle.util.encoders.Hex;
 
