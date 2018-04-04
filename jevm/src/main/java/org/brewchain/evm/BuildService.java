@@ -1,10 +1,5 @@
 package org.brewchain.evm;
 
-import static org.ethereum.solidity.compiler.SolidityCompiler.Options.INTERFACE;
-import static org.ethereum.solidity.compiler.SolidityCompiler.Options.METADATA;
-import static org.ethereum.solidity.compiler.SolidityCompiler.Options.ABI;
-import static org.ethereum.solidity.compiler.SolidityCompiler.Options.BIN;
-
 import org.apache.commons.lang3.StringUtils;
 import org.brewchain.cvm.pbgens.Cvm.PCommand;
 import org.brewchain.cvm.pbgens.Cvm.PMContract;
@@ -16,6 +11,7 @@ import org.ethereum.core.CallTransaction;
 import org.ethereum.crypto.ECKey;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.solidity.compiler.SolidityCompiler;
+import org.ethereum.solidity.compiler.SolidityCompiler.Options;
 import org.spongycastle.util.encoders.Hex;
 
 import lombok.Data;
@@ -55,7 +51,7 @@ public class BuildService extends SessionModules<PSBuildCode> {
 			checkNull(pbo);
 			CompilationResult result = null;
 			// IOException
-			SolidityCompiler.Result res = SolidityCompiler.compile(pbo.getCode().getBytes(), true, ABI, BIN, INTERFACE, METADATA);
+			SolidityCompiler.Result res = SolidityCompiler.compile(pbo.getCode().getBytes(), true, Options.ABI, Options.BIN, Options.INTERFACE, Options.METADATA);
 
 			if (StringUtils.isNotBlank(res.errors) || StringUtils.isBlank(res.output)) {
 				ret.setRetCode(-1);
@@ -124,15 +120,14 @@ public class BuildService extends SessionModules<PSBuildCode> {
 		}
 		handler.onFinished(PacketHelper.toPBReturn(pack, ret.build()));
 	}
-
+	
 	public void checkNull(PSBuildCode pb) {
 		if (pb == null) {
 			throw new IllegalArgumentException("无请求参数");
 		}
-
 		if (StringUtils.isBlank(pb.getCode())) {
 			throw new IllegalArgumentException("参数code,不能为空");
 		}
-
 	}
+
 }
