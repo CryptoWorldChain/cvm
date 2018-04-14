@@ -6,12 +6,14 @@ import org.brewchain.cvm.pbgens.Cvm.PModule;
 import org.brewchain.cvm.pbgens.Cvm.PRetBuild;
 import org.brewchain.cvm.pbgens.Cvm.PSBuildCode;
 import org.brewchain.evm.utils.VMUtil;
+import org.fc.brewchain.bcapi.EncAPI;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import onight.oapi.scala.commons.SessionModules;
 import onight.osgi.annotation.NActorProvider;
 import onight.tfw.async.CompleteHandler;
+import onight.tfw.ntrans.api.annotation.ActorRequire;
 import onight.tfw.otransio.api.PacketHelper;
 import onight.tfw.otransio.api.beans.FramePacket;
 
@@ -20,9 +22,9 @@ import onight.tfw.otransio.api.beans.FramePacket;
 @Slf4j
 public class BuildService extends SessionModules<PSBuildCode> {
 
-	// @ActorRequire
-	// CommonService commonService;O
-
+	@ActorRequire(name = "bc_encoder",scope = "global")
+	EncAPI encAPI;
+	
 	@Override
 	public String getModule() {
 		return PModule.CVM.name();
@@ -45,7 +47,7 @@ public class BuildService extends SessionModules<PSBuildCode> {
 			//CompilationResult result = null;
 			// IOException
 			
-			VMUtil.solidCompoler(ret,pbo.getCode().getBytes());
+			VMUtil.solidCompoler(encAPI,ret,pbo.getCode().getBytes());
 
 		} catch (IllegalArgumentException e) {
 			ret.setRetCode(-1);

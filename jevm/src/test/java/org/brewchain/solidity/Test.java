@@ -9,14 +9,10 @@ import java.io.File;
 import java.io.IOException;
 
 import org.brewchain.core.core.CallTransaction;
-import org.brewchain.core.crypto.ECKey;
-import org.brewchain.core.crypto.HashUtil;
-import org.brewchain.core.solidity.Abi;
-import org.brewchain.core.solidity.Abi.Entry;
 import org.brewchain.core.solidity.compiler.CompilationResult;
 import org.brewchain.core.solidity.compiler.SolidityCompiler;
 import org.codehaus.plexus.util.StringUtils;
-import org.spongycastle.util.encoders.Hex;
+//import org.spongycastle.util.encoders.Hex;
 
 public class Test {
 	public static void main(String[] args) throws IOException {
@@ -64,10 +60,10 @@ public class Test {
         System.out.println("interface:「"+metadate.getInterface()+"」");
 		System.out.println("metadata:「"+metadate.metadata+"」");
 		
-		Abi abi = Abi.fromJson(metadate.abi);
-		abi.size();
+//		Abi abi = Abi.fromJson(metadate.abi);
+//		abi.size();
         
-        Entry onlyFunc = abi.get(0);
+//        Entry onlyFunc = abi.get(0);
 //        assertEquals(onlyFunc.type, Type.function);
 //        assertEquals(onlyFunc.inputs.size(), 1);
 //        assertEquals(onlyFunc.outputs.size(), 1);
@@ -117,11 +113,11 @@ public class Test {
 //        String hash = Hex.toHexString(hashB);
         
 
-        byte[] hash1 = HashUtil.sha256(metadate.bin.getBytes());
+//        byte[] hash1 = HashUtil.sha256(metadate.bin.getBytes());
         
-        ECKey key = new ECKey();
-        ECKey.ECDSASignature sig = key.doSign(hash1);
-        System.out.println("addr="+Hex.toHexString(key.getAddress()));
+//        ECKey key = new ECKey();
+//        ECKey.ECDSASignature sig = key.doSign(hash1);
+//        System.out.println("addr="+Hex.toHexString(key.getAddress()));
         
 //        byte[] addr3 = ECKey.fromPrivate(key.getPrivKey()).getAddress();
 //        System.out.println("addr3-2="+Hex.toHexString(addr3));

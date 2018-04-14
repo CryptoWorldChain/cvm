@@ -2,16 +2,10 @@
 buildscript {
 	dependencies { 
 		classpath "onight.osgi:zpp-gradle:3.0.0"
-		classpath "org.brewchain:org.brewchain.ecrypto:3.0.2"
 	 }
 }
 
 version = '1.0.0'
-
-repositories{
-	maven{ url "http://dl.bintray.com/ethereum/maven/"}
-}
- 
 
 project.group='org.brewchain'
 
@@ -22,36 +16,24 @@ dependencies {
 	//	 testCompile 'junit:junit:4.12'
 	compile ("org.fc.zippo:org.fc.zippo.oapi:3.3.0")
 	
-	// for SHA3 and SECP256K1
-    includeInJar "com.madgag.spongycastle:core:1.54.0.0"
-    includeInJar "com.madgag.spongycastle:prov:1.54.0.0"
-    
+    includeInJar "com.madgag.spongycastle:core:1.58.0.0"
     
 	compile 'org.fc.zippo:org.fc.zippo.oapi:3.3.0'
 	compile 'com.google.guava:guava:19.0'
 
-	// includeInJar 'org.freemarker:freemarker:2.3.26-incubating'
-	// includeInJar 'com.google.guava:guava:16.0.1'
-	// includeInJar 'com.google.code.gson:gson:2.8.0'
-	
-	// includeInJar 'com.fasterxml.jackson:jackson-parent:2.5'
-    // includeInJar "com.fasterxml.jackson.core:jackson-databind:2.5.1"
+    includeInJar "com.google.code.findbugs:jsr305:3.0.0"
+    includeInJar "org.apache.commons:commons-collections4:4.0"
     
-    // includeInJar "com.typesafe:config:1.2.1"
-	
-	//includeInJar 'org.ethereum:ethereumj-core:1.6.3-RELEASE'
-	
-	includeInJar "org.springframework:spring-context:4.2.0.RELEASE"
-    // includeInJar "org.springframework:spring-tx:4.2.0.RELEASE"
-    // includeInJar "org.springframework:spring-orm:4.2.0.RELEASE"
+	includeInJar 'com.fasterxml.jackson:jackson-parent:2.5'
+    includeInJar "com.fasterxml.jackson.core:jackson-databind:2.5.1"
     
-	compile 'org.brewchain:org.brewchain.ecrypto:3.0.2'
-	
+    includeInJar "org.ethereum:solcJ-all:0.4.8"
+    
+	compile 'org.brewchain:org.brewchain.bcapi:3.3.1'
+    compile 'org.brewchain:org.brewchain.frontend:1.0.12'
+    
 	compile 'org.osgi:org.osgi.annotation:6.0.0'
 	
-    compile "org.ethereum:solcJ-all:0.4.8"
-    compile "org.ethereum:leveldbjni-all:1.18.3"             // native leveldb components
-    
 }
 
 
