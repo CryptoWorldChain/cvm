@@ -47,8 +47,8 @@ public class Test {
 		System.out.println();
 		
 		System.out.println("测试Solidity .sol文件");
-		res = compileFile(new File("src/test/resources/solidity/ballot.sol"));
-		metadate = res.contracts.get("Ballot");
+		res = compileFile(new File("src/test/resources/solidity/MultiSigWallet.sol"));
+		metadate = res.contracts.get("MultiSigWallet");
 
 		System.out.println("abi length:「"+metadate.abi.length()+"」");
 		System.out.println("bin length:「"+metadate.bin.length()+"」");
@@ -203,13 +203,13 @@ public class Test {
 		System.out.println(contractSrc.getPath());
 		System.out.println();
 		
-//        SolidityCompiler.Result res = SolidityCompiler.compile(contractSrc, true, ABI, BIN, INTERFACE, METADATA);
-//        if (StringUtils.isNotBlank(res.output)) {
-//            result = CompilationResult.parse(res.output);
-//        	System.out.println("Out:「" + res.output + "」");
-//        }
-//        if (StringUtils.isNotBlank(res.errors))
-//        	System.err.println("Err:「" + res.errors + "」\n");
+        SolidityCompiler.Result res = SolidityCompiler.compile(contractSrc, true, ABI, BIN, INTERFACE, METADATA);
+        if (StringUtils.isNotBlank(res.output)) {
+            result = CompilationResult.parse(res.output);
+        	System.out.println("Out:「" + res.output + "」");
+        }
+        if (StringUtils.isNotBlank(res.errors))
+        	System.err.println("Err:「" + res.errors + "」\n");
 		
 		
 		
