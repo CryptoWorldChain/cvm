@@ -40,7 +40,7 @@ dependencies {
 jar {
 	manifest{
 		// attributes( 'Spring-Context': 'applicationContext-common.xml, applicationContext-beans.xml')
-		attributes( 'Import-Ignore':'scalaj.http,org.ethereum,org.spongycastle.util.encoders,org.springframework.beans.factory.annotation')
+		attributes( 'Import-Ignore':'scalaj.http,com.fasterxml,org.spongycastle.util,org.brewchain,org.springframework.beans.factory.annotation')
 		attributes( 'provider':'org.brewchain')
 	}
 }
