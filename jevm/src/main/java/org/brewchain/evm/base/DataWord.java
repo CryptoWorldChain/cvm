@@ -1,10 +1,10 @@
-package org.brewchain.core.vm;
+package org.brewchain.evm.base;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
-import org.brewchain.frontend.util.ByteUtil;
-import org.brewchain.frontend.util.FastByteComparisons;
+import org.brewchain.account.util.ByteUtil;
+import org.brewchain.account.util.FastByteComparisons;
 import org.spongycastle.util.Arrays;
 import org.spongycastle.util.encoders.Hex;
 

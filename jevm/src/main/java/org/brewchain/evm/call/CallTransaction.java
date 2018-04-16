@@ -1,4 +1,4 @@
-package org.brewchain.core.core;
+package org.brewchain.evm.call;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.ArrayUtils.subarray;
@@ -9,16 +9,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.brewchain.core.solidity.SolidityType;
-import org.brewchain.core.solidity.SolidityType.IntType;
-import org.brewchain.core.vm.LogInfo;
-
-//import org.spongycastle.util.encoders.Hex;
-
-import org.brewchain.frontend.util.ByteUtil;
-import org.brewchain.frontend.util.FastByteComparisons;
-import org.brewchain.frontend.core.Transaction;
-import static org.brewchain.frontend.util.ByteUtil.longToBytesNoLeadZeroes;
+import org.brewchain.account.gens.Tx.MultiTransaction;
+import org.brewchain.account.util.ByteUtil;
+import org.brewchain.account.util.FastByteComparisons;
+import org.brewchain.evm.base.LogInfo;
+import org.brewchain.evm.solidity.SolidityType;
+import org.brewchain.evm.solidity.SolidityType.IntType;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -37,7 +33,7 @@ public class CallTransaction {
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
 
-    public static Transaction createRawTransaction(long nonce, long gasPrice, long gasLimit, String toAddress,
+    public static MultiTransaction createRawTransaction(long nonce, long gasPrice, long gasLimit, String toAddress,
                                                     long value, byte[] data) {
 //        Transaction tx = new Transaction(longToBytesNoLeadZeroes(nonce),
 //                longToBytesNoLeadZeroes(gasPrice),
@@ -47,12 +43,57 @@ public class CallTransaction {
 //                data,
 //                null);
 //        return tx;
+    		
+    	// 发送交易
+	// 模拟合约交易
+	// 1. 签名
+	// 2. 生成Hash
+	// 3. 生成Sender
+//	SingleTransaction.Builder newTx = SingleTransaction.newBuilder();
+//	newTx.setAmount(98);
+//	newTx.setData(ByteString.copyFrom(ByteUtil.EMPTY_BYTE_ARRAY));
+//	newTx.setExdata(ByteString.copyFrom(ByteUtil.EMPTY_BYTE_ARRAY));
+//	newTx.setFee(0);
+//	newTx.setFeeLimit(2);
+//	try {
+//		newTx.setNonce(accountHelper.getNonce(oKeyPairs2.getAddress().getBytes()));
+//	} catch (Exception e2) {
+//		// TODO Auto-generated catch block
+//		e2.printStackTrace();
+//	}
+//	newTx.setPubKey(oKeyPairs2.getPubkey());
+//	newTx.setReceiveAddress(ByteString.copyFrom(oKeyPairs1.getAddress().getBytes()));
+//	newTx.setSenderAddress(ByteString.copyFrom(oKeyPairs2.getAddress().getBytes()));
+//	newTx.setTimestamp(new Date().getTime());
+//	newTx.setTxHash(ByteString.copyFrom(ByteUtil.EMPTY_BYTE_ARRAY));
+//
+//	List<String> privs = new LinkedList<String>();
+//	privs.add(oKeyPairs2.getPrikey());
+//
+//	try {
+//		MultiTransaction.Builder oMultiTransaction = transactionHelper
+//				.ParseSingleTransactionToMultiTransaction(newTx);
+//
+//		MultiTransactionSignature.Builder oMultiTransactionSignature = MultiTransactionSignature.newBuilder();
+//		oMultiTransactionSignature.setPubKey(oKeyPairs2.getPubkey());
+//		oMultiTransactionSignature.setSignature(encApi.hexEnc(encApi.ecSign(oKeyPairs2.getPrikey(), oMultiTransaction.build().toByteArray())));
+//		
+//		oMultiTransaction.addSignatures(oMultiTransactionSignature);			
+//		//transactionHelper.Signature(privs, oMultiTransaction);
+//		transactionHelper.CreateMultiTransaction(oMultiTransaction);
+//	} catch (Exception e1) {
+//		// TODO Auto-generated catch block
+//		e1.printStackTrace();
+//	}
+//
+//	log.debug("交易创建！ " + Hex.toHexString(newTx.getTxHash().toByteArray()));
+    			
     		return null;
     }
 
 
 
-    public static Transaction createCallTransaction(long nonce, long gasPrice, long gasLimit, String toAddress,
+    public static MultiTransaction createCallTransaction(long nonce, long gasPrice, long gasLimit, String toAddress,
                         long value, Function callFunc, Object ... funcArgs) {
 
         byte[] callData = callFunc.encode(funcArgs);

@@ -1,5 +1,5 @@
 
-package org.brewchain.core.solidity.compiler;
+package org.brewchain.evm.solidity.compiler;
 
 import java.io.File;
 import java.io.IOException;

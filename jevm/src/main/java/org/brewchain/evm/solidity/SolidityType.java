@@ -1,5 +1,5 @@
 
-package org.brewchain.core.solidity;
+package org.brewchain.evm.solidity;
 
 import java.lang.reflect.Array;
 import java.math.BigInteger;
@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.brewchain.frontend.util.ByteUtil;
+import org.brewchain.account.util.ByteUtil;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;

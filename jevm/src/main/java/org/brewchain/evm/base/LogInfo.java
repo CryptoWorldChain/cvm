@@ -1,11 +1,11 @@
-package org.brewchain.core.vm;
+package org.brewchain.evm.base;
 
-//import org.brewchain.core.core.Bloom;
+//import org.brewchain.evm.call.Bloom;
 //import org.brewchain.core.crypto.HashUtil;
-import org.brewchain.frontend.util.RLP;
-import org.brewchain.frontend.util.RLPElement;
-import org.brewchain.frontend.util.RLPItem;
-import org.brewchain.frontend.util.RLPList;
+import org.brewchain.account.util.RLP;
+import org.brewchain.account.util.RLPElement;
+import org.brewchain.account.util.RLPItem;
+import org.brewchain.account.util.RLPList;
 
 import org.spongycastle.util.encoders.Hex;
 

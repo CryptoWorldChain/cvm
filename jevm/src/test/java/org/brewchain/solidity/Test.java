@@ -1,16 +1,16 @@
 package org.brewchain.solidity;
 
-import static org.brewchain.core.solidity.compiler.SolidityCompiler.Options.ABI;
-import static org.brewchain.core.solidity.compiler.SolidityCompiler.Options.BIN;
-import static org.brewchain.core.solidity.compiler.SolidityCompiler.Options.INTERFACE;
-import static org.brewchain.core.solidity.compiler.SolidityCompiler.Options.METADATA;
+import static org.brewchain.evm.solidity.compiler.SolidityCompiler.Options.ABI;
+import static org.brewchain.evm.solidity.compiler.SolidityCompiler.Options.BIN;
+import static org.brewchain.evm.solidity.compiler.SolidityCompiler.Options.INTERFACE;
+import static org.brewchain.evm.solidity.compiler.SolidityCompiler.Options.METADATA;
 
 import java.io.File;
 import java.io.IOException;
 
-import org.brewchain.core.core.CallTransaction;
-import org.brewchain.core.solidity.compiler.CompilationResult;
-import org.brewchain.core.solidity.compiler.SolidityCompiler;
+import org.brewchain.evm.call.CallTransaction;
+import org.brewchain.evm.solidity.compiler.CompilationResult;
+import org.brewchain.evm.solidity.compiler.SolidityCompiler;
 import org.codehaus.plexus.util.StringUtils;
 //import org.spongycastle.util.encoders.Hex;
 
