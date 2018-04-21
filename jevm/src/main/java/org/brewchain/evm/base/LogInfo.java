@@ -1,19 +1,30 @@
 package org.brewchain.evm.base;
 
-//import org.brewchain.evm.call.Bloom;
-//import org.brewchain.core.crypto.HashUtil;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.brewchain.account.util.RLP;
 import org.brewchain.account.util.RLPElement;
 import org.brewchain.account.util.RLPItem;
 import org.brewchain.account.util.RLPList;
-
+import org.brewchain.evm.jsonrpc.Bloom;
+import org.fc.brewchain.bcapi.EncAPI;
 import org.spongycastle.util.encoders.Hex;
 
-import java.util.ArrayList;
-import java.util.List;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import onight.tfw.ntrans.api.annotation.ActorRequire;
 
+@Data
+@Slf4j
 public class LogInfo {
 
+
+	@ActorRequire(name = "bc_encoder",scope = "global")
+	EncAPI encAPI;
+	
     byte[] address = new byte[]{};
     List<DataWord> topics = new ArrayList<>();
     byte[] data = new byte[]{};
@@ -79,14 +90,14 @@ public class LogInfo {
         return RLP.encodeList(addressEncoded, RLP.encodeList(topicsEncoded), dataEncoded);
     }
 
-//    public Bloom getBloom() {
-//        Bloom ret = Bloom.create(HashUtil.sha3(address));
-//        for (DataWord topic : topics) {
-//            byte[] topicData = topic.getData();
-//            ret.or(Bloom.create(HashUtil.sha3(topicData)));
-//        }
-//        return ret;
-//    }
+    public Bloom getBloom() {
+        Bloom ret = Bloom.create(encAPI.sha3Encode(address));
+        for (DataWord topic : topics) {
+            byte[] topicData = topic.getData();
+            ret.or(Bloom.create(encAPI.sha3Encode(topicData)));
+        }
+        return ret;
+    }
 
     @Override
     public String toString() {
