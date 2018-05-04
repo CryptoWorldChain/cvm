@@ -2,7 +2,8 @@
 buildscript {
 	dependencies { 
 		classpath "onight.osgi:zpp-gradle:3.0.0"
-		classpath "org.brewchain:org.brewchain.account:1.0.1"
+		classpath "org.brewchain:org.brewchain.bcapi:3.3.3"
+		classpath "org.brewchain:org.brewchain.account:1.0.3"
 	 }
 }
 
@@ -29,7 +30,7 @@ dependencies {
     
     // includeInJar "org.ethereum:solcJ-all:0.4.8"
     
-	compile 'org.brewchain:org.brewchain.bcapi:3.3.1'
+	compile 'org.brewchain:org.brewchain.bcapi:3.3.3'
 	
     compile 'org.brewchain:org.brewchain.account:1.0.3'
     
@@ -41,7 +42,7 @@ dependencies {
 jar {
 	manifest{
 		// attributes( 'Spring-Context': 'applicationContext-common.xml, applicationContext-beans.xml')
-		attributes( 'Import-Ignore':'scalaj.http,com.fasterxml,org.spongycastle.util,org.brewchain,org.springframework.beans.factory.annotation')
+		attributes( 'Import-Ignore':'com.fasterxml,org.spongycastle.util,org.brewchain')
 		attributes( 'provider':'org.brewchain')
 	}
 }

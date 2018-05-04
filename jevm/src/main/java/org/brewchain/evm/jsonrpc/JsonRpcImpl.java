@@ -1,15 +1,10 @@
 package org.brewchain.evm.jsonrpc;
 
-import static java.lang.Math.max;
-import static org.brewchain.account.util.ByteUtil.EMPTY_BYTE_ARRAY;
-import static org.brewchain.account.util.ByteUtil.bigIntegerToBytes;
 //import static org.brewchain.core.crypto.HashUtil.sha3;
 import static org.brewchain.evm.jsonrpc.TypeConverter.StringHexToBigInteger;
 import static org.brewchain.evm.jsonrpc.TypeConverter.StringHexToByteArray;
 import static org.brewchain.evm.jsonrpc.TypeConverter.toJsonHex;
 
-import java.math.BigInteger;
-import java.security.interfaces.ECKey;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,26 +23,28 @@ import org.apache.maven.model.Repository;
 import org.brewchain.account.gens.Act.Account;
 import org.brewchain.account.gens.Block;
 import org.brewchain.account.gens.Block.BlockHeader;
+import org.brewchain.account.gens.Tx.MultiTransaction;
 import org.brewchain.account.trie.TrieImpl.Node;
-import org.brewchain.account.util.ByteUtil;
-import org.brewchain.account.util.PendingTransactionState;
-import org.brewchain.account.util.RLP;
 import org.brewchain.evm.base.DataWord;
-import org.brewchain.evm.base.LogInfo;
 import org.brewchain.evm.call.CallTransaction;
-import org.brewchain.evm.solidity.compiler.SolidityCompiler;
+import org.brewchain.evm.exec.TransactionExecutor;
+import org.brewchain.evm.utils.ByteArrayWrapper;
+import org.fc.brewchain.bcapi.EncAPI;
 import org.fc.brewchain.bcapi.KeyPairs;
-import org.osgi.resource.Capability;
 
 import lombok.extern.slf4j.Slf4j;
 import onight.osgi.annotation.iPojoBean;
 import onight.tfw.ntrans.api.ActorService;
+import onight.tfw.ntrans.api.annotation.ActorRequire;
 
 @iPojoBean
 @Provides(specifications = { ActorService.class }, strategy = "SINGLETON")
 @Slf4j
 @Instantiate(name = "json_Rpc_Impl")
 public class JsonRpcImpl implements JsonRpc {
+	
+	@ActorRequire(name = "bc_encoder",scope = "global")
+	EncAPI encAPI;
 	
     public class BinaryCallArguments {
         public long nonce;
@@ -91,41 +88,40 @@ public class JsonRpcImpl implements JsonRpc {
     Map<Integer, Filter> installedFilters = new Hashtable<>();
     Map<ByteArrayWrapper, TransactionReceipt> pendingReceipts = Collections.synchronizedMap(new LRUMap<ByteArrayWrapper, TransactionReceipt>(1024));
 
-    @Autowired
-    public JsonRpcImpl(final BlockchainImpl blockchain, final CompositeEthereumListener compositeEthereumListener) {
-        this.blockchain = blockchain;
-        this.compositeEthereumListener = compositeEthereumListener;
-        initialBlockNumber = blockchain.getBestBlock().getNumber();
-
-        compositeEthereumListener.addListener(new EthereumListenerAdapter() {
-            @Override
-            public void onBlock(Block block, List<TransactionReceipt> receipts) {
-                for (Filter filter : installedFilters.values()) {
-                    filter.newBlockReceived(block);
-                }
-            }
-
-            @Override
-            public void onPendingTransactionsReceived(List<Transaction> transactions) {
-                for (Filter filter : installedFilters.values()) {
-                    for (Transaction tx : transactions) {
-                        filter.newPendingTx(tx);
-                    }
-                }
-            }
-
-            @Override
-            public void onPendingTransactionUpdate(TransactionReceipt txReceipt, PendingTransactionState state, Block block) {
-                ByteArrayWrapper txHashW = new ByteArrayWrapper(txReceipt.getTransaction().getHash());
-                if (state.isPending() || state == PendingTransactionState.DROPPED) {
-                    pendingReceipts.put(txHashW, txReceipt);
-                } else {
-                    pendingReceipts.remove(txHashW);
-                }
-            }
-        });
-
-    }
+//    public JsonRpcImpl(final BlockchainImpl blockchain, final CompositeEthereumListener compositeEthereumListener) {
+//        this.blockchain = blockchain;
+//        this.compositeEthereumListener = compositeEthereumListener;
+//        initialBlockNumber = blockchain.getBestBlock().getNumber();
+//
+//        compositeEthereumListener.addListener(new EthereumListenerAdapter() {
+//            @Override
+//            public void onBlock(Block block, List<TransactionReceipt> receipts) {
+//                for (Filter filter : installedFilters.values()) {
+//                    filter.newBlockReceived(block);
+//                }
+//            }
+//
+//            @Override
+//            public void onPendingTransactionsReceived(List<Transaction> transactions) {
+//                for (Filter filter : installedFilters.values()) {
+//                    for (Transaction tx : transactions) {
+//                        filter.newPendingTx(tx);
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onPendingTransactionUpdate(TransactionReceipt txReceipt, PendingTransactionState state, Block block) {
+//                ByteArrayWrapper txHashW = new ByteArrayWrapper(txReceipt.getTransaction().getHash());
+//                if (state.isPending() || state == PendingTransactionState.DROPPED) {
+//                    pendingReceipts.put(txHashW, txReceipt);
+//                } else {
+//                    pendingReceipts.remove(txHashW);
+//                }
+//            }
+//        });
+//
+//    }
 
     public long JSonHexToLong(String x) throws Exception {
         if (!x.startsWith("0x"))
@@ -148,61 +144,64 @@ public class JsonRpcImpl implements JsonRpc {
         return x;
     }
 
-    public Block getBlockByJSonHash(String blockHash) throws Exception  {
-        byte[] bhash = TypeConverter.StringHexToByteArray(blockHash);
-        return worldManager.getBlockchain().getBlockByHash(bhash);
-    }
+//    public Block getBlockByJSonHash(String blockHash) throws Exception  {
+//        byte[] bhash = TypeConverter.StringHexToByteArray(blockHash);
+//        return worldManager.getBlockchain().getBlockByHash(bhash);
+//    }
 
-    private Block getByJsonBlockId(String id) {
-        if ("earliest".equalsIgnoreCase(id)) {
-            return blockchain.getBlockByNumber(0);
-        } else if ("latest".equalsIgnoreCase(id)) {
-            return blockchain.getBestBlock();
-        } else if ("pending".equalsIgnoreCase(id)) {
-            return null;
-        } else {
-            long blockNumber = StringHexToBigInteger(id).longValue();
-            return blockchain.getBlockByNumber(blockNumber);
-        }
-    }
+//    private Block getByJsonBlockId(String id) {
+//        if ("earliest".equalsIgnoreCase(id)) {
+//            return blockchain.getBlockByNumber(0);
+//        } else if ("latest".equalsIgnoreCase(id)) {
+//            return blockchain.getBestBlock();
+//        } else if ("pending".equalsIgnoreCase(id)) {
+//            return null;
+//        } else {
+//            long blockNumber = StringHexToBigInteger(id).longValue();
+//            return blockchain.getBlockByNumber(blockNumber);
+//        }
+//    }
 
-    private Repository getRepoByJsonBlockId(String id) {
-        if ("pending".equalsIgnoreCase(id)) {
-            return pendingState.getRepository();
-        } else {
-            Block block = getByJsonBlockId(id);
-            return this.repository.getSnapshotTo(block.getStateRoot());
-        }
-    }
+//    private Repository getRepoByJsonBlockId(String id) {
+//        if ("pending".equalsIgnoreCase(id)) {
+//            return pendingState.getRepository();
+//        } else {
+//            Block block = getByJsonBlockId(id);
+//            return this.repository.getSnapshotTo(block.getStateRoot());
+//        }
+//    }
 
-    private List<Transaction> getTransactionsByJsonBlockId(String id) {
-        if ("pending".equalsIgnoreCase(id)) {
-            return pendingState.getPendingTransactions();
-        } else {
-            Block block = getByJsonBlockId(id);
-            return block != null ? block.getTransactionsList() : null;
-        }
-    }
+//    private List<Transaction> getTransactionsByJsonBlockId(String id) {
+//        if ("pending".equalsIgnoreCase(id)) {
+//            return pendingState.getPendingTransactions();
+//        } else {
+//            Block block = getByJsonBlockId(id);
+//            return block != null ? block.getTransactionsList() : null;
+//        }
+//    }
 
     protected Account getAccount(String address) throws Exception {
         return accounts.get(new ByteArrayWrapper(StringHexToByteArray(address)));
     }
 
     protected Account addAccount(String seed) {
-        return addAccount(ECKey.fromPrivate(sha3(seed.getBytes())));
+//        return addAccount(ECKey.fromPrivate(encAPI.sha3Encode(seed.getBytes())));
+    		return addAccount((KeyPairs)null);
     }
 
     protected Account addAccount(KeyPairs key) {
-        Account account = new Account();
-        account.init(key);
-        accounts.put(new ByteArrayWrapper(account.getAddress()), account);
-        return account;
+        Account.Builder account = Account.newBuilder();
+//        account.init(key);
+//        accounts.put(new ByteArrayWrapper(account.getAddress()), account);
+        return account.build();
     }
 
     public String web3_clientVersion() {
 
-        String s = "EthereumJ" + "/v" + config.projectVersion() + "/" +
-                System.getProperty("os.name") + "/Java1.7/" + config.projectVersionModifier() + "-" + BuildInfo.buildHash;
+//        String s = "EthereumJ" + "/v" + config.projectVersion() + "/" +
+//                System.getProperty("os.name") + "/Java1.7/" + config.projectVersionModifier() + "-" + BuildInfo.buildHash;
+
+        String s = "EthereumJ" + System.getProperty("os.name") + "/Java1.7";
         if (log.isDebugEnabled()) log.debug("web3_clientVersion(): " + s);
         return s;
     };
@@ -210,7 +209,7 @@ public class JsonRpcImpl implements JsonRpc {
     public String  web3_sha3(String data) throws Exception {
         String s = null;
         try {
-            byte[] result = HashUtil.sha3(TypeConverter.StringHexToByteArray(data));
+            byte[] result = encAPI.sha3Encode(TypeConverter.StringHexToByteArray(data));
             return s = TypeConverter.toJsonHex(result);
         } finally {
             if (log.isDebugEnabled()) log.debug("web3_sha3(" + data + "): " + s);
@@ -226,34 +225,34 @@ public class JsonRpcImpl implements JsonRpc {
         }
     }
 
-    public String net_peerCount(){
-        String s = null;
-        try {
-            int n = channelManager.getActivePeers().size();
-            return s = TypeConverter.toJsonHex(n);
-        } finally {
-            if (log.isDebugEnabled()) log.debug("net_peerCount(): " + s);
-        }
-    }
+//    public String net_peerCount(){
+//        String s = null;
+//        try {
+//            int n = channelManager.getActivePeers().size();
+//            return s = TypeConverter.toJsonHex(n);
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("net_peerCount(): " + s);
+//        }
+//    }
 
-    public boolean net_listening() {
-        Boolean s = null;
-        try {
-            return s = peerServer.isListening();
-        }finally {
-            if (log.isDebugEnabled()) log.debug("net_listening(): " + s);
-        }
-    }
+//    public boolean net_listening() {
+//        Boolean s = null;
+//        try {
+//            return s = peerServer.isListening();
+//        }finally {
+//            if (log.isDebugEnabled()) log.debug("net_listening(): " + s);
+//        }
+//    }
 
     public String eth_protocolVersion(){
         String s = null;
         try {
             int version = 0;
-            for (Capability capability : configCapabilities.getConfigCapabilities()) {
-                if (capability.isEth()) {
-                    version = max(version, capability.getVersion());
-                }
-            }
+//            for (Capability capability : configCapabilities.getConfigCapabilities()) {
+//                if (capability.isEth()) {
+//                    version = max(version, capability.getVersion());
+//                }
+//            }
             return s = Integer.toString(version);
         } finally {
             if (log.isDebugEnabled()) log.debug("eth_protocolVersion(): " + s);
@@ -264,8 +263,8 @@ public class JsonRpcImpl implements JsonRpc {
         SyncingResult s = new SyncingResult();
         try {
             s.startingBlock = TypeConverter.toJsonHex(initialBlockNumber);
-            s.currentBlock = TypeConverter.toJsonHex(blockchain.getBestBlock().getNumber());
-            s.highestBlock = TypeConverter.toJsonHex(syncManager.getLastKnownBlockNumber());
+//            s.currentBlock = TypeConverter.toJsonHex(blockchain.getBestBlock().getNumber());
+//            s.highestBlock = TypeConverter.toJsonHex(syncManager.getLastKnownBlockNumber());
 
             return s;
         }finally {
@@ -273,23 +272,23 @@ public class JsonRpcImpl implements JsonRpc {
         }
     };
 
-    public String eth_coinbase() {
-        String s = null;
-        try {
-            return s = toJsonHex(blockchain.getMinerCoinbase());
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_coinbase(): " + s);
-        }
-    }
+//    public String eth_coinbase() {
+//        String s = null;
+//        try {
+//            return s = toJsonHex(blockchain.getMinerCoinbase());
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_coinbase(): " + s);
+//        }
+//    }
 
-    public boolean eth_mining() {
-        Boolean s = null;
-        try {
-            return s = blockMiner.isMining();
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_mining(): " + s);
-        }
-    }
+//    public boolean eth_mining() {
+//        Boolean s = null;
+//        try {
+//            return s = blockMiner.isMining();
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_mining(): " + s);
+//        }
+//    }
 
 
     public String eth_hashrate() {
@@ -301,14 +300,14 @@ public class JsonRpcImpl implements JsonRpc {
         }
     }
 
-    public String eth_gasPrice(){
-        String s = null;
-        try {
-            return s = TypeConverter.toJsonHex(eth.getGasPrice());
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_gasPrice(): " + s);
-        }
-    }
+//    public String eth_gasPrice(){
+//        String s = null;
+//        try {
+//            return s = TypeConverter.toJsonHex(eth.getGasPrice());
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_gasPrice(): " + s);
+//        }
+//    }
 
     public String[] eth_accounts() {
         String[] s = null;
@@ -319,31 +318,31 @@ public class JsonRpcImpl implements JsonRpc {
         }
     }
 
-    public String eth_blockNumber(){
-        String s = null;
-        try {
-            Block bestBlock = blockchain.getBestBlock();
-            long b = 0;
-            if (bestBlock != null) {
-                b = bestBlock.getNumber();
-            }
-            return s = TypeConverter.toJsonHex(b);
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_blockNumber(): " + s);
-        }
-    }
+//    public String eth_blockNumber(){
+//        String s = null;
+//        try {
+//            Block bestBlock = blockchain.getBestBlock();
+//            long b = 0;
+//            if (bestBlock != null) {
+//                b = bestBlock.getNumber();
+//            }
+//            return s = TypeConverter.toJsonHex(b);
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_blockNumber(): " + s);
+//        }
+//    }
 
 
-    public String eth_getBalance(String address, String blockId) throws Exception {
-        String s = null;
-        try {
-            byte[] addressAsByteArray = TypeConverter.StringHexToByteArray(address);
-            BigInteger balance = getRepoByJsonBlockId(blockId).getBalance(addressAsByteArray);
-            return s = TypeConverter.toJsonHex(balance);
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_getBalance(" + address + ", " + blockId + "): " + s);
-        }
-    }
+//    public String eth_getBalance(String address, String blockId) throws Exception {
+//        String s = null;
+//        try {
+//            byte[] addressAsByteArray = TypeConverter.StringHexToByteArray(address);
+//            BigInteger balance = getRepoByJsonBlockId(blockId).getBalance(addressAsByteArray);
+//            return s = TypeConverter.toJsonHex(balance);
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_getBalance(" + address + ", " + blockId + "): " + s);
+//        }
+//    }
 
     public String eth_getBalance(String address) throws Exception {
         String s = null;
@@ -354,194 +353,194 @@ public class JsonRpcImpl implements JsonRpc {
         }
     }
 
-    @Override
-    public String eth_getStorageAt(String address, String storageIdx, String blockId) throws Exception {
-        String s = null;
-        try {
-            byte[] addressAsByteArray = StringHexToByteArray(address);
-            DataWord storageValue = getRepoByJsonBlockId(blockId).
-                    getStorageValue(addressAsByteArray, new DataWord(StringHexToByteArray(storageIdx)));
-            return s = TypeConverter.toJsonHex(storageValue.getData());
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_getStorageAt(" + address + ", " + storageIdx + ", " + blockId + "): " + s);
-        }
-    }
+//    @Override
+//    public String eth_getStorageAt(String address, String storageIdx, String blockId) throws Exception {
+//        String s = null;
+//        try {
+//            byte[] addressAsByteArray = StringHexToByteArray(address);
+//            DataWord storageValue = getRepoByJsonBlockId(blockId).
+//                    getStorageValue(addressAsByteArray, new DataWord(StringHexToByteArray(storageIdx)));
+//            return s = TypeConverter.toJsonHex(storageValue.getData());
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_getStorageAt(" + address + ", " + storageIdx + ", " + blockId + "): " + s);
+//        }
+//    }
 
-    @Override
-    public String eth_getTransactionCount(String address, String blockId) throws Exception {
-        String s = null;
-        try {
-            byte[] addressAsByteArray = TypeConverter.StringHexToByteArray(address);
-            BigInteger nonce = getRepoByJsonBlockId(blockId).getNonce(addressAsByteArray);
-            return s = TypeConverter.toJsonHex(nonce);
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_getTransactionCount(" + address + ", " + blockId + "): " + s);
-        }
-    }
+//    @Override
+//    public String eth_getTransactionCount(String address, String blockId) throws Exception {
+//        String s = null;
+//        try {
+//            byte[] addressAsByteArray = TypeConverter.StringHexToByteArray(address);
+//            BigInteger nonce = getRepoByJsonBlockId(blockId).getNonce(addressAsByteArray);
+//            return s = TypeConverter.toJsonHex(nonce);
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_getTransactionCount(" + address + ", " + blockId + "): " + s);
+//        }
+//    }
 
-    public String eth_getBlockTransactionCountByHash(String blockHash) throws Exception {
-        String s = null;
-        try {
-            Block b = getBlockByJSonHash(blockHash);
-            if (b == null) return null;
-            long n = b.getTransactionsList().size();
-            return s = TypeConverter.toJsonHex(n);
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_getBlockTransactionCountByHash(" + blockHash + "): " + s);
-        }
-    }
+//    public String eth_getBlockTransactionCountByHash(String blockHash) throws Exception {
+//        String s = null;
+//        try {
+//            Block b = getBlockByJSonHash(blockHash);
+//            if (b == null) return null;
+//            long n = b.getTransactionsList().size();
+//            return s = TypeConverter.toJsonHex(n);
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_getBlockTransactionCountByHash(" + blockHash + "): " + s);
+//        }
+//    }
 
-    public String eth_getBlockTransactionCountByNumber(String bnOrId) throws Exception {
-        String s = null;
-        try {
-            List<Transaction> list = getTransactionsByJsonBlockId(bnOrId);
-            if (list == null) return null;
-            long n = list.size();
-            return s = TypeConverter.toJsonHex(n);
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_getBlockTransactionCountByNumber(" + bnOrId + "): " + s);
-        }
-    }
+//    public String eth_getBlockTransactionCountByNumber(String bnOrId) throws Exception {
+//        String s = null;
+//        try {
+//            List<Transaction> list = getTransactionsByJsonBlockId(bnOrId);
+//            if (list == null) return null;
+//            long n = list.size();
+//            return s = TypeConverter.toJsonHex(n);
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_getBlockTransactionCountByNumber(" + bnOrId + "): " + s);
+//        }
+//    }
 
-    public String eth_getUncleCountByBlockHash(String blockHash) throws Exception {
-        String s = null;
-        try {
-            Block b = getBlockByJSonHash(blockHash);
-            if (b == null) return null;
-            long n = b.getUncleList().size();
-            return s = TypeConverter.toJsonHex(n);
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_getUncleCountByBlockHash(" + blockHash + "): " + s);
-        }
-    }
+//    public String eth_getUncleCountByBlockHash(String blockHash) throws Exception {
+//        String s = null;
+//        try {
+//            Block b = getBlockByJSonHash(blockHash);
+//            if (b == null) return null;
+//            long n = b.getUncleList().size();
+//            return s = TypeConverter.toJsonHex(n);
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_getUncleCountByBlockHash(" + blockHash + "): " + s);
+//        }
+//    }
 
-    public String eth_getUncleCountByBlockNumber(String bnOrId) throws Exception {
-        String s = null;
-        try {
-            Block b = getByJsonBlockId(bnOrId);
-            if (b == null) return null;
-            long n = b.getUncleList().size();
-            return s = TypeConverter.toJsonHex(n);
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_getUncleCountByBlockNumber(" + bnOrId + "): " + s);
-        }
-    }
+//    public String eth_getUncleCountByBlockNumber(String bnOrId) throws Exception {
+//        String s = null;
+//        try {
+//            Block b = getByJsonBlockId(bnOrId);
+//            if (b == null) return null;
+//            long n = b.getUncleList().size();
+//            return s = TypeConverter.toJsonHex(n);
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_getUncleCountByBlockNumber(" + bnOrId + "): " + s);
+//        }
+//    }
 
-    public String eth_getCode(String address, String blockId) throws Exception {
-        String s = null;
-        try {
-            byte[] addressAsByteArray = TypeConverter.StringHexToByteArray(address);
-            byte[] code = getRepoByJsonBlockId(blockId).getCode(addressAsByteArray);
-            return s = TypeConverter.toJsonHex(code);
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_getCode(" + address + ", " + blockId + "): " + s);
-        }
-    }
+//    public String eth_getCode(String address, String blockId) throws Exception {
+//        String s = null;
+//        try {
+//            byte[] addressAsByteArray = TypeConverter.StringHexToByteArray(address);
+//            byte[] code = getRepoByJsonBlockId(blockId).getCode(addressAsByteArray);
+//            return s = TypeConverter.toJsonHex(code);
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_getCode(" + address + ", " + blockId + "): " + s);
+//        }
+//    }
 
-    public String eth_sign(String addr,String data) throws Exception {
-        String s = null;
-        try {
-            String ha = JSonHexToHex(addr);
-            Account account = getAccount(ha);
+//    public String eth_sign(String addr,String data) throws Exception {
+//        String s = null;
+//        try {
+//            String ha = JSonHexToHex(addr);
+//            Account account = getAccount(ha);
+//
+//            if (account==null)
+//                throw new Exception("Inexistent account");
+//
+//            // Todo: is not clear from the spec what hash function must be used to sign
+//            byte[] masgHash= HashUtil.sha3(TypeConverter.StringHexToByteArray(data));
+//            ECKey.ECDSASignature signature = account.getEcKey().sign(masgHash);
+//            // Todo: is not clear if result should be RlpEncoded or serialized by other means
+//            byte[] rlpSig = RLP.encode(signature);
+//            return s = TypeConverter.toJsonHex(rlpSig);
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_sign(" + addr + ", " + data + "): " + s);
+//        }
+//    }
 
-            if (account==null)
-                throw new Exception("Inexistent account");
+//    public String eth_sendTransaction(CallArguments args) throws Exception {
+//
+//        String s = null;
+//        try {
+//            Account account = getAccount(JSonHexToHex(args.from));
+//
+//            if (account == null)
+//                throw new Exception("From address private key could not be found in this node");
+//
+//            if (args.data != null && args.data.startsWith("0x"))
+//                args.data = args.data.substring(2);
+//
+//            MultiTransaction tx = new MultiTransaction(
+//                    args.nonce != null ? StringHexToByteArray(args.nonce) : bigIntegerToBytes(pendingState.getRepository().getNonce(account.getAddress())),
+//                    args.gasPrice != null ? StringHexToByteArray(args.gasPrice) : ByteUtil.longToBytesNoLeadZeroes(eth.getGasPrice()),
+//                    args.gas != null ? StringHexToByteArray(args.gas) : ByteUtil.longToBytes(90_000),
+//                    args.to != null ? StringHexToByteArray(args.to) : EMPTY_BYTE_ARRAY,
+//                    args.value != null ? StringHexToByteArray(args.value) : EMPTY_BYTE_ARRAY,
+//                    args.data != null ? StringHexToByteArray(args.data) : EMPTY_BYTE_ARRAY,
+//                    eth.getChainIdForNextBlock());
+//            tx.sign(account.getEcKey().getPrivKeyBytes());
+//
+//            eth.submitTransaction(tx);
+//
+//            return s = TypeConverter.toJsonHex(tx.getHash());
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_sendTransaction(" + args + "): " + s);
+//        }
+//    }
 
-            // Todo: is not clear from the spec what hash function must be used to sign
-            byte[] masgHash= HashUtil.sha3(TypeConverter.StringHexToByteArray(data));
-            ECKey.ECDSASignature signature = account.getEcKey().sign(masgHash);
-            // Todo: is not clear if result should be RlpEncoded or serialized by other means
-            byte[] rlpSig = RLP.encode(signature);
-            return s = TypeConverter.toJsonHex(rlpSig);
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_sign(" + addr + ", " + data + "): " + s);
-        }
-    }
+//    public String eth_sendTransaction(String from, String to, String gas,
+//                                      String gasPrice, String value,String data,String nonce) throws Exception {
+//        String s = null;
+//        try {
+//        		MultiTransaction tx = new MultiTransaction(
+//                    TypeConverter.StringHexToByteArray(nonce),
+//                    TypeConverter.StringHexToByteArray(gasPrice),
+//                    TypeConverter.StringHexToByteArray(gas),
+//                    TypeConverter.StringHexToByteArray(to), /*receiveAddress*/
+//                    TypeConverter.StringHexToByteArray(value),
+//                    TypeConverter.StringHexToByteArray(data),
+//                    eth.getChainIdForNextBlock());
+//
+//            Account account = getAccount(from);
+//            if (account == null) throw new RuntimeException("No account " + from);
+//
+//            tx.sign(account.getEcKey());
+//
+//            eth.submitTransaction(tx);
+//
+//            return s = TypeConverter.toJsonHex(tx.getHash());
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_sendTransaction(" +
+//                    "from = [" + from + "], to = [" + to + "], gas = [" + gas + "], gasPrice = [" + gasPrice +
+//                    "], value = [" + value + "], data = [" + data + "], nonce = [" + nonce + "]" + "): " + s);
+//        }
+//    }
 
-    public String eth_sendTransaction(CallArguments args) throws Exception {
+//    public String eth_sendRawTransaction(String rawData) throws Exception {
+//        String s = null;
+//        try {
+//        		MultiTransaction tx = new MultiTransaction(StringHexToByteArray(rawData));
+//            tx.verify();
+//
+//            eth.submitTransaction(tx);
+//
+//            return s = TypeConverter.toJsonHex(tx.getHash());
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_sendRawTransaction(" + rawData + "): " + s);
+//        }
+//    }
 
-        String s = null;
-        try {
-            Account account = getAccount(JSonHexToHex(args.from));
+//    public TransactionReceipt createCallTxAndExecute(CallArguments args, Block block) throws Exception {
+//        Repository repository = ((Repository) worldManager.getRepository())
+//                .getSnapshotTo(block.getStateRoot())
+//                .startTracking();
+//
+//        return createCallTxAndExecute(args, block, repository, worldManager.getBlockStore());
+//    }
 
-            if (account == null)
-                throw new Exception("From address private key could not be found in this node");
-
-            if (args.data != null && args.data.startsWith("0x"))
-                args.data = args.data.substring(2);
-
-            Transaction tx = new Transaction(
-                    args.nonce != null ? StringHexToByteArray(args.nonce) : bigIntegerToBytes(pendingState.getRepository().getNonce(account.getAddress())),
-                    args.gasPrice != null ? StringHexToByteArray(args.gasPrice) : ByteUtil.longToBytesNoLeadZeroes(eth.getGasPrice()),
-                    args.gas != null ? StringHexToByteArray(args.gas) : ByteUtil.longToBytes(90_000),
-                    args.to != null ? StringHexToByteArray(args.to) : EMPTY_BYTE_ARRAY,
-                    args.value != null ? StringHexToByteArray(args.value) : EMPTY_BYTE_ARRAY,
-                    args.data != null ? StringHexToByteArray(args.data) : EMPTY_BYTE_ARRAY,
-                    eth.getChainIdForNextBlock());
-            tx.sign(account.getEcKey().getPrivKeyBytes());
-
-            eth.submitTransaction(tx);
-
-            return s = TypeConverter.toJsonHex(tx.getHash());
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_sendTransaction(" + args + "): " + s);
-        }
-    }
-
-    public String eth_sendTransaction(String from, String to, String gas,
-                                      String gasPrice, String value,String data,String nonce) throws Exception {
-        String s = null;
-        try {
-            Transaction tx = new Transaction(
-                    TypeConverter.StringHexToByteArray(nonce),
-                    TypeConverter.StringHexToByteArray(gasPrice),
-                    TypeConverter.StringHexToByteArray(gas),
-                    TypeConverter.StringHexToByteArray(to), /*receiveAddress*/
-                    TypeConverter.StringHexToByteArray(value),
-                    TypeConverter.StringHexToByteArray(data),
-                    eth.getChainIdForNextBlock());
-
-            Account account = getAccount(from);
-            if (account == null) throw new RuntimeException("No account " + from);
-
-            tx.sign(account.getEcKey());
-
-            eth.submitTransaction(tx);
-
-            return s = TypeConverter.toJsonHex(tx.getHash());
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_sendTransaction(" +
-                    "from = [" + from + "], to = [" + to + "], gas = [" + gas + "], gasPrice = [" + gasPrice +
-                    "], value = [" + value + "], data = [" + data + "], nonce = [" + nonce + "]" + "): " + s);
-        }
-    }
-
-    public String eth_sendRawTransaction(String rawData) throws Exception {
-        String s = null;
-        try {
-            Transaction tx = new Transaction(StringHexToByteArray(rawData));
-            tx.verify();
-
-            eth.submitTransaction(tx);
-
-            return s = TypeConverter.toJsonHex(tx.getHash());
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_sendRawTransaction(" + rawData + "): " + s);
-        }
-    }
-
-    public TransactionReceipt createCallTxAndExecute(CallArguments args, Block block) throws Exception {
-        Repository repository = ((Repository) worldManager.getRepository())
-                .getSnapshotTo(block.getStateRoot())
-                .startTracking();
-
-        return createCallTxAndExecute(args, block, repository, worldManager.getBlockStore());
-    }
-
-    public TransactionReceipt createCallTxAndExecute(CallArguments args, Block block, Repository repository, BlockStore blockStore) throws Exception {
+    public TransactionReceipt createCallTxAndExecute(CallArguments args, Block block, Repository repository, BlockHeader blockStore) throws Exception {
         BinaryCallArguments bca = new BinaryCallArguments();
         bca.setArguments(args);
-        Transaction tx = CallTransaction.createRawTransaction(0,
+        MultiTransaction tx = CallTransaction.createRawTransaction(0,
                 bca.gasPrice,
                 bca.gasLimit,
                 bca.toAddress,
@@ -549,25 +548,27 @@ public class JsonRpcImpl implements JsonRpc {
                 bca.data);
 
         // put mock signature if not present
-        if (tx.getSignature() == null) {
-            tx.sign(ECKey.fromPrivate(new byte[32]));
-        }
+//        if (tx.getSignature() == null) {
+//            tx.sign(ECKey.fromPrivate(new byte[32]));
+//        }
 
         try {
-            TransactionExecutor executor = new TransactionExecutor
-                    (tx, block.getCoinbase(), repository, blockStore,
-                            programInvokeFactory, block, new EthereumListenerAdapter(), 0)
-                    .withCommonConfig(commonConfig)
-                    .setLocalCall(true);
+//            TransactionExecutor executor = new TransactionExecutor
+//                    (tx, block.getCoinbase(), repository, blockStore,
+//                            programInvokeFactory, block, new EthereumListenerAdapter(), 0)
+//                    .withCommonConfig(commonConfig)
+//                    .setLocalCall(true);
+        	TransactionExecutor executor = new TransactionExecutor(tx, null, repository, blockStore,null, block, 0)
+        									.withCommonConfig().setLocalCall(true);
 
             executor.init();
             executor.execute();
             executor.go();
-            executor.finalization();
+//            executor.finalization();
 
             return executor.getReceipt();
         } finally {
-            repository.rollback();
+//            repository.rollback();
         }
     }
 
@@ -577,257 +578,258 @@ public class JsonRpcImpl implements JsonRpc {
         try {
             TransactionReceipt res;
             if ("pending".equals(bnOrId)) {
-                Block pendingBlock = blockchain.createNewBlock(blockchain.getBestBlock(), pendingState.getPendingTransactions(), Collections.<BlockHeader>emptyList());
-                res = createCallTxAndExecute(args, pendingBlock, pendingState.getRepository(), worldManager.getBlockStore());
+//                Block pendingBlock = blockchain.createNewBlock(blockchain.getBestBlock(), pendingState.getPendingTransactions(), Collections.<BlockHeader>emptyList());
+//                res = createCallTxAndExecute(args, pendingBlock, pendingState.getRepository(), worldManager.getBlockStore());
             } else {
-                res = createCallTxAndExecute(args, getByJsonBlockId(bnOrId));
+//                res = createCallTxAndExecute(args, getByJsonBlockId(bnOrId));
             }
-            return s = TypeConverter.toJsonHex(res.getExecutionResult());
+//            return s = TypeConverter.toJsonHex(res.getExecutionResult());
+            return null;
         } finally {
             if (log.isDebugEnabled()) log.debug("eth_call(" + args + "): " + s);
         }
     }
 
-    public String eth_estimateGas(CallArguments args) throws Exception {
-        String s = null;
-        try {
-            TransactionReceipt res = createCallTxAndExecute(args, blockchain.getBestBlock());
-            return s = TypeConverter.toJsonHex(res.getGasUsed());
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_estimateGas(" + args + "): " + s);
-        }
-    }
+//    public String eth_estimateGas(CallArguments args) throws Exception {
+//        String s = null;
+//        try {
+//            TransactionReceipt res = createCallTxAndExecute(args, blockchain.getBestBlock());
+//            return s = TypeConverter.toJsonHex(res.getGasUsed());
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_estimateGas(" + args + "): " + s);
+//        }
+//    }
 
 
     public BlockResult getBlockResult(Block b, boolean fullTx) {
         if (b==null)
             return null;
-        boolean isPending = ByteUtil.byteArrayToLong(b.getNonce()) == 0;
+//        boolean isPending = ByteUtil.byteArrayToLong(b.getNonce()) == 0;
         BlockResult br = new BlockResult();
-        br.number = isPending ? null : TypeConverter.toJsonHex(b.getNumber());
-        br.hash = isPending ? null : TypeConverter.toJsonHex(b.getHash());
-        br.parentHash = TypeConverter.toJsonHex(b.getParentHash());
-        br.nonce = isPending ? null : TypeConverter.toJsonHex(b.getNonce());
-        br.sha3Uncles= TypeConverter.toJsonHex(b.getUnclesHash());
-        br.logsBloom = isPending ? null : TypeConverter.toJsonHex(b.getLogBloom());
-        br.transactionsRoot =TypeConverter.toJsonHex(b.getTxTrieRoot());
-        br.stateRoot = TypeConverter.toJsonHex(b.getStateRoot());
-        br.receiptsRoot =TypeConverter.toJsonHex(b.getReceiptsRoot());
-        br.miner = isPending ? null : TypeConverter.toJsonHex(b.getCoinbase());
-        br.difficulty = TypeConverter.toJsonHex(b.getDifficulty());
-        br.totalDifficulty = TypeConverter.toJsonHex(blockchain.getTotalDifficulty());
-        if (b.getExtraData() != null)
-            br.extraData =TypeConverter.toJsonHex(b.getExtraData());
-        br.size = TypeConverter.toJsonHex(b.getEncoded().length);
-        br.gasLimit =TypeConverter.toJsonHex(b.getGasLimit());
-        br.gasUsed =TypeConverter.toJsonHex(b.getGasUsed());
-        br.timestamp =TypeConverter.toJsonHex(b.getTimestamp());
-
-        List<Object> txes = new ArrayList<>();
-        if (fullTx) {
-            for (int i = 0; i < b.getTransactionsList().size(); i++) {
-                txes.add(new TransactionResultDTO(b, i, b.getTransactionsList().get(i)));
-            }
-        } else {
-            for (Transaction tx : b.getTransactionsList()) {
-                txes.add(toJsonHex(tx.getHash()));
-            }
-        }
-        br.transactions = txes.toArray();
-
-        List<String> ul = new ArrayList<>();
-        for (BlockHeader header : b.getUncleList()) {
-            ul.add(toJsonHex(header.getHash()));
-        }
-        br.uncles = ul.toArray(new String[ul.size()]);
+//        br.number = isPending ? null : TypeConverter.toJsonHex(b.getNumber());
+//        br.hash = isPending ? null : TypeConverter.toJsonHex(b.getHash());
+//        br.parentHash = TypeConverter.toJsonHex(b.getParentHash());
+//        br.nonce = isPending ? null : TypeConverter.toJsonHex(b.getNonce());
+//        br.sha3Uncles= TypeConverter.toJsonHex(b.getUnclesHash());
+//        br.logsBloom = isPending ? null : TypeConverter.toJsonHex(b.getLogBloom());
+//        br.transactionsRoot =TypeConverter.toJsonHex(b.getTxTrieRoot());
+//        br.stateRoot = TypeConverter.toJsonHex(b.getStateRoot());
+//        br.receiptsRoot =TypeConverter.toJsonHex(b.getReceiptsRoot());
+//        br.miner = isPending ? null : TypeConverter.toJsonHex(b.getCoinbase());
+//        br.difficulty = TypeConverter.toJsonHex(b.getDifficulty());
+//        br.totalDifficulty = TypeConverter.toJsonHex(blockchain.getTotalDifficulty());
+//        if (b.getExtraData() != null)
+//            br.extraData =TypeConverter.toJsonHex(b.getExtraData());
+//        br.size = TypeConverter.toJsonHex(b.getEncoded().length);
+//        br.gasLimit =TypeConverter.toJsonHex(b.getGasLimit());
+//        br.gasUsed =TypeConverter.toJsonHex(b.getGasUsed());
+//        br.timestamp =TypeConverter.toJsonHex(b.getTimestamp());
+//
+//        List<Object> txes = new ArrayList<>();
+//        if (fullTx) {
+//            for (int i = 0; i < b.getTransactionsList().size(); i++) {
+//                txes.add(new TransactionResultDTO(b, i, b.getTransactionsList().get(i)));
+//            }
+//        } else {
+//            for (Transaction tx : b.getTransactionsList()) {
+//                txes.add(toJsonHex(tx.getHash()));
+//            }
+//        }
+//        br.transactions = txes.toArray();
+//
+//        List<String> ul = new ArrayList<>();
+//        for (BlockHeader header : b.getUncleList()) {
+//            ul.add(toJsonHex(header.getHash()));
+//        }
+//        br.uncles = ul.toArray(new String[ul.size()]);
 
         return br;
     }
 
-    public BlockResult eth_getBlockByHash(String blockHash,Boolean fullTransactionObjects) throws Exception {
-        BlockResult s = null;
-        try {
-            Block b = getBlockByJSonHash(blockHash);
-            return getBlockResult(b, fullTransactionObjects);
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_getBlockByHash(" +  blockHash + ", " + fullTransactionObjects + "): " + s);
-        }
-    }
+//    public BlockResult eth_getBlockByHash(String blockHash,Boolean fullTransactionObjects) throws Exception {
+//        BlockResult s = null;
+//        try {
+//            Block b = getBlockByJSonHash(blockHash);
+//            return getBlockResult(b, fullTransactionObjects);
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_getBlockByHash(" +  blockHash + ", " + fullTransactionObjects + "): " + s);
+//        }
+//    }
 
-    public BlockResult eth_getBlockByNumber(String bnOrId,Boolean fullTransactionObjects) throws Exception {
-        BlockResult s = null;
-        try {
-            Block b;
-            if ("pending".equalsIgnoreCase(bnOrId)) {
-                b = blockchain.createNewBlock(blockchain.getBestBlock(), pendingState.getPendingTransactions(), Collections.<BlockHeader>emptyList());
-            } else {
-                b = getByJsonBlockId(bnOrId);
-            }
-            return s = (b == null ? null : getBlockResult(b, fullTransactionObjects));
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_getBlockByNumber(" +  bnOrId + ", " + fullTransactionObjects + "): " + s);
-        }
-    }
+//    public BlockResult eth_getBlockByNumber(String bnOrId,Boolean fullTransactionObjects) throws Exception {
+//        BlockResult s = null;
+//        try {
+//            Block b;
+//            if ("pending".equalsIgnoreCase(bnOrId)) {
+//                b = blockchain.createNewBlock(blockchain.getBestBlock(), pendingState.getPendingTransactions(), Collections.<BlockHeader>emptyList());
+//            } else {
+//                b = getByJsonBlockId(bnOrId);
+//            }
+//            return s = (b == null ? null : getBlockResult(b, fullTransactionObjects));
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_getBlockByNumber(" +  bnOrId + ", " + fullTransactionObjects + "): " + s);
+//        }
+//    }
 
-    public TransactionResultDTO eth_getTransactionByHash(String transactionHash) throws Exception {
-        TransactionResultDTO s = null;
-        try {
-            byte[] txHash = StringHexToByteArray(transactionHash);
-            Block block = null;
+//    public TransactionResultDTO eth_getTransactionByHash(String transactionHash) throws Exception {
+//        TransactionResultDTO s = null;
+//        try {
+//            byte[] txHash = StringHexToByteArray(transactionHash);
+//            Block block = null;
+//
+//            TransactionInfo txInfo = blockchain.getTransactionInfo(txHash);
+//
+//            if (txInfo == null) {
+//                TransactionReceipt receipt = pendingReceipts.get(new ByteArrayWrapper(txHash));
+//
+//                if (receipt == null) {
+//                    return null;
+//                }
+//                txInfo = new TransactionInfo(receipt);
+//            } else {
+//                block = blockchain.getBlockByHash(txInfo.getBlockHash());
+//                // need to return txes only from main chain
+//                Block mainBlock = blockchain.getBlockByNumber(block.getNumber());
+//                if (!Arrays.equals(block.getHash(), mainBlock.getHash())) {
+//                    return null;
+//                }
+//                txInfo.setTransaction(block.getTransactionsList().get(txInfo.getIndex()));
+//            }
+//
+//            return s = new TransactionResultDTO(block, txInfo.getIndex(), txInfo.getReceipt().getTransaction());
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_getTransactionByHash(" + transactionHash + "): " + s);
+//        }
+//    }
 
-            TransactionInfo txInfo = blockchain.getTransactionInfo(txHash);
+//    public TransactionResultDTO eth_getTransactionByBlockHashAndIndex(String blockHash,String index) throws Exception {
+//        TransactionResultDTO s = null;
+//        try {
+//            Block b = getBlockByJSonHash(blockHash);
+//            if (b == null) return null;
+//            int idx = JSonHexToInt(index);
+//            if (idx >= b.getTransactionsList().size()) return null;
+//            Transaction tx = b.getTransactionsList().get(idx);
+//            return s = new TransactionResultDTO(b, idx, tx);
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_getTransactionByBlockHashAndIndex(" + blockHash + ", " + index + "): " + s);
+//        }
+//    }
 
-            if (txInfo == null) {
-                TransactionReceipt receipt = pendingReceipts.get(new ByteArrayWrapper(txHash));
+//    public TransactionResultDTO eth_getTransactionByBlockNumberAndIndex(String bnOrId, String index) throws Exception {
+//        TransactionResultDTO s = null;
+//        try {
+//            Block b = getByJsonBlockId(bnOrId);
+//            List<Transaction> txs = getTransactionsByJsonBlockId(bnOrId);
+//            if (txs == null) return null;
+//            int idx = JSonHexToInt(index);
+//            if (idx >= txs.size()) return null;
+//            Transaction tx = txs.get(idx);
+//            return s = new TransactionResultDTO(b, idx, tx);
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_getTransactionByBlockNumberAndIndex(" + bnOrId + ", " + index + "): " + s);
+//        }
+//    }
 
-                if (receipt == null) {
-                    return null;
-                }
-                txInfo = new TransactionInfo(receipt);
-            } else {
-                block = blockchain.getBlockByHash(txInfo.getBlockHash());
-                // need to return txes only from main chain
-                Block mainBlock = blockchain.getBlockByNumber(block.getNumber());
-                if (!Arrays.equals(block.getHash(), mainBlock.getHash())) {
-                    return null;
-                }
-                txInfo.setTransaction(block.getTransactionsList().get(txInfo.getIndex()));
-            }
+//    public TransactionReceiptDTO eth_getTransactionReceipt(String transactionHash) throws Exception {
+//        TransactionReceiptDTO s = null;
+//        try {
+//            byte[] hash = TypeConverter.StringHexToByteArray(transactionHash);
+//
+//            TransactionReceipt pendingReceipt = pendingReceipts.get(new ByteArrayWrapper(hash));
+//
+//            TransactionInfo txInfo;
+//            Block block;
+//
+//            if (pendingReceipt != null) {
+//                txInfo = new TransactionInfo(pendingReceipt);
+//                block = null;
+//            } else {
+//                txInfo = blockchain.getTransactionInfo(hash);
+//
+//                if (txInfo == null)
+//                    return null;
+//
+//                block = blockchain.getBlockByHash(txInfo.getBlockHash());
+//
+//                // need to return txes only from main chain
+//                Block mainBlock = blockchain.getBlockByNumber(block.getNumber());
+//                if (!Arrays.equals(block.getHash(), mainBlock.getHash())) {
+//                    return null;
+//                }
+//            }
+//
+//            return s = new TransactionReceiptDTO(block, txInfo);
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_getTransactionReceipt(" + transactionHash + "): " + s);
+//        }
+//    }
 
-            return s = new TransactionResultDTO(block, txInfo.getIndex(), txInfo.getReceipt().getTransaction());
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_getTransactionByHash(" + transactionHash + "): " + s);
-        }
-    }
+//    @Override
+//    public TransactionReceiptDTOExt ethj_getTransactionReceipt(String transactionHash) throws Exception {
+//        TransactionReceiptDTOExt s = null;
+//        try {
+//            byte[] hash = TypeConverter.StringHexToByteArray(transactionHash);
+//
+//            TransactionReceipt pendingReceipt = pendingReceipts.get(new ByteArrayWrapper(hash));
+//
+//            TransactionInfo txInfo;
+//            Block block;
+//
+//            if (pendingReceipt != null) {
+//                txInfo = new TransactionInfo(pendingReceipt);
+//                block = null;
+//            } else {
+//                txInfo = blockchain.getTransactionInfo(hash);
+//
+//                if (txInfo == null)
+//                    return null;
+//
+//                block = blockchain.getBlockByHash(txInfo.getBlockHash());
+//
+//                // need to return txes only from main chain
+//                Block mainBlock = blockchain.getBlockByNumber(block.getNumber());
+//                if (!Arrays.equals(block.getHash(), mainBlock.getHash())) {
+//                    return null;
+//                }
+//            }
+//
+//            return s = new TransactionReceiptDTOExt(block, txInfo);
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_getTransactionReceipt(" + transactionHash + "): " + s);
+//        }
+//    }
 
-    public TransactionResultDTO eth_getTransactionByBlockHashAndIndex(String blockHash,String index) throws Exception {
-        TransactionResultDTO s = null;
-        try {
-            Block b = getBlockByJSonHash(blockHash);
-            if (b == null) return null;
-            int idx = JSonHexToInt(index);
-            if (idx >= b.getTransactionsList().size()) return null;
-            Transaction tx = b.getTransactionsList().get(idx);
-            return s = new TransactionResultDTO(b, idx, tx);
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_getTransactionByBlockHashAndIndex(" + blockHash + ", " + index + "): " + s);
-        }
-    }
+//    @Override
+//    public BlockResult eth_getUncleByBlockHashAndIndex(String blockHash, String uncleIdx) throws Exception {
+//        BlockResult s = null;
+//        try {
+//            Block block = blockchain.getBlockByHash(StringHexToByteArray(blockHash));
+//            if (block == null) return null;
+//            int idx = JSonHexToInt(uncleIdx);
+//            if (idx >= block.getUncleList().size()) return null;
+//            BlockHeader uncleHeader = block.getUncleList().get(idx);
+//            Block uncle = blockchain.getBlockByHash(uncleHeader.getHash());
+//            if (uncle == null) {
+//                uncle = new Block(uncleHeader, Collections.<Transaction>emptyList(), Collections.<BlockHeader>emptyList());
+//            }
+//            return s = getBlockResult(uncle, false);
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_getUncleByBlockHashAndIndex(" + blockHash + ", " + uncleIdx + "): " + s);
+//        }
+//    }
 
-    public TransactionResultDTO eth_getTransactionByBlockNumberAndIndex(String bnOrId, String index) throws Exception {
-        TransactionResultDTO s = null;
-        try {
-            Block b = getByJsonBlockId(bnOrId);
-            List<Transaction> txs = getTransactionsByJsonBlockId(bnOrId);
-            if (txs == null) return null;
-            int idx = JSonHexToInt(index);
-            if (idx >= txs.size()) return null;
-            Transaction tx = txs.get(idx);
-            return s = new TransactionResultDTO(b, idx, tx);
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_getTransactionByBlockNumberAndIndex(" + bnOrId + ", " + index + "): " + s);
-        }
-    }
-
-    public TransactionReceiptDTO eth_getTransactionReceipt(String transactionHash) throws Exception {
-        TransactionReceiptDTO s = null;
-        try {
-            byte[] hash = TypeConverter.StringHexToByteArray(transactionHash);
-
-            TransactionReceipt pendingReceipt = pendingReceipts.get(new ByteArrayWrapper(hash));
-
-            TransactionInfo txInfo;
-            Block block;
-
-            if (pendingReceipt != null) {
-                txInfo = new TransactionInfo(pendingReceipt);
-                block = null;
-            } else {
-                txInfo = blockchain.getTransactionInfo(hash);
-
-                if (txInfo == null)
-                    return null;
-
-                block = blockchain.getBlockByHash(txInfo.getBlockHash());
-
-                // need to return txes only from main chain
-                Block mainBlock = blockchain.getBlockByNumber(block.getNumber());
-                if (!Arrays.equals(block.getHash(), mainBlock.getHash())) {
-                    return null;
-                }
-            }
-
-            return s = new TransactionReceiptDTO(block, txInfo);
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_getTransactionReceipt(" + transactionHash + "): " + s);
-        }
-    }
-
-    @Override
-    public TransactionReceiptDTOExt ethj_getTransactionReceipt(String transactionHash) throws Exception {
-        TransactionReceiptDTOExt s = null;
-        try {
-            byte[] hash = TypeConverter.StringHexToByteArray(transactionHash);
-
-            TransactionReceipt pendingReceipt = pendingReceipts.get(new ByteArrayWrapper(hash));
-
-            TransactionInfo txInfo;
-            Block block;
-
-            if (pendingReceipt != null) {
-                txInfo = new TransactionInfo(pendingReceipt);
-                block = null;
-            } else {
-                txInfo = blockchain.getTransactionInfo(hash);
-
-                if (txInfo == null)
-                    return null;
-
-                block = blockchain.getBlockByHash(txInfo.getBlockHash());
-
-                // need to return txes only from main chain
-                Block mainBlock = blockchain.getBlockByNumber(block.getNumber());
-                if (!Arrays.equals(block.getHash(), mainBlock.getHash())) {
-                    return null;
-                }
-            }
-
-            return s = new TransactionReceiptDTOExt(block, txInfo);
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_getTransactionReceipt(" + transactionHash + "): " + s);
-        }
-    }
-
-    @Override
-    public BlockResult eth_getUncleByBlockHashAndIndex(String blockHash, String uncleIdx) throws Exception {
-        BlockResult s = null;
-        try {
-            Block block = blockchain.getBlockByHash(StringHexToByteArray(blockHash));
-            if (block == null) return null;
-            int idx = JSonHexToInt(uncleIdx);
-            if (idx >= block.getUncleList().size()) return null;
-            BlockHeader uncleHeader = block.getUncleList().get(idx);
-            Block uncle = blockchain.getBlockByHash(uncleHeader.getHash());
-            if (uncle == null) {
-                uncle = new Block(uncleHeader, Collections.<Transaction>emptyList(), Collections.<BlockHeader>emptyList());
-            }
-            return s = getBlockResult(uncle, false);
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_getUncleByBlockHashAndIndex(" + blockHash + ", " + uncleIdx + "): " + s);
-        }
-    }
-
-    @Override
-    public BlockResult eth_getUncleByBlockNumberAndIndex(String blockId, String uncleIdx) throws Exception {
-        BlockResult s = null;
-        try {
-            Block block = getByJsonBlockId(blockId);
-            return s = block == null ? null :
-                    eth_getUncleByBlockHashAndIndex(toJsonHex(block.getHash()), uncleIdx);
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_getUncleByBlockNumberAndIndex(" + blockId + ", " + uncleIdx + "): " + s);
-        }
-    }
+//    @Override
+//    public BlockResult eth_getUncleByBlockNumberAndIndex(String blockId, String uncleIdx) throws Exception {
+//        BlockResult s = null;
+//        try {
+//            Block block = getByJsonBlockId(blockId);
+//            return s = block == null ? null :
+//                    eth_getUncleByBlockHashAndIndex(toJsonHex(block.getHash()), uncleIdx);
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_getUncleByBlockNumberAndIndex(" + blockId + ", " + uncleIdx + "): " + s);
+//        }
+//    }
 
     @Override
     public String[] eth_getCompilers() {
@@ -844,30 +846,30 @@ public class JsonRpcImpl implements JsonRpc {
         throw new UnsupportedOperationException("LLL compiler not supported");
     }
 
-    @Override
-    public CompilationResult eth_compileSolidity(String contract) throws Exception {
-        CompilationResult s = null;
-        try {
-            SolidityCompiler.Result res = solidityCompiler.compileSrc(
-                    contract.getBytes(), true, true, SolidityCompiler.Options.ABI, SolidityCompiler.Options.BIN);
-            if (res.isFailed()) {
-                throw new RuntimeException("Compilation error: " + res.errors);
-            }
-            org.brewchain.core.solidity.compiler.CompilationResult result = org.brewchain.core.solidity.compiler.CompilationResult.parse(res.output);
-            CompilationResult ret = new CompilationResult();
-            org.brewchain.core.solidity.compiler.CompilationResult.ContractMetadata contractMetadata = result.contracts.values().iterator().next();
-            ret.code = toJsonHex(contractMetadata.bin);
-            ret.info = new CompilationInfo();
-            ret.info.source = contract;
-            ret.info.language = "Solidity";
-            ret.info.languageVersion = "0";
-            ret.info.compilerVersion = result.version;
-            ret.info.abiDefinition = new CallTransaction.Contract(contractMetadata.abi).functions;
-            return s = ret;
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_compileSolidity(" + contract + ")" + s);
-        }
-    }
+//    @Override
+//    public CompilationResult eth_compileSolidity(String contract) throws Exception {
+//        CompilationResult s = null;
+//        try {
+//            SolidityCompiler.Result res = solidityCompiler.compileSrc(
+//                    contract.getBytes(), true, true, SolidityCompiler.Options.ABI, SolidityCompiler.Options.BIN);
+//            if (res.isFailed()) {
+//                throw new RuntimeException("Compilation error: " + res.errors);
+//            }
+//            org.brewchain.core.solidity.compiler.CompilationResult result = org.brewchain.core.solidity.compiler.CompilationResult.parse(res.output);
+//            CompilationResult ret = new CompilationResult();
+//            org.brewchain.core.solidity.compiler.CompilationResult.ContractMetadata contractMetadata = result.contracts.values().iterator().next();
+//            ret.code = toJsonHex(contractMetadata.bin);
+//            ret.info = new CompilationInfo();
+//            ret.info.source = contract;
+//            ret.info.language = "Solidity";
+//            ret.info.languageVersion = "0";
+//            ret.info.compilerVersion = result.version;
+//            ret.info.abiDefinition = new CallTransaction.Contract(contractMetadata.abi).functions;
+//            return s = ret;
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_compileSolidity(" + contract + ")" + s);
+//        }
+//    }
 
     @Override
     public CompilationResult eth_compileSerpent(String contract){
@@ -911,38 +913,38 @@ public class JsonRpcImpl implements JsonRpc {
         public void newPendingTx(Transaction tx) {}
     }
 
-    static class NewBlockFilter extends Filter {
-        class NewBlockFilterEvent extends FilterEvent {
-            public final Block b;
-            NewBlockFilterEvent(Block b) {this.b = b;}
+//    static class NewBlockFilter extends Filter {
+//        class NewBlockFilterEvent extends FilterEvent {
+//            public final Block b;
+//            NewBlockFilterEvent(Block b) {this.b = b;}
+//
+//            @Override
+//            public String getJsonEventObject() {
+//                return toJsonHex(b.getHash());
+//            }
+//        }
+//
+//        public void newBlockReceived(Block b) {
+//            add(new NewBlockFilterEvent(b));
+//        }
+//    }
 
-            @Override
-            public String getJsonEventObject() {
-                return toJsonHex(b.getHash());
-            }
-        }
-
-        public void newBlockReceived(Block b) {
-            add(new NewBlockFilterEvent(b));
-        }
-    }
-
-    static class PendingTransactionFilter extends Filter {
-        class PendingTransactionFilterEvent extends FilterEvent {
-            private final Transaction tx;
-
-            PendingTransactionFilterEvent(Transaction tx) {this.tx = tx;}
-
-            @Override
-            public String getJsonEventObject() {
-                return toJsonHex(tx.getHash());
-            }
-        }
-
-        public void newPendingTx(Transaction tx) {
-            add(new PendingTransactionFilterEvent(tx));
-        }
-    }
+//    static class PendingTransactionFilter extends Filter {
+//        class PendingTransactionFilterEvent extends FilterEvent {
+//            private final MultiTransaction tx;
+//
+//            PendingTransactionFilterEvent(Transaction tx) {this.tx = tx;}
+//
+//            @Override
+//            public String getJsonEventObject() {
+//                return toJsonHex(tx.getHash());
+//            }
+//        }
+//
+//        public void newPendingTx(Transaction tx) {
+//            add(new PendingTransactionFilterEvent(tx));
+//        }
+//    }
 
     class JsonLogFilter extends Filter {
         class LogFilterEvent extends FilterEvent {
@@ -958,51 +960,51 @@ public class JsonRpcImpl implements JsonRpc {
             }
         }
 
-        LogFilter logFilter;
-        boolean onNewBlock;
-        boolean onPendingTx;
+//        LogFilter logFilter;
+//        boolean onNewBlock;
+//        boolean onPendingTx;
+//
+//        public JsonLogFilter(LogFilter logFilter) {
+//            this.logFilter = logFilter;
+//        }
+//
+//        void onLogMatch(LogInfo logInfo, Block b, int txIndex, Transaction tx, int logIdx) {
+//            add(new LogFilterEvent(new LogFilterElement(logInfo, b, txIndex, tx, logIdx)));
+//        }
+//
+//        void onTransactionReceipt(TransactionReceipt receipt, Block b, int txIndex) {
+//            if (logFilter.matchBloom(receipt.getBloomFilter())) {
+//                int logIdx = 0;
+//                for (LogInfo logInfo : receipt.getLogInfoList()) {
+//                    if (logFilter.matchBloom(logInfo.getBloom()) && logFilter.matchesExactly(logInfo)) {
+//                        onLogMatch(logInfo, b, txIndex, receipt.getTransaction(), logIdx);
+//                    }
+//                    logIdx++;
+//                }
+//            }
+//        }
+//
+//        void onTransaction(Transaction tx, Block b, int txIndex) {
+//            if (logFilter.matchesContractAddress(tx.getReceiveAddress())) {
+//                TransactionInfo txInfo = blockchain.getTransactionInfo(tx.getHash());
+//                onTransactionReceipt(txInfo.getReceipt(), b, txIndex);
+//            }
+//        }
+//
+//        void onBlock(Block b) {
+//            if (logFilter.matchBloom(new Bloom(b.getLogBloom()))) {
+//                int txIdx = 0;
+//                for (Transaction tx : b.getTransactionsList()) {
+//                    onTransaction(tx, b, txIdx);
+//                    txIdx++;
+//                }
+//            }
+//        }
 
-        public JsonLogFilter(LogFilter logFilter) {
-            this.logFilter = logFilter;
-        }
-
-        void onLogMatch(LogInfo logInfo, Block b, int txIndex, Transaction tx, int logIdx) {
-            add(new LogFilterEvent(new LogFilterElement(logInfo, b, txIndex, tx, logIdx)));
-        }
-
-        void onTransactionReceipt(TransactionReceipt receipt, Block b, int txIndex) {
-            if (logFilter.matchBloom(receipt.getBloomFilter())) {
-                int logIdx = 0;
-                for (LogInfo logInfo : receipt.getLogInfoList()) {
-                    if (logFilter.matchBloom(logInfo.getBloom()) && logFilter.matchesExactly(logInfo)) {
-                        onLogMatch(logInfo, b, txIndex, receipt.getTransaction(), logIdx);
-                    }
-                    logIdx++;
-                }
-            }
-        }
-
-        void onTransaction(Transaction tx, Block b, int txIndex) {
-            if (logFilter.matchesContractAddress(tx.getReceiveAddress())) {
-                TransactionInfo txInfo = blockchain.getTransactionInfo(tx.getHash());
-                onTransactionReceipt(txInfo.getReceipt(), b, txIndex);
-            }
-        }
-
-        void onBlock(Block b) {
-            if (logFilter.matchBloom(new Bloom(b.getLogBloom()))) {
-                int txIdx = 0;
-                for (Transaction tx : b.getTransactionsList()) {
-                    onTransaction(tx, b, txIdx);
-                    txIdx++;
-                }
-            }
-        }
-
-        @Override
-        public void newBlockReceived(Block b) {
-            if (onNewBlock) onBlock(b);
-        }
+//        @Override
+//        public void newBlockReceived(Block b) {
+//            if (onNewBlock) onBlock(b);
+//        }
 
         @Override
         public void newPendingTx(Transaction tx) {
@@ -1011,72 +1013,72 @@ public class JsonRpcImpl implements JsonRpc {
         }
     }
 
-    @Override
-    public String eth_newFilter(FilterRequest fr) throws Exception {
-        String str = null;
-        try {
-            LogFilter logFilter = new LogFilter();
-
-            if (fr.address instanceof String) {
-                logFilter.withContractAddress(StringHexToByteArray((String) fr.address));
-            } else if (fr.address instanceof String[]) {
-                List<byte[]> addr = new ArrayList<>();
-                for (String s : ((String[]) fr.address)) {
-                    addr.add(StringHexToByteArray(s));
-                }
-                logFilter.withContractAddress(addr.toArray(new byte[0][]));
-            }
-
-            if (fr.topics != null) {
-                for (Object topic : fr.topics) {
-                    if (topic == null) {
-                        logFilter.withTopic(null);
-                    } else if (topic instanceof String) {
-                        logFilter.withTopic(new DataWord(StringHexToByteArray((String) topic)).getData());
-                    } else if (topic instanceof String[]) {
-                        List<byte[]> t = new ArrayList<>();
-                        for (String s : ((String[]) topic)) {
-                            t.add(new DataWord(StringHexToByteArray(s)).getData());
-                        }
-                        logFilter.withTopic(t.toArray(new byte[0][]));
-                    }
-                }
-            }
-
-            JsonLogFilter filter = new JsonLogFilter(logFilter);
-            int id = filterCounter.getAndIncrement();
-            installedFilters.put(id, filter);
-
-            Block blockFrom = fr.fromBlock == null ? null : getByJsonBlockId(fr.fromBlock);
-            Block blockTo = fr.toBlock == null ? null : getByJsonBlockId(fr.toBlock);
-
-            if (blockFrom != null) {
-                // need to add historical data
-                blockTo = blockTo == null ? blockchain.getBestBlock() : blockTo;
-                for (long blockNum = blockFrom.getNumber(); blockNum <= blockTo.getNumber(); blockNum++) {
-                    filter.onBlock(blockchain.getBlockByNumber(blockNum));
-                }
-            }
-
-            // the following is not precisely documented
-            if ("pending".equalsIgnoreCase(fr.fromBlock) || "pending".equalsIgnoreCase(fr.toBlock)) {
-                filter.onPendingTx = true;
-            } else if ("latest".equalsIgnoreCase(fr.fromBlock) || "latest".equalsIgnoreCase(fr.toBlock)) {
-                filter.onNewBlock = true;
-            }
-
-            return str = toJsonHex(id);
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_newFilter(" + fr + "): " + str);
-        }
-    }
+//    @Override
+//    public String eth_newFilter(FilterRequest fr) throws Exception {
+//        String str = null;
+//        try {
+//            LogFilter logFilter = new LogFilter();
+//
+//            if (fr.address instanceof String) {
+//                logFilter.withContractAddress(StringHexToByteArray((String) fr.address));
+//            } else if (fr.address instanceof String[]) {
+//                List<byte[]> addr = new ArrayList<>();
+//                for (String s : ((String[]) fr.address)) {
+//                    addr.add(StringHexToByteArray(s));
+//                }
+//                logFilter.withContractAddress(addr.toArray(new byte[0][]));
+//            }
+//
+//            if (fr.topics != null) {
+//                for (Object topic : fr.topics) {
+//                    if (topic == null) {
+//                        logFilter.withTopic(null);
+//                    } else if (topic instanceof String) {
+//                        logFilter.withTopic(new DataWord(StringHexToByteArray((String) topic)).getData());
+//                    } else if (topic instanceof String[]) {
+//                        List<byte[]> t = new ArrayList<>();
+//                        for (String s : ((String[]) topic)) {
+//                            t.add(new DataWord(StringHexToByteArray(s)).getData());
+//                        }
+//                        logFilter.withTopic(t.toArray(new byte[0][]));
+//                    }
+//                }
+//            }
+//
+//            JsonLogFilter filter = new JsonLogFilter(logFilter);
+//            int id = filterCounter.getAndIncrement();
+//            installedFilters.put(id, filter);
+//
+//            Block blockFrom = fr.fromBlock == null ? null : getByJsonBlockId(fr.fromBlock);
+//            Block blockTo = fr.toBlock == null ? null : getByJsonBlockId(fr.toBlock);
+//
+//            if (blockFrom != null) {
+//                // need to add historical data
+//                blockTo = blockTo == null ? blockchain.getBestBlock() : blockTo;
+//                for (long blockNum = blockFrom.getNumber(); blockNum <= blockTo.getNumber(); blockNum++) {
+//                    filter.onBlock(blockchain.getBlockByNumber(blockNum));
+//                }
+//            }
+//
+//            // the following is not precisely documented
+//            if ("pending".equalsIgnoreCase(fr.fromBlock) || "pending".equalsIgnoreCase(fr.toBlock)) {
+//                filter.onPendingTx = true;
+//            } else if ("latest".equalsIgnoreCase(fr.fromBlock) || "latest".equalsIgnoreCase(fr.toBlock)) {
+//                filter.onNewBlock = true;
+//            }
+//
+//            return str = toJsonHex(id);
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_newFilter(" + fr + "): " + str);
+//        }
+//    }
 
     @Override
     public String eth_newBlockFilter() {
         String s = null;
         try {
             int id = filterCounter.getAndIncrement();
-            installedFilters.put(id, new NewBlockFilter());
+//            installedFilters.put(id, new NewBlockFilter());
             return s = toJsonHex(id);
         } finally {
             if (log.isDebugEnabled()) log.debug("eth_newBlockFilter(): " + s);
@@ -1088,7 +1090,7 @@ public class JsonRpcImpl implements JsonRpc {
         String s = null;
         try {
             int id = filterCounter.getAndIncrement();
-            installedFilters.put(id, new PendingTransactionFilter());
+//            installedFilters.put(id, new PendingTransactionFilter());
             return s = toJsonHex(id);
         } finally {
             if (log.isDebugEnabled()) log.debug("eth_newPendingTransactionFilter(): " + s);
@@ -1220,7 +1222,7 @@ public class JsonRpcImpl implements JsonRpc {
 
     @Override
     public boolean admin_addPeer(String s) {
-        eth.connect(new Node(s));
+//        eth.connect(new Node(s));
         return true;
     }
 
@@ -1331,31 +1333,31 @@ public class JsonRpcImpl implements JsonRpc {
 
     @Override
     public boolean miner_start() {
-        blockMiner.startMining();
+//        blockMiner.startMining();
         return true;
     }
 
     @Override
     public boolean miner_stop() {
-        blockMiner.stopMining();
+//        blockMiner.stopMining();
         return true;
     }
 
     @Override
     public boolean miner_setEtherbase(String coinBase) throws Exception {
-        blockchain.setMinerCoinbase(TypeConverter.StringHexToByteArray(coinBase));
+//        blockchain.setMinerCoinbase(TypeConverter.StringHexToByteArray(coinBase));
         return true;
     }
 
     @Override
     public boolean miner_setExtra(String data) throws Exception {
-        blockchain.setMinerExtraData(TypeConverter.StringHexToByteArray(data));
+//        blockchain.setMinerExtraData(TypeConverter.StringHexToByteArray(data));
         return true;
     }
 
     @Override
     public boolean miner_setGasPrice(String newMinGasPrice) {
-        blockMiner.setMinGasPrice(TypeConverter.StringHexToBigInteger(newMinGasPrice));
+//        blockMiner.setMinGasPrice(TypeConverter.StringHexToBigInteger(newMinGasPrice));
         return true;
     }
 
@@ -1414,16 +1416,16 @@ public class JsonRpcImpl implements JsonRpc {
         throw new UnsupportedOperationException("JSON RPC method debug_metrics not implemented yet");
     }
 
-    @Override
-    public String personal_newAccount(String seed) {
-        String s = null;
-        try {
-            Account account = addAccount(seed);
-            return s = toJsonHex(account.getAddress());
-        } finally {
-            if (log.isDebugEnabled()) log.debug("personal_newAccount(*****): " + s);
-        }
-    }
+//    @Override
+//    public String personal_newAccount(String seed) {
+//        String s = null;
+//        try {
+//            Account account = addAccount(seed);
+//            return s = toJsonHex(account.getAddress());
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("personal_newAccount(*****): " + s);
+//        }
+//    }
 
     @Override
     public boolean personal_unlockAccount(String addr, String pass, String duration) {
@@ -1448,4 +1450,198 @@ public class JsonRpcImpl implements JsonRpc {
             if (log.isDebugEnabled()) log.debug("personal_listAccounts(): " + Arrays.toString(ret));
         }
     }
+
+    
+    
+    
+    // MT 
+	@Override
+	public String net_peerCount() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean net_listening() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public String eth_coinbase() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean eth_mining() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public String eth_gasPrice() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String eth_blockNumber() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String eth_getBalance(String address, String block) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String eth_getStorageAt(String address, String storageIdx, String blockId) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String eth_getTransactionCount(String address, String blockId) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String eth_getBlockTransactionCountByHash(String blockHash) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String eth_getBlockTransactionCountByNumber(String bnOrId) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String eth_getUncleCountByBlockHash(String blockHash) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String eth_getUncleCountByBlockNumber(String bnOrId) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String eth_getCode(String addr, String bnOrId) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String eth_sign(String addr, String data) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String eth_sendTransaction(CallArguments transactionArgs) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String eth_sendTransaction(String from, String to, String gas, String gasPrice, String value, String data,
+			String nonce) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String eth_sendRawTransaction(String rawData) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String eth_estimateGas(CallArguments args) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BlockResult eth_getBlockByHash(String blockHash, Boolean fullTransactionObjects) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BlockResult eth_getBlockByNumber(String bnOrId, Boolean fullTransactionObjects) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public TransactionResultDTO eth_getTransactionByHash(String transactionHash) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public TransactionResultDTO eth_getTransactionByBlockHashAndIndex(String blockHash, String index) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public TransactionResultDTO eth_getTransactionByBlockNumberAndIndex(String bnOrId, String index) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public TransactionReceiptDTO eth_getTransactionReceipt(String transactionHash) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public TransactionReceiptDTOExt ethj_getTransactionReceipt(String transactionHash) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BlockResult eth_getUncleByBlockHashAndIndex(String blockHash, String uncleIdx) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public BlockResult eth_getUncleByBlockNumberAndIndex(String blockId, String uncleIdx) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public CompilationResult eth_compileSolidity(String contract) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String eth_newFilter(FilterRequest fr) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String personal_newAccount(String seed) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+    
+    
+    
 }

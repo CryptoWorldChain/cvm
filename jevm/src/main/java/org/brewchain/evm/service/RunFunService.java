@@ -104,7 +104,7 @@ public class RunFunService extends SessionModules<PSRunFun> {
 
 			ret.setRetCode(0);
 			ret.setRetMessage("");
-			ret.setRunInfo(encAPI.hexEnc(ctx.getData().toByteArray()));
+			ret.setRunInfo(encAPI.hexEnc(ctx.getTxBody().getData().toByteArray()));
 	        
 		} catch (IllegalArgumentException e) {
 			ret.setRetCode(-1);

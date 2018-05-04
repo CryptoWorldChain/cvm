@@ -53,16 +53,16 @@ public class ProgramInvokeMockImpl implements ProgramInvoke {
     public ProgramInvokeMockImpl() {
 
 
-        this.repository = new RepositoryRoot(new HashMapDB<byte[]>());
-        this.repository.createAccount(ownerAddress);
+//        this.repository = new RepositoryRoot(new HashMapDB<byte[]>());
+//        this.repository.createAccount(ownerAddress);
 
-        this.repository.createAccount(contractAddress);
-        this.repository.saveCode(contractAddress,
-                Hex.decode("385E60076000396000605f556014600054601e60"
-                        + "205463abcddcba6040545b51602001600a525451"
-                        + "6040016014525451606001601e52545160800160"
-                        + "28525460a052546016604860003960166000f260"
-                        + "00603f556103e75660005460005360200235"));
+//        this.repository.createAccount(contractAddress);
+//        this.repository.saveCode(contractAddress,
+//                Hex.decode("385E60076000396000605f556014600054601e60"
+//                        + "205463abcddcba6040545b51602001600a525451"
+//                        + "6040016014525451606001601e52545160800160"
+//                        + "28525460a052546016604860003960166000f260"
+//                        + "00603f556103e75660005460005360200235"));
     }
 
     public ProgramInvokeMockImpl(boolean defaults) {
@@ -82,22 +82,22 @@ public class ProgramInvokeMockImpl implements ProgramInvoke {
     }
 
     /*           ORIGIN op         */
-    public DataWord getOriginAddress() {
-
-        byte[] cowPrivKey = encApi.sha3Encode("horse".getBytes());
-        byte[] addr = ECKey.fromPrivate(cowPrivKey).getAddress();
-
-        return new DataWord(addr);
-    }
+//    public DataWord getOriginAddress() {
+//
+//        byte[] cowPrivKey = encApi.sha3Encode("horse".getBytes());
+//        byte[] addr = ECKey.fromPrivate(cowPrivKey).getAddress();
+//
+//        return new DataWord(addr);
+//    }
 
     /*           CALLER op         */
-    public DataWord getCallerAddress() {
-
-        byte[] cowPrivKey = encApi.sha3Encode("monkey".getBytes());
-        byte[] addr = ECKey.fromPrivate(cowPrivKey).getAddress();
-
-        return new DataWord(addr);
-    }
+//    public DataWord getCallerAddress() {
+//
+//        byte[] cowPrivKey = encApi.sha3Encode("monkey".getBytes());
+//        byte[] addr = ECKey.fromPrivate(cowPrivKey).getAddress();
+//
+//        return new DataWord(addr);
+//    }
 
     /*           GASPRICE op       */
     public DataWord getMinGasPrice() {
@@ -253,4 +253,19 @@ public class ProgramInvokeMockImpl implements ProgramInvoke {
     public int getCallDeep() {
         return 0;
     }
+
+    
+    
+    // MT add
+	@Override
+	public DataWord getOriginAddress() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public DataWord getCallerAddress() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

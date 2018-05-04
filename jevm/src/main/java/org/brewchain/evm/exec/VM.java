@@ -1279,7 +1279,7 @@ public class VM {
                     if (program.isStaticCall()) throw new Program.StaticCallModificationException();
 
                     DataWord address = program.stackPop();
-                    program.suicide(address);
+//                    program.suicide(address);
                     program.getResult().addTouchAccount(address.getLast20Bytes());
 
                     if (logger.isInfoEnabled())

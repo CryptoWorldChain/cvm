@@ -33,8 +33,10 @@ import org.brewchain.evm.base.DataWord;
 
 import com.sleepycat.je.Transaction;
 
-public class InternalTransaction extends Transaction {
+//public class InternalTransaction extends Transaction {
 
+public class InternalTransaction {
+	
     private byte[] parentHash;
     private int deep;
     private int index;
@@ -87,68 +89,68 @@ public class InternalTransaction extends Transaction {
         return note;
     }
 
-    @Override
-    public byte[] getSender() {
-        rlpParse();
-        return sendAddress;
-    }
+//    @Override
+//    public byte[] getSender() {
+//        rlpParse();
+//        return sendAddress;
+//    }
 
     public byte[] getParentHash() {
         rlpParse();
         return parentHash;
     }
 
-    @Override
-    public byte[] getEncoded() {
-        if (rlpEncoded == null) {
-
-            byte[] nonce = getNonce();
-            boolean isEmptyNonce = isEmpty(nonce) || (getLength(nonce) == 1 && nonce[0] == 0);
-
-            this.rlpEncoded = RLP.encodeList(
-                    RLP.encodeElement(isEmptyNonce ? null : nonce),
-                    RLP.encodeElement(this.parentHash),
-                    RLP.encodeElement(getSender()),
-                    RLP.encodeElement(getReceiveAddress()),
-                    RLP.encodeElement(getValue()),
-                    RLP.encodeElement(getGasPrice()),
-                    RLP.encodeElement(getGasLimit()),
-                    RLP.encodeElement(getData()),
-                    RLP.encodeString(this.note),
-                    encodeInt(this.deep),
-                    encodeInt(this.index),
-                    encodeInt(this.rejected ? 1 : 0)
-            );
-        }
-
-        return rlpEncoded;
-    }
-
-    @Override
-    public byte[] getEncodedRaw() {
-        return getEncoded();
-    }
-
-    @Override
+//    @Override
+//    public byte[] getEncoded() {
+//        if (rlpEncoded == null) {
+//
+//            byte[] nonce = getNonce();
+//            boolean isEmptyNonce = isEmpty(nonce) || (getLength(nonce) == 1 && nonce[0] == 0);
+//
+//            this.rlpEncoded = RLP.encodeList(
+//                    RLP.encodeElement(isEmptyNonce ? null : nonce),
+//                    RLP.encodeElement(this.parentHash),
+//                    RLP.encodeElement(getSender()),
+//                    RLP.encodeElement(getReceiveAddress()),
+//                    RLP.encodeElement(getValue()),
+//                    RLP.encodeElement(getGasPrice()),
+//                    RLP.encodeElement(getGasLimit()),
+//                    RLP.encodeElement(getData()),
+//                    RLP.encodeString(this.note),
+//                    encodeInt(this.deep),
+//                    encodeInt(this.index),
+//                    encodeInt(this.rejected ? 1 : 0)
+//            );
+//        }
+//
+//        return rlpEncoded;
+//    }
+//
+//    @Override
+//    public byte[] getEncodedRaw() {
+//        return getEncoded();
+//    }
+//
+//    @Override
     public synchronized void rlpParse() {
-        if (parsed) return;
-        RLPList decodedTxList = RLP.decode2(rlpEncoded);
-        RLPList transaction = (RLPList) decodedTxList.get(0);
-
-        setNonce(transaction.get(0).getRLPData());
-        this.parentHash = transaction.get(1).getRLPData();
-        this.sendAddress = transaction.get(2).getRLPData();
-        setReceiveAddress(transaction.get(3).getRLPData());
-        setValue(transaction.get(4).getRLPData());
-        setGasPrice(transaction.get(5).getRLPData());
-        setGasLimit(transaction.get(6).getRLPData());
-        setData(transaction.get(7).getRLPData());
-        this.note = new String(transaction.get(8).getRLPData());
-        this.deep = decodeInt(transaction.get(9).getRLPData());
-        this.index = decodeInt(transaction.get(10).getRLPData());
-        this.rejected = decodeInt(transaction.get(11).getRLPData()) == 1;
-
-        this.parsed = true;
+//        if (parsed) return;
+//        RLPList decodedTxList = RLP.decode2(rlpEncoded);
+//        RLPList transaction = (RLPList) decodedTxList.get(0);
+//
+//        setNonce(transaction.get(0).getRLPData());
+//        this.parentHash = transaction.get(1).getRLPData();
+//        this.sendAddress = transaction.get(2).getRLPData();
+//        setReceiveAddress(transaction.get(3).getRLPData());
+//        setValue(transaction.get(4).getRLPData());
+//        setGasPrice(transaction.get(5).getRLPData());
+//        setGasLimit(transaction.get(6).getRLPData());
+//        setData(transaction.get(7).getRLPData());
+//        this.note = new String(transaction.get(8).getRLPData());
+//        this.deep = decodeInt(transaction.get(9).getRLPData());
+//        this.index = decodeInt(transaction.get(10).getRLPData());
+//        this.rejected = decodeInt(transaction.get(11).getRLPData()) == 1;
+//
+//        this.parsed = true;
     }
 
 
@@ -171,32 +173,32 @@ public class InternalTransaction extends Transaction {
         return bytesToInt(encoded);
     }
 
-    @Override
-    public ECKey getKey() {
-        throw new UnsupportedOperationException("Cannot sign internal transaction.");
-    }
-
-    @Override
-    public void sign(byte[] privKeyBytes) throws ECKey.MissingPrivateKeyException {
-        throw new UnsupportedOperationException("Cannot sign internal transaction.");
-    }
-
-    @Override
-    public String toString() {
-        return "TransactionData [" +
-                "  parentHash=" + toHexString(getParentHash()) +
-                ", hash=" + toHexString(getHash()) +
-                ", nonce=" + toHexString(getNonce()) +
-                ", gasPrice=" + toHexString(getGasPrice()) +
-                ", gas=" + toHexString(getGasLimit()) +
-                ", sendAddress=" + toHexString(getSender()) +
-                ", receiveAddress=" + toHexString(getReceiveAddress()) +
-                ", value=" + toHexString(getValue()) +
-                ", data=" + toHexString(getData()) +
-                ", note=" + getNote() +
-                ", deep=" + getDeep() +
-                ", index=" + getIndex() +
-                ", rejected=" + isRejected() +
-                "]";
-    }
+//    @Override
+//    public ECKey getKey() {
+//        throw new UnsupportedOperationException("Cannot sign internal transaction.");
+//    }
+//
+//    @Override
+//    public void sign(byte[] privKeyBytes) throws ECKey.MissingPrivateKeyException {
+//        throw new UnsupportedOperationException("Cannot sign internal transaction.");
+//    }
+//
+//    @Override
+//    public String toString() {
+//        return "TransactionData [" +
+//                "  parentHash=" + toHexString(getParentHash()) +
+//                ", hash=" + toHexString(getHash()) +
+//                ", nonce=" + toHexString(getNonce()) +
+//                ", gasPrice=" + toHexString(getGasPrice()) +
+//                ", gas=" + toHexString(getGasLimit()) +
+//                ", sendAddress=" + toHexString(getSender()) +
+//                ", receiveAddress=" + toHexString(getReceiveAddress()) +
+//                ", value=" + toHexString(getValue()) +
+//                ", data=" + toHexString(getData()) +
+//                ", note=" + getNote() +
+//                ", deep=" + getDeep() +
+//                ", index=" + getIndex() +
+//                ", rejected=" + isRejected() +
+//                "]";
+//    }
 }
