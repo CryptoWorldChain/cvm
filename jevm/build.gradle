@@ -22,13 +22,13 @@ dependencies {
     
 	//compile 'com.google.guava:guava:19.0'
 
-    //includeInJar "com.google.code.findbugs:jsr305:3.0.0"
-    //includeInJar "org.apache.commons:commons-collections4:4.0"
+    includeInJar "com.google.code.findbugs:jsr305:3.0.0"
+    includeInJar "org.apache.commons:commons-collections4:4.0"
     
-	//includeInJar 'com.fasterxml.jackson:jackson-parent:2.5'
-    //includeInJar "com.fasterxml.jackson.core:jackson-databind:2.5.1"
+	includeInJar 'com.fasterxml.jackson:jackson-parent:2.5'
+    includeInJar "com.fasterxml.jackson.core:jackson-databind:2.5.1"
     
-    // includeInJar "org.ethereum:solcJ-all:0.4.8"
+    includeInJar "org.ethereum:solcJ-all:0.4.8"	
     
 	compile 'org.brewchain:org.brewchain.bcapi:3.3.3'
 	
