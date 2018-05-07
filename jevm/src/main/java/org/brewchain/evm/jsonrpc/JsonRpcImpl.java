@@ -540,12 +540,15 @@ public class JsonRpcImpl implements JsonRpc {
     public TransactionReceipt createCallTxAndExecute(CallArguments args, Block block, Repository repository, BlockHeader blockStore) throws Exception {
         BinaryCallArguments bca = new BinaryCallArguments();
         bca.setArguments(args);
-        MultiTransaction tx = CallTransaction.createRawTransaction(0,
-                bca.gasPrice,
-                bca.gasLimit,
-                bca.toAddress,
-                bca.value,
-                bca.data);
+        
+        // TODO
+        MultiTransaction tx = null;
+//        MultiTransaction tx = CallTransaction.createRawTransaction(0,
+//                bca.gasPrice,
+//                bca.gasLimit,
+//                bca.toAddress,
+//                bca.value,
+//                bca.data);
 
         // put mock signature if not present
 //        if (tx.getSignature() == null) {

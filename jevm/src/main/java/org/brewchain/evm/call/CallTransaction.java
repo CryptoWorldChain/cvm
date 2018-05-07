@@ -9,7 +9,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.brewchain.account.core.TransactionHelper;
 import org.brewchain.account.gens.Tx.MultiTransaction;
+import org.brewchain.account.gens.Tx.MultiTransactionBody;
+import org.brewchain.account.gens.Tx.MultiTransactionInput;
+import org.brewchain.account.gens.Tx.MultiTransactionOutput;
+import org.brewchain.account.gens.Tx.MultiTransactionSignature;
+import org.brewchain.account.gens.Tx.SingleTransaction;
 import org.brewchain.account.util.ByteUtil;
 import org.brewchain.account.util.FastByteComparisons;
 import org.brewchain.evm.base.LogInfo;
@@ -20,6 +26,7 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.protobuf.ByteString;
 
 /**
  * Creates a contract function call transaction.
@@ -29,75 +36,69 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class CallTransaction {
 
+	
+	public static TransactionHelper transactionHelper;
+	
     private final static ObjectMapper DEFAULT_MAPPER = new ObjectMapper()
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
             .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
 
-    public static MultiTransaction createRawTransaction(long nonce, long gasPrice, long gasLimit, String toAddress,
-                                                    long value, byte[] data) {
-//        Transaction tx = new Transaction(longToBytesNoLeadZeroes(nonce),
-//                longToBytesNoLeadZeroes(gasPrice),
-//                longToBytesNoLeadZeroes(gasLimit),
-//                toAddress == null ? null : Hex.decode(toAddress),
-//                longToBytesNoLeadZeroes(value),
-//                data,
-//                null);
-//        return tx;
-    		
-    	// 发送交易
-	// 模拟合约交易
-	// 1. 签名
-	// 2. 生成Hash
-	// 3. 生成Sender
-//	SingleTransaction.Builder newTx = SingleTransaction.newBuilder();
-//	newTx.setAmount(98);
-//	newTx.setData(ByteString.copyFrom(ByteUtil.EMPTY_BYTE_ARRAY));
-//	newTx.setExdata(ByteString.copyFrom(ByteUtil.EMPTY_BYTE_ARRAY));
-//	newTx.setFee(0);
-//	newTx.setFeeLimit(2);
-//	try {
-//		newTx.setNonce(accountHelper.getNonce(oKeyPairs2.getAddress().getBytes()));
-//	} catch (Exception e2) {
-//		// TODO Auto-generated catch block
-//		e2.printStackTrace();
-//	}
-//	newTx.setPubKey(oKeyPairs2.getPubkey());
-//	newTx.setReceiveAddress(ByteString.copyFrom(oKeyPairs1.getAddress().getBytes()));
-//	newTx.setSenderAddress(ByteString.copyFrom(oKeyPairs2.getAddress().getBytes()));
-//	newTx.setTimestamp(new Date().getTime());
-//	newTx.setTxHash(ByteString.copyFrom(ByteUtil.EMPTY_BYTE_ARRAY));
-//
-//	List<String> privs = new LinkedList<String>();
-//	privs.add(oKeyPairs2.getPrikey());
-//
-//	try {
-//		MultiTransaction.Builder oMultiTransaction = transactionHelper
-//				.ParseSingleTransactionToMultiTransaction(newTx);
-//
-//		MultiTransactionSignature.Builder oMultiTransactionSignature = MultiTransactionSignature.newBuilder();
-//		oMultiTransactionSignature.setPubKey(oKeyPairs2.getPubkey());
-//		oMultiTransactionSignature.setSignature(encApi.hexEnc(encApi.ecSign(oKeyPairs2.getPrikey(), oMultiTransaction.build().toByteArray())));
-//		
-//		oMultiTransaction.addSignatures(oMultiTransactionSignature);			
-//		//transactionHelper.Signature(privs, oMultiTransaction);
-//		transactionHelper.CreateMultiTransaction(oMultiTransaction);
-//	} catch (Exception e1) {
-//		// TODO Auto-generated catch block
-//		e1.printStackTrace();
-//	}
-//
-//	log.debug("交易创建！ " + Hex.toHexString(newTx.getTxHash().toByteArray()));
-    			
-    		return null;
+    public static MultiTransaction createRawTransaction(
+    				long nonce, long gasPrice, String fromAddress, String pubkey
+    				, String toAddress, long value, String sign, byte[] callData) {
+ 
+//	    	MultiTransaction tx = new MultiTransaction(longToBytesNoLeadZeroes(nonce),
+//	        longToBytesNoLeadZeroes(gasPrice),
+//	        longToBytesNoLeadZeroes(gasLimit),
+//	        toAddress == null ? null : Hex.decode(toAddress),
+//	        longToBytesNoLeadZeroes(value),
+//	        data,
+//	        null);
+//	    	return tx;
+    	
+    	
+	    	// 发送多重签名账户创建交易并转账
+		MultiTransaction.Builder oMultiTransaction = MultiTransaction.newBuilder();
+		MultiTransactionBody.Builder oMultiTransactionBody = MultiTransactionBody.newBuilder();
+		MultiTransactionInput.Builder oMultiTransactionInput1 = MultiTransactionInput.newBuilder();
+		
+		oMultiTransactionInput1.setAddress(ByteString.copyFrom("address".getBytes()));
+		oMultiTransactionInput1.setAmount(value);
+		oMultiTransactionInput1.setFee((int)gasPrice);
+		oMultiTransactionInput1.setFeeLimit(0);
+		oMultiTransactionInput1.setNonce(0);
+		oMultiTransactionBody.addInputs(oMultiTransactionInput1);
+		
+		MultiTransactionOutput.Builder oMultiTransactionOutput1 = MultiTransactionOutput.newBuilder();
+		oMultiTransactionOutput1.setAddress(ByteString.copyFrom(toAddress.getBytes()));
+		oMultiTransactionOutput1.setAmount(value);
+		oMultiTransactionBody.addOutputs(oMultiTransactionOutput1);
+	
+		oMultiTransactionBody.setData(ByteString.copyFromUtf8("01"));
+	//	oMultiTransactionBody.setExdata(oAccount.toByteString());
+		oMultiTransaction.setTxHash(ByteString.EMPTY);
+		oMultiTransactionBody.clearSignatures();
+	
+		// 签名
+		MultiTransactionSignature.Builder oMultiTransactionSignature1 = MultiTransactionSignature.newBuilder();
+		oMultiTransactionSignature1.setPubKey(pubkey);
+		oMultiTransactionSignature1.setSignature(sign);
+		oMultiTransactionBody.addSignatures(oMultiTransactionSignature1);
+		
+		oMultiTransaction.setTxBody(oMultiTransactionBody);
+		
+		return oMultiTransaction.build();
+	
     }
 
 
 
-    public static MultiTransaction createCallTransaction(long nonce, long gasPrice, long gasLimit, String toAddress,
-                        long value, Function callFunc, Object ... funcArgs) {
+    public static MultiTransaction createCallTransaction(
+    						long nonce, long gasPrice, String fromAddress, String pubkey
+    						, String toAddress,long value, String sign, Function callFunc, Object ... funcArgs) {
 
         byte[] callData = callFunc.encode(funcArgs);
-        return createRawTransaction(nonce, gasPrice, gasLimit, toAddress, value, callData);
+        return createRawTransaction(nonce, gasPrice, fromAddress, pubkey, toAddress, value, sign,callData);
     }
 
 
@@ -198,11 +199,13 @@ public class CallTransaction {
             return format("%s(%s)", name, stripEnd(paramsTypes.toString(), ","));
         }
 
+
+		// 被使用
         public byte[] encodeSignatureLong() {
-//            String signature = formatSignature();
-//            byte[] sha3Fingerprint = sha3(signature.getBytes());
-//            return sha3Fingerprint;
-        		return null;
+            String signature = formatSignature();
+            // TODO 
+            byte[] sha3Fingerprint = org.brewchain.core.crypto.HashUtil.sha3(signature.getBytes());
+            return sha3Fingerprint;
         }
 
         public byte[] encodeSignature() {

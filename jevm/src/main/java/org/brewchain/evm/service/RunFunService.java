@@ -1,7 +1,9 @@
 package org.brewchain.evm.service;
 
 import org.apache.commons.lang3.StringUtils;
+import org.brewchain.account.core.TransactionHelper;
 import org.brewchain.account.gens.Tx.MultiTransaction;
+import org.brewchain.account.gens.Tx.MultiTransactionSignature;
 import org.brewchain.cvm.pbgens.Cvm.PCommand;
 import org.brewchain.cvm.pbgens.Cvm.PMFunPut;
 import org.brewchain.cvm.pbgens.Cvm.PModule;
@@ -27,6 +29,9 @@ public class RunFunService extends SessionModules<PSRunFun> {
 	@ActorRequire(name = "bc_encoder",scope = "global")
 	EncAPI encAPI;
 
+	@ActorRequire(name = "Transaction_Helper", scope = "global")
+	TransactionHelper transactionHelper;
+	
 	@Override
 	public String getModule() {
 		return PModule.CVM.name();
@@ -95,13 +100,12 @@ public class RunFunService extends SessionModules<PSRunFun> {
 			}
 			CallTransaction.Function function = CallTransaction.Function.fromJsonInterface(funcJson);
 			
-			// to_addr test = "86e0497e32a8e1d79fe38ab87dc80140df5470d9"
-			// long nonce, long gasPrice, long gasLimit, String toAddress, long value, Function callFunc, Object... funcArgs
-			MultiTransaction ctx = CallTransaction.createCallTransaction(1, pbo.getGasPrice(), gasLimit,pbo.getToAddr(), 0, function);
-	        
-			//sha3("974f963ee4571e86e5f9bc3b493e453db9c15e5bd19829a4ef9a790de0da0015".getBytes())
-//			ctx.sign(encAPI.sha3Encode(pbo.getCtxSign().getBytes()));//合约交易签名
-
+			CallTransaction.transactionHelper = transactionHelper;
+			
+			MultiTransaction.Builder ctx = CallTransaction.createCallTransaction(
+														1L, pbo.getGasPrice(), "fromAddress", "pubkey"
+														,pbo.getToAddr(), 0
+														, pbo.getCtxSignBytes().toString(), function).toBuilder();
 			ret.setRetCode(0);
 			ret.setRetMessage("");
 			ret.setRunInfo(encAPI.hexEnc(ctx.getTxBody().getData().toByteArray()));
