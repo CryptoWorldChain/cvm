@@ -35,15 +35,19 @@ message PSRunFun{//运行方法
 	bool constant = 1; //默认false
 	string type = 2; //默认function
 	string name = 3; //方法名称
-	repeated PMFunPut inputs = 4;
-	repeated PMFunPut outputs = 5;
+	repeated PMFunPut inputs = 4;//方法的输入
+	repeated PMFunPut outputs = 5;//方法的输出
 
-	string to_addr = 6;
+
 	int64 gas_price = 7;
-	string ctx_sign = 8; //合约交易签名
+	int64 gas_limit = 8; //默认=gas_price
+	string to_addr = 9;
+	string ctx_sign = 10; //合约交易签名
 
-	string func_args = 10 [jstype = JS_NORMAL];
-	int64 gas_limit = 11; //默认=gas_price
+	string func_args = 11 [jstype = JS_NORMAL];
+
+	string pub_key = 12;
+	string from_addr = 13;
 }
 
 message PMFunPut{

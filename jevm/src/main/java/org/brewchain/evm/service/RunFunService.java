@@ -94,16 +94,22 @@ public class RunFunService extends SessionModules<PSRunFun> {
 			
 			log.info("funcJson="+funcJson);
 			
-			long gasLimit = pbo.getGasLimit();
-			if(gasLimit <= 0) {
-				gasLimit = pbo.getGasPrice();//1_000_000_000
+			long gasPrice = 0L;
+			long gasLimit = 0L;
+			if(pbo.getGasPrice() > 0) {
+				gasPrice = pbo.getGasPrice();
+				gasLimit = gasPrice;
+				if(pbo.getGasLimit() > 0) {
+					gasLimit = pbo.getGasLimit();
+				}
 			}
+			
 			CallTransaction.Function function = CallTransaction.Function.fromJsonInterface(funcJson);
 			
 			CallTransaction.transactionHelper = transactionHelper;
 			
 			MultiTransaction.Builder ctx = CallTransaction.createCallTransaction(
-														1L, pbo.getGasPrice(), "fromAddress", "pubkey"
+														1L, pbo.getGasPrice(), pbo.getFromAddr(), pbo.getPubKey()
 														,pbo.getToAddr(), 0
 														, pbo.getCtxSignBytes().toString(), function).toBuilder();
 			ret.setRetCode(0);
@@ -154,8 +160,15 @@ public class RunFunService extends SessionModules<PSRunFun> {
 		}
 		
 		
-		if (pb.getGasPrice() <= 0) {
-			throw new IllegalArgumentException("参数gas_price,不能为空");
+//		if (pb.getGasPrice() <= 0) {
+//			throw new IllegalArgumentException("参数gas_price,不能为空");
+//		}
+		
+		if (StringUtils.isBlank(pb.getFromAddr())) {
+			throw new IllegalArgumentException("参数from_addr,不能为空");
+		}
+		if (StringUtils.isBlank(pb.getPubKey())) {
+			throw new IllegalArgumentException("参数pub_key,不能为空");
 		}
 	}
 }
