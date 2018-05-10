@@ -21,6 +21,7 @@ import org.brewchain.account.util.FastByteComparisons;
 import org.brewchain.evm.base.LogInfo;
 import org.brewchain.evm.solidity.SolidityType;
 import org.brewchain.evm.solidity.SolidityType.IntType;
+import org.spongycastle.util.encoders.Hex;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -62,7 +63,7 @@ public class CallTransaction {
 		MultiTransactionBody.Builder oMultiTransactionBody = MultiTransactionBody.newBuilder();
 		MultiTransactionInput.Builder oMultiTransactionInput1 = MultiTransactionInput.newBuilder();
 		
-		oMultiTransactionInput1.setAddress(ByteString.copyFrom("address".getBytes()));
+		oMultiTransactionInput1.setAddress(ByteString.copyFrom(Hex.decode(fromAddress)));
 		oMultiTransactionInput1.setAmount(value);
 		oMultiTransactionInput1.setFee((int)gasPrice);
 		oMultiTransactionInput1.setFeeLimit(0);
@@ -70,11 +71,11 @@ public class CallTransaction {
 		oMultiTransactionBody.addInputs(oMultiTransactionInput1);
 		
 		MultiTransactionOutput.Builder oMultiTransactionOutput1 = MultiTransactionOutput.newBuilder();
-		oMultiTransactionOutput1.setAddress(ByteString.copyFrom(toAddress.getBytes()));
+		oMultiTransactionOutput1.setAddress(ByteString.copyFrom(Hex.decode(toAddress)));
 		oMultiTransactionOutput1.setAmount(value);
 		oMultiTransactionBody.addOutputs(oMultiTransactionOutput1);
 	
-		oMultiTransactionBody.setData(ByteString.copyFromUtf8("01"));
+		oMultiTransactionBody.setData(ByteString.copyFrom(callData));
 	//	oMultiTransactionBody.setExdata(oAccount.toByteString());
 		oMultiTransaction.setTxHash(ByteString.EMPTY);
 		oMultiTransactionBody.clearSignatures();
@@ -90,9 +91,7 @@ public class CallTransaction {
 		return oMultiTransaction.build();
 	
     }
-
-
-
+    
     public static MultiTransaction createCallTransaction(
     						long nonce, long gasPrice, String fromAddress, String pubkey
     						, String toAddress,long value, String sign, Function callFunc, Object ... funcArgs) {

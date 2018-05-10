@@ -1,14 +1,15 @@
 package org.brewchain.evm.service;
 
 import org.apache.commons.lang3.StringUtils;
+import org.brewchain.account.core.AccountHelper;
 import org.brewchain.account.core.TransactionHelper;
 import org.brewchain.account.gens.Tx.MultiTransaction;
-import org.brewchain.account.gens.Tx.MultiTransactionSignature;
 import org.brewchain.cvm.pbgens.Cvm.PCommand;
 import org.brewchain.cvm.pbgens.Cvm.PMFunPut;
 import org.brewchain.cvm.pbgens.Cvm.PModule;
 import org.brewchain.cvm.pbgens.Cvm.PRetRun;
 import org.brewchain.cvm.pbgens.Cvm.PSRunFun;
+import org.brewchain.evm.base.MTransaction;
 import org.brewchain.evm.call.CallTransaction;
 import org.fc.brewchain.bcapi.EncAPI;
 
@@ -29,8 +30,10 @@ public class RunFunService extends SessionModules<PSRunFun> {
 	@ActorRequire(name = "bc_encoder",scope = "global")
 	EncAPI encAPI;
 
-	@ActorRequire(name = "Transaction_Helper", scope = "global")
-	TransactionHelper transactionHelper;
+//	@ActorRequire(name = "Transaction_Helper", scope = "global")
+//	TransactionHelper transactionHelper;
+	@ActorRequire(name = "Account_Helper", scope = "global")
+	AccountHelper accountHelper;
 	
 	@Override
 	public String getModule() {
@@ -94,24 +97,33 @@ public class RunFunService extends SessionModules<PSRunFun> {
 			
 			log.info("funcJson="+funcJson);
 			
-			long gasPrice = 0L;
-			long gasLimit = 0L;
-			if(pbo.getGasPrice() > 0) {
-				gasPrice = pbo.getGasPrice();
-				gasLimit = gasPrice;
-				if(pbo.getGasLimit() > 0) {
-					gasLimit = pbo.getGasLimit();
+			long fee = 0L;
+			long feeLimit = 0L;
+			if(pbo.getFee() > 0) {
+				fee = pbo.getFee();
+				feeLimit = fee;
+				if(pbo.getFeeLimit() > 0) {
+					feeLimit = pbo.getFeeLimit  ();
 				}
 			}
 			
 			CallTransaction.Function function = CallTransaction.Function.fromJsonInterface(funcJson);
 			
-			CallTransaction.transactionHelper = transactionHelper;
+//			Object ... funcArgs
+//			byte[] callData = function.encode(funcArgs);
 			
-			MultiTransaction.Builder ctx = CallTransaction.createCallTransaction(
-														1L, pbo.getGasPrice(), pbo.getFromAddr(), pbo.getPubKey()
-														,pbo.getToAddr(), 0
-														, pbo.getCtxSignBytes().toString(), function).toBuilder();
+//			MultiTransaction.Builder ctx = CallTransaction.createCallTransaction(
+//														1L, pbo.getFee(), pbo.getFromAddr(), pbo.getPubKey()
+//														,pbo.getToAddr(), 0
+//														, pbo.getCtxSignBytes().toString(), function).toBuilder();
+			
+
+			MTransaction tx = new MTransaction(accountHelper);
+			tx.addTXInput(pbo.getFromAddr(), pbo.getPubKey(), pbo.getCtxSignBytes().toString(), 0L, fee, feeLimit);
+			tx.addTXOutput(pbo.getToAddr(), 0L);
+			MultiTransaction.Builder ctx = tx.genTX(null, null);
+			
+			
 			ret.setRetCode(0);
 			ret.setRetMessage("");
 			ret.setRunInfo(encAPI.hexEnc(ctx.getTxBody().getData().toByteArray()));

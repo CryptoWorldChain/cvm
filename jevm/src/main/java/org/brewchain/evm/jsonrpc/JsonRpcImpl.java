@@ -5,7 +5,6 @@ import static org.brewchain.evm.jsonrpc.TypeConverter.StringHexToBigInteger;
 import static org.brewchain.evm.jsonrpc.TypeConverter.StringHexToByteArray;
 import static org.brewchain.evm.jsonrpc.TypeConverter.toJsonHex;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -20,32 +19,39 @@ import org.apache.felix.ipojo.annotations.Instantiate;
 import org.apache.felix.ipojo.annotations.Provides;
 import org.apache.felix.ipojo.transaction.Transaction;
 import org.apache.maven.model.Repository;
+import org.brewchain.account.core.TransactionHelper;
 import org.brewchain.account.gens.Act.Account;
 import org.brewchain.account.gens.Block;
 import org.brewchain.account.gens.Block.BlockHeader;
 import org.brewchain.account.gens.Tx.MultiTransaction;
-import org.brewchain.account.trie.TrieImpl.Node;
-import org.brewchain.evm.base.DataWord;
+import org.brewchain.account.util.ByteUtil;
+import org.brewchain.core.crypto.ECKey;
+import org.brewchain.core.crypto.HashUtil;
 import org.brewchain.evm.call.CallTransaction;
 import org.brewchain.evm.exec.TransactionExecutor;
+import org.brewchain.evm.exec.tx.MultiTransactionTask;
+import org.brewchain.evm.solidity.compiler.SolidityCompiler;
 import org.brewchain.evm.utils.ByteArrayWrapper;
-import org.fc.brewchain.bcapi.EncAPI;
-import org.fc.brewchain.bcapi.KeyPairs;
 
+import com.google.protobuf.ByteString;
+
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import onight.osgi.annotation.iPojoBean;
+import onight.osgi.annotation.NActorProvider;
 import onight.tfw.ntrans.api.ActorService;
 import onight.tfw.ntrans.api.annotation.ActorRequire;
 
-@iPojoBean
+@NActorProvider
 @Provides(specifications = { ActorService.class }, strategy = "SINGLETON")
 @Slf4j
-@Instantiate(name = "json_Rpc_Impl")
+@Instantiate(name = "rpc_Impl")
 public class JsonRpcImpl implements JsonRpc {
 	
-	@ActorRequire(name = "bc_encoder",scope = "global")
-	EncAPI encAPI;
-	
+    SolidityCompiler solidityCompiler;
+    
+    @ActorRequire(name = "Transaction_Helper", scope = "global") @Setter
+	TransactionHelper transactionHelper;
+    
     public class BinaryCallArguments {
         public long nonce;
         public long gasPrice;
@@ -83,7 +89,7 @@ public class JsonRpcImpl implements JsonRpc {
     
     long initialBlockNumber;
 
-    Map<ByteArrayWrapper, Account> accounts = new HashMap<>();
+    Map<ByteArrayWrapper, Account.Builder> accounts = new HashMap<>();
     AtomicInteger filterCounter = new AtomicInteger(1);
     Map<Integer, Filter> installedFilters = new Hashtable<>();
     Map<ByteArrayWrapper, TransactionReceipt> pendingReceipts = Collections.synchronizedMap(new LRUMap<ByteArrayWrapper, TransactionReceipt>(1024));
@@ -94,14 +100,14 @@ public class JsonRpcImpl implements JsonRpc {
 //        initialBlockNumber = blockchain.getBestBlock().getNumber();
 //
 //        compositeEthereumListener.addListener(new EthereumListenerAdapter() {
-//            @Override
+//            
 //            public void onBlock(Block block, List<TransactionReceipt> receipts) {
 //                for (Filter filter : installedFilters.values()) {
 //                    filter.newBlockReceived(block);
 //                }
 //            }
 //
-//            @Override
+//            
 //            public void onPendingTransactionsReceived(List<Transaction> transactions) {
 //                for (Filter filter : installedFilters.values()) {
 //                    for (Transaction tx : transactions) {
@@ -110,7 +116,7 @@ public class JsonRpcImpl implements JsonRpc {
 //                }
 //            }
 //
-//            @Override
+//            
 //            public void onPendingTransactionUpdate(TransactionReceipt txReceipt, PendingTransactionState state, Block block) {
 //                ByteArrayWrapper txHashW = new ByteArrayWrapper(txReceipt.getTransaction().getHash());
 //                if (state.isPending() || state == PendingTransactionState.DROPPED) {
@@ -180,19 +186,21 @@ public class JsonRpcImpl implements JsonRpc {
 //        }
 //    }
 
-    protected Account getAccount(String address) throws Exception {
+    protected Account.Builder getAccount(String address) throws Exception {
         return accounts.get(new ByteArrayWrapper(StringHexToByteArray(address)));
     }
 
     protected Account addAccount(String seed) {
-//        return addAccount(ECKey.fromPrivate(encAPI.sha3Encode(seed.getBytes())));
-    		return addAccount((KeyPairs)null);
+    		// TODO ;)
+    		return addAccount(ECKey.fromPrivate(HashUtil.sha3(seed.getBytes())));
     }
 
-    protected Account addAccount(KeyPairs key) {
+    protected Account addAccount(ECKey key) {
         Account.Builder account = Account.newBuilder();
 //        account.init(key);
-//        accounts.put(new ByteArrayWrapper(account.getAddress()), account);
+        account.setAddress(ByteString.copyFrom(key.getAddress()));
+        
+        accounts.put(new ByteArrayWrapper(account.getAddress().toByteArray()), account);
         return account.build();
     }
 
@@ -209,7 +217,7 @@ public class JsonRpcImpl implements JsonRpc {
     public String  web3_sha3(String data) throws Exception {
         String s = null;
         try {
-            byte[] result = encAPI.sha3Encode(TypeConverter.StringHexToByteArray(data));
+            byte[] result = HashUtil.sha3(TypeConverter.StringHexToByteArray(data));
             return s = TypeConverter.toJsonHex(result);
         } finally {
             if (log.isDebugEnabled()) log.debug("web3_sha3(" + data + "): " + s);
@@ -353,7 +361,7 @@ public class JsonRpcImpl implements JsonRpc {
         }
     }
 
-//    @Override
+//    
 //    public String eth_getStorageAt(String address, String storageIdx, String blockId) throws Exception {
 //        String s = null;
 //        try {
@@ -366,7 +374,7 @@ public class JsonRpcImpl implements JsonRpc {
 //        }
 //    }
 
-//    @Override
+//    
 //    public String eth_getTransactionCount(String address, String blockId) throws Exception {
 //        String s = null;
 //        try {
@@ -457,35 +465,62 @@ public class JsonRpcImpl implements JsonRpc {
 //        }
 //    }
 
-//    public String eth_sendTransaction(CallArguments args) throws Exception {
-//
-//        String s = null;
-//        try {
-//            Account account = getAccount(JSonHexToHex(args.from));
-//
-//            if (account == null)
-//                throw new Exception("From address private key could not be found in this node");
-//
-//            if (args.data != null && args.data.startsWith("0x"))
-//                args.data = args.data.substring(2);
-//
+    
+    public String eth_sendTransaction(CallArguments args) throws Exception {
+
+        String s = null;
+        try {
+            Account.Builder account = getAccount(JSonHexToHex(args.from));
+
+            if (account == null)
+                throw new Exception("From address private key could not be found in this node");
+
+            if (args.data != null && args.data.startsWith("0x"))
+                args.data = args.data.substring(2);
+
 //            MultiTransaction tx = new MultiTransaction(
-//                    args.nonce != null ? StringHexToByteArray(args.nonce) : bigIntegerToBytes(pendingState.getRepository().getNonce(account.getAddress())),
+//                    args.nonce != null ? StringHexToByteArray(args.nonce) : ByteUtil.bigIntegerToBytes(pendingState.getRepository().getNonce(account.getAddress())),
 //                    args.gasPrice != null ? StringHexToByteArray(args.gasPrice) : ByteUtil.longToBytesNoLeadZeroes(eth.getGasPrice()),
 //                    args.gas != null ? StringHexToByteArray(args.gas) : ByteUtil.longToBytes(90_000),
-//                    args.to != null ? StringHexToByteArray(args.to) : EMPTY_BYTE_ARRAY,
-//                    args.value != null ? StringHexToByteArray(args.value) : EMPTY_BYTE_ARRAY,
-//                    args.data != null ? StringHexToByteArray(args.data) : EMPTY_BYTE_ARRAY,
+//                    args.to != null ? StringHexToByteArray(args.to) : ByteUtil.EMPTY_BYTE_ARRAY,
+//                    args.value != null ? StringHexToByteArray(args.value) : ByteUtil.EMPTY_BYTE_ARRAY,
+//                    args.data != null ? StringHexToByteArray(args.data) : ByteUtil.EMPTY_BYTE_ARRAY,
 //                    eth.getChainIdForNextBlock());
 //            tx.sign(account.getEcKey().getPrivKeyBytes());
-//
-//            eth.submitTransaction(tx);
-//
-//            return s = TypeConverter.toJsonHex(tx.getHash());
-//        } finally {
-//            if (log.isDebugEnabled()) log.debug("eth_sendTransaction(" + args + "): " + s);
-//        }
-//    }
+
+//          args.nonce != null ? StringHexToByteArray(args.nonce) : ByteUtil.bigIntegerToBytes(pendingState.getRepository().getNonce(account.getAddress()));
+//          args.gasPrice != null ? StringHexToByteArray(args.gasPrice) : ByteUtil.longToBytesNoLeadZeroes(eth.getGasPrice());
+//          args.gas != null ? StringHexToByteArray(args.gas) : ByteUtil.longToBytes(90_000);
+//          args.to != null ? StringHexToByteArray(args.to) : ByteUtil.EMPTY_BYTE_ARRAY;
+//          args.value != null ? StringHexToByteArray(args.value) : ByteUtil.EMPTY_BYTE_ARRAY;
+//          args.data != null ? StringHexToByteArray(args.data) : ByteUtil.EMPTY_BYTE_ARRAY;
+            
+            MultiTransaction.Builder tx = MultiTransaction.newBuilder();
+            
+            // TODO set tx object
+            
+            submitTransaction(tx,transactionHelper);
+
+            return s = TypeConverter.toJsonHex(tx.getTxHash().toByteArray());
+        } finally {
+            if (log.isDebugEnabled()) log.debug("eth_sendTransaction(" + args + "): " + s);
+        }
+    }
+    public void submitTransaction(MultiTransaction.Builder transaction,TransactionHelper transactionHelper) {
+    		
+    		MultiTransactionTask txTask = new MultiTransactionTask(transaction, transactionHelper);
+    		
+//        final Future<List<Transaction>> listFuture =
+//                TransactionExecutor.instance.submitTransaction(txTask);
+        
+//        pendingState.addPendingTransaction(transaction);
+//        return new FutureAdapter<Transaction, List<Transaction>>(listFuture) {
+//            @Override
+//            protected Transaction adapt(List<Transaction> adapteeResult) throws ExecutionException {
+//                return adapteeResult.get(0);
+//            }
+//        };
+    }
 
 //    public String eth_sendTransaction(String from, String to, String gas,
 //                                      String gasPrice, String value,String data,String nonce) throws Exception {
@@ -768,7 +803,7 @@ public class JsonRpcImpl implements JsonRpc {
 //        }
 //    }
 
-//    @Override
+//    
 //    public TransactionReceiptDTOExt ethj_getTransactionReceipt(String transactionHash) throws Exception {
 //        TransactionReceiptDTOExt s = null;
 //        try {
@@ -803,7 +838,7 @@ public class JsonRpcImpl implements JsonRpc {
 //        }
 //    }
 
-//    @Override
+//    
 //    public BlockResult eth_getUncleByBlockHashAndIndex(String blockHash, String uncleIdx) throws Exception {
 //        BlockResult s = null;
 //        try {
@@ -822,7 +857,7 @@ public class JsonRpcImpl implements JsonRpc {
 //        }
 //    }
 
-//    @Override
+//    
 //    public BlockResult eth_getUncleByBlockNumberAndIndex(String blockId, String uncleIdx) throws Exception {
 //        BlockResult s = null;
 //        try {
@@ -834,7 +869,7 @@ public class JsonRpcImpl implements JsonRpc {
 //        }
 //    }
 
-    @Override
+    
     public String[] eth_getCompilers() {
         String[] s = null;
         try {
@@ -844,47 +879,47 @@ public class JsonRpcImpl implements JsonRpc {
         }
     }
 
-    @Override
+    
     public CompilationResult eth_compileLLL(String contract) {
         throw new UnsupportedOperationException("LLL compiler not supported");
     }
 
-//    @Override
-//    public CompilationResult eth_compileSolidity(String contract) throws Exception {
-//        CompilationResult s = null;
-//        try {
-//            SolidityCompiler.Result res = solidityCompiler.compileSrc(
-//                    contract.getBytes(), true, true, SolidityCompiler.Options.ABI, SolidityCompiler.Options.BIN);
-//            if (res.isFailed()) {
-//                throw new RuntimeException("Compilation error: " + res.errors);
-//            }
-//            org.brewchain.core.solidity.compiler.CompilationResult result = org.brewchain.core.solidity.compiler.CompilationResult.parse(res.output);
-//            CompilationResult ret = new CompilationResult();
-//            org.brewchain.core.solidity.compiler.CompilationResult.ContractMetadata contractMetadata = result.contracts.values().iterator().next();
-//            ret.code = toJsonHex(contractMetadata.bin);
-//            ret.info = new CompilationInfo();
-//            ret.info.source = contract;
-//            ret.info.language = "Solidity";
-//            ret.info.languageVersion = "0";
-//            ret.info.compilerVersion = result.version;
-//            ret.info.abiDefinition = new CallTransaction.Contract(contractMetadata.abi).functions;
-//            return s = ret;
-//        } finally {
-//            if (log.isDebugEnabled()) log.debug("eth_compileSolidity(" + contract + ")" + s);
-//        }
-//    }
+    
+    public CompilationResult eth_compileSolidity(String contract) throws Exception {
+        CompilationResult s = null;
+        try {
+            SolidityCompiler.Result res = solidityCompiler.compileSrc(
+                    contract.getBytes(), true, true, SolidityCompiler.Options.ABI, SolidityCompiler.Options.BIN);
+            if (res.isFailed()) {
+                throw new RuntimeException("Compilation error: " + res.errors);
+            }
+            org.brewchain.evm.solidity.compiler.CompilationResult result = org.brewchain.evm.solidity.compiler.CompilationResult.parse(res.output);
+            CompilationResult ret = new CompilationResult();
+            org.brewchain.evm.solidity.compiler.CompilationResult.ContractMetadata contractMetadata = result.contracts.values().iterator().next();
+            ret.code = toJsonHex(contractMetadata.bin);
+            ret.info = new CompilationInfo();
+            ret.info.source = contract;
+            ret.info.language = "Solidity";
+            ret.info.languageVersion = "0";
+            ret.info.compilerVersion = result.version;
+            ret.info.abiDefinition = new CallTransaction.Contract(contractMetadata.abi).functions;
+            return s = ret;
+        } finally {
+            if (log.isDebugEnabled()) log.debug("eth_compileSolidity(" + contract + ")" + s);
+        }
+    }
 
-    @Override
+    
     public CompilationResult eth_compileSerpent(String contract){
         throw new UnsupportedOperationException("Serpent compiler not supported");
     }
 
-    @Override
+    
     public String eth_resend() {
         throw new UnsupportedOperationException("JSON RPC method eth_resend not implemented yet");
     }
 
-    @Override
+    
     public String eth_pendingTransactions() {
         throw new UnsupportedOperationException("JSON RPC method eth_pendingTransactions not implemented yet");
     }
@@ -921,7 +956,7 @@ public class JsonRpcImpl implements JsonRpc {
 //            public final Block b;
 //            NewBlockFilterEvent(Block b) {this.b = b;}
 //
-//            @Override
+//            
 //            public String getJsonEventObject() {
 //                return toJsonHex(b.getHash());
 //            }
@@ -938,7 +973,7 @@ public class JsonRpcImpl implements JsonRpc {
 //
 //            PendingTransactionFilterEvent(Transaction tx) {this.tx = tx;}
 //
-//            @Override
+//            
 //            public String getJsonEventObject() {
 //                return toJsonHex(tx.getHash());
 //            }
@@ -957,7 +992,7 @@ public class JsonRpcImpl implements JsonRpc {
                 this.el = el;
             }
 
-            @Override
+            
             public LogFilterElement getJsonEventObject() {
                 return el;
             }
@@ -1004,19 +1039,19 @@ public class JsonRpcImpl implements JsonRpc {
 //            }
 //        }
 
-//        @Override
+//        
 //        public void newBlockReceived(Block b) {
 //            if (onNewBlock) onBlock(b);
 //        }
 
-        @Override
+        
         public void newPendingTx(Transaction tx) {
             // TODO add TransactionReceipt for PendingTx
 //            if (onPendingTx)
         }
     }
 
-//    @Override
+//    
 //    public String eth_newFilter(FilterRequest fr) throws Exception {
 //        String str = null;
 //        try {
@@ -1076,7 +1111,7 @@ public class JsonRpcImpl implements JsonRpc {
 //        }
 //    }
 
-    @Override
+    
     public String eth_newBlockFilter() {
         String s = null;
         try {
@@ -1088,7 +1123,7 @@ public class JsonRpcImpl implements JsonRpc {
         }
     }
 
-    @Override
+    
     public String eth_newPendingTransactionFilter() {
         String s = null;
         try {
@@ -1100,7 +1135,7 @@ public class JsonRpcImpl implements JsonRpc {
         }
     }
 
-    @Override
+    
     public boolean eth_uninstallFilter(String id) {
         Boolean s = null;
         try {
@@ -1111,7 +1146,7 @@ public class JsonRpcImpl implements JsonRpc {
         }
     }
 
-    @Override
+    
     public Object[] eth_getFilterChanges(String id) {
         Object[] s = null;
         try {
@@ -1123,13 +1158,13 @@ public class JsonRpcImpl implements JsonRpc {
         }
     }
 
-    @Override
+    
     public Object[] eth_getFilterLogs(String id) {
         log.debug("eth_getFilterLogs ...");
         return eth_getFilterChanges(id);
     }
 
-    @Override
+    
     public Object[] eth_getLogs(FilterRequest fr) throws Exception {
         log.debug("eth_getLogs ...");
         String id = eth_newFilter(fr);
@@ -1138,299 +1173,299 @@ public class JsonRpcImpl implements JsonRpc {
         return ret;
     }
 
-    @Override
+    
     public String eth_getWork() {
         throw new UnsupportedOperationException("JSON RPC method eth_getWork not implemented yet");
     }
 
-    @Override
+    
     public String eth_submitWork() {
         throw new UnsupportedOperationException("JSON RPC method eth_submitWork not implemented yet");
     }
 
-    @Override
+    
     public String eth_submitHashrate() {
         throw new UnsupportedOperationException("JSON RPC method eth_submitHashrate not implemented yet");
     }
 
-    @Override
+    
     public String db_putString() {
         throw new UnsupportedOperationException("JSON RPC method db_putString not implemented yet");
     }
 
-    @Override
+    
     public String db_getString() {
         throw new UnsupportedOperationException("JSON RPC method db_getString not implemented yet");
     }
 
-    @Override
+    
     public String db_putHex() {
         throw new UnsupportedOperationException("JSON RPC method db_putHex not implemented yet");
     }
 
-    @Override
+    
     public String db_getHex() {
         throw new UnsupportedOperationException("JSON RPC method db_getHex not implemented yet");
     }
 
-    @Override
+    
     public String shh_post() {
         throw new UnsupportedOperationException("JSON RPC method shh_post not implemented yet");
     }
 
-    @Override
+    
     public String shh_version() {
         throw new UnsupportedOperationException("JSON RPC method shh_version not implemented yet");
     }
 
-    @Override
+    
     public String shh_newIdentity() {
         throw new UnsupportedOperationException("JSON RPC method shh_newIdentity not implemented yet");
     }
 
-    @Override
+    
     public String shh_hasIdentity() {
         throw new UnsupportedOperationException("JSON RPC method shh_hasIdentity not implemented yet");
     }
 
-    @Override
+    
     public String shh_newGroup() {
         throw new UnsupportedOperationException("JSON RPC method shh_newGroup not implemented yet");
     }
 
-    @Override
+    
     public String shh_addToGroup() {
         throw new UnsupportedOperationException("JSON RPC method shh_addToGroup not implemented yet");
     }
 
-    @Override
+    
     public String shh_newFilter() {
         throw new UnsupportedOperationException("JSON RPC method shh_newFilter not implemented yet");
     }
 
-    @Override
+    
     public String shh_uninstallFilter() {
         throw new UnsupportedOperationException("JSON RPC method shh_uninstallFilter not implemented yet");
     }
 
-    @Override
+    
     public String shh_getFilterChanges() {
         throw new UnsupportedOperationException("JSON RPC method shh_getFilterChanges not implemented yet");
     }
 
-    @Override
+    
     public String shh_getMessages() {
         throw new UnsupportedOperationException("JSON RPC method shh_getMessages not implemented yet");
     }
 
-    @Override
+    
     public boolean admin_addPeer(String s) {
 //        eth.connect(new Node(s));
         return true;
     }
 
-    @Override
+    
     public String admin_exportChain() {
         throw new UnsupportedOperationException("JSON RPC method admin_exportChain not implemented yet");
     }
 
-    @Override
+    
     public String admin_importChain() {
         throw new UnsupportedOperationException("JSON RPC method admin_importChain not implemented yet");
     }
 
-    @Override
+    
     public String admin_sleepBlocks() {
         throw new UnsupportedOperationException("JSON RPC method admin_sleepBlocks not implemented yet");
     }
 
-    @Override
+    
     public String admin_verbosity() {
         throw new UnsupportedOperationException("JSON RPC method admin_verbosity not implemented yet");
     }
 
-    @Override
+    
     public String admin_setSolc() {
         throw new UnsupportedOperationException("JSON RPC method admin_setSolc not implemented yet");
     }
 
-    @Override
+    
     public String admin_startRPC() {
         throw new UnsupportedOperationException("JSON RPC method admin_startRPC not implemented yet");
     }
 
-    @Override
+    
     public String admin_stopRPC() {
         throw new UnsupportedOperationException("JSON RPC method admin_stopRPC not implemented yet");
     }
 
-    @Override
+    
     public String admin_setGlobalRegistrar() {
         throw new UnsupportedOperationException("JSON RPC method admin_setGlobalRegistrar not implemented yet");
     }
 
-    @Override
+    
     public String admin_setHashReg() {
         throw new UnsupportedOperationException("JSON RPC method admin_setHashReg not implemented yet");
     }
 
-    @Override
+    
     public String admin_setUrlHint() {
         throw new UnsupportedOperationException("JSON RPC method admin_setUrlHint not implemented yet");
     }
 
-    @Override
+    
     public String admin_saveInfo() {
         throw new UnsupportedOperationException("JSON RPC method admin_saveInfo not implemented yet");
     }
 
-    @Override
+    
     public String admin_register() {
         throw new UnsupportedOperationException("JSON RPC method admin_register not implemented yet");
     }
 
-    @Override
+    
     public String admin_registerUrl() {
         throw new UnsupportedOperationException("JSON RPC method admin_registerUrl not implemented yet");
     }
 
-    @Override
+    
     public String admin_startNatSpec() {
         throw new UnsupportedOperationException("JSON RPC method admin_startNatSpec not implemented yet");
     }
 
-    @Override
+    
     public String admin_stopNatSpec() {
         throw new UnsupportedOperationException("JSON RPC method admin_stopNatSpec not implemented yet");
     }
 
-    @Override
+    
     public String admin_getContractInfo() {
         throw new UnsupportedOperationException("JSON RPC method admin_getContractInfo not implemented yet");
     }
 
-    @Override
+    
     public String admin_httpGet() {
         throw new UnsupportedOperationException("JSON RPC method admin_httpGet not implemented yet");
     }
 
-    @Override
+    
     public String admin_nodeInfo() {
         throw new UnsupportedOperationException("JSON RPC method admin_nodeInfo not implemented yet");
     }
 
-    @Override
+    
     public String admin_peers() {
         throw new UnsupportedOperationException("JSON RPC method admin_peers not implemented yet");
     }
 
-    @Override
+    
     public String admin_datadir() {
         throw new UnsupportedOperationException("JSON RPC method admin_datadir not implemented yet");
     }
 
-    @Override
+    
     public String net_addPeer() {
         throw new UnsupportedOperationException("JSON RPC method net_addPeer not implemented yet");
     }
 
-    @Override
+    
     public boolean miner_start() {
 //        blockMiner.startMining();
         return true;
     }
 
-    @Override
+    
     public boolean miner_stop() {
 //        blockMiner.stopMining();
         return true;
     }
 
-    @Override
+    
     public boolean miner_setEtherbase(String coinBase) throws Exception {
 //        blockchain.setMinerCoinbase(TypeConverter.StringHexToByteArray(coinBase));
         return true;
     }
 
-    @Override
+    
     public boolean miner_setExtra(String data) throws Exception {
 //        blockchain.setMinerExtraData(TypeConverter.StringHexToByteArray(data));
         return true;
     }
 
-    @Override
+    
     public boolean miner_setGasPrice(String newMinGasPrice) {
 //        blockMiner.setMinGasPrice(TypeConverter.StringHexToBigInteger(newMinGasPrice));
         return true;
     }
 
-    @Override
+    
     public boolean miner_startAutoDAG() {
         return false;
     }
 
-    @Override
+    
     public boolean miner_stopAutoDAG() {
         return false;
     }
 
-    @Override
+    
     public boolean miner_makeDAG() {
         return false;
     }
 
-    @Override
+    
     public String miner_hashrate() {
         return "0x01";
     }
 
-    @Override
+    
     public String debug_printBlock() {
         throw new UnsupportedOperationException("JSON RPC method debug_printBlock not implemented yet");
     }
 
-    @Override
+    
     public String debug_getBlockRlp() {
         throw new UnsupportedOperationException("JSON RPC method debug_getBlockRlp not implemented yet");
     }
 
-    @Override
+    
     public String debug_setHead() {
         throw new UnsupportedOperationException("JSON RPC method debug_setHead not implemented yet");
     }
 
-    @Override
+    
     public String debug_processBlock() {
         throw new UnsupportedOperationException("JSON RPC method debug_processBlock not implemented yet");
     }
 
-    @Override
+    
     public String debug_seedHash() {
         throw new UnsupportedOperationException("JSON RPC method debug_seedHash not implemented yet");
     }
 
-    @Override
+    
     public String debug_dumpBlock() {
         throw new UnsupportedOperationException("JSON RPC method debug_dumpBlock not implemented yet");
     }
 
-    @Override
+    
     public String debug_metrics() {
         throw new UnsupportedOperationException("JSON RPC method debug_metrics not implemented yet");
     }
 
-//    @Override
-//    public String personal_newAccount(String seed) {
-//        String s = null;
-//        try {
-//            Account account = addAccount(seed);
-//            return s = toJsonHex(account.getAddress());
-//        } finally {
-//            if (log.isDebugEnabled()) log.debug("personal_newAccount(*****): " + s);
-//        }
-//    }
+    
+    public String personal_newAccount(String seed) {
+        String s = null;
+        try {
+            Account account = addAccount(seed);
+            return s = toJsonHex(account.getAddress().toByteArray());
+        } finally {
+            if (log.isDebugEnabled()) log.debug("personal_newAccount(*****): " + s);
+        }
+    }
 
-    @Override
+    
     public boolean personal_unlockAccount(String addr, String pass, String duration) {
         String s = null;
         try {
@@ -1440,7 +1475,7 @@ public class JsonRpcImpl implements JsonRpc {
         }
     }
 
-    @Override
+    
     public String[] personal_listAccounts() {
         String[] ret = new String[accounts.size()];
         try {
@@ -1453,121 +1488,114 @@ public class JsonRpcImpl implements JsonRpc {
             if (log.isDebugEnabled()) log.debug("personal_listAccounts(): " + Arrays.toString(ret));
         }
     }
-
     
     
     
     // MT 
-	@Override
+    @Override
 	public String net_peerCount() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
+    @Override
 	public boolean net_listening() {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
-	@Override
+    @Override
 	public String eth_coinbase() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
+    @Override
 	public boolean eth_mining() {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
-	@Override
+    @Override
 	public String eth_gasPrice() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
+    @Override
 	public String eth_blockNumber() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
+    @Override
 	public String eth_getBalance(String address, String block) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
+    @Override
 	public String eth_getStorageAt(String address, String storageIdx, String blockId) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
+    @Override
 	public String eth_getTransactionCount(String address, String blockId) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
+    @Override
 	public String eth_getBlockTransactionCountByHash(String blockHash) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
+    @Override
 	public String eth_getBlockTransactionCountByNumber(String bnOrId) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
+    @Override
 	public String eth_getUncleCountByBlockHash(String blockHash) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
+    @Override
 	public String eth_getUncleCountByBlockNumber(String bnOrId) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
+    @Override
 	public String eth_getCode(String addr, String bnOrId) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
+    @Override
 	public String eth_sign(String addr, String data) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
-	public String eth_sendTransaction(CallArguments transactionArgs) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
+    @Override
 	public String eth_sendTransaction(String from, String to, String gas, String gasPrice, String value, String data,
 			String nonce) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
+    @Override
 	public String eth_sendRawTransaction(String rawData) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
+    @Override
 	public String eth_estimateGas(CallArguments args) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
@@ -1628,23 +1656,29 @@ public class JsonRpcImpl implements JsonRpc {
 	}
 
 	@Override
-	public CompilationResult eth_compileSolidity(String contract) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public String eth_newFilter(FilterRequest fr) throws Exception {
 		// TODO Auto-generated method stub
+/////////////////////////////////////////////////
 		return null;
 	}
 
-	@Override
-	public String personal_newAccount(String seed) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-    
-    
-    
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

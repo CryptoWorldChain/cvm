@@ -1,18 +1,16 @@
 package org.brewchain.evm.service;
 
-import static java.math.BigInteger.valueOf;
-
 import org.apache.commons.lang3.StringUtils;
-import org.brewchain.evm.call.CallTransaction;
-import org.brewchain.evm.jsonrpc.JsonRpc;
-import org.brewchain.evm.jsonrpc.TransactionReceiptDTO;
-import org.brewchain.evm.jsonrpc.TypeConverter;
+import org.brewchain.account.core.TransactionHelper;
 import org.brewchain.cvm.pbgens.Cvm.PCommand;
 import org.brewchain.cvm.pbgens.Cvm.PModule;
 import org.brewchain.cvm.pbgens.Cvm.PRetRun;
 import org.brewchain.cvm.pbgens.Cvm.PSRunContract;
-
-import org.brewchain.account.gens.Tx.MultiTransaction;
+import org.brewchain.evm.call.CallTransaction;
+import org.brewchain.evm.jsonrpc.JsonRpc;
+import org.brewchain.evm.jsonrpc.JsonRpcImpl;
+import org.brewchain.evm.jsonrpc.TransactionReceiptDTO;
+import org.brewchain.evm.jsonrpc.TypeConverter;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -31,9 +29,12 @@ public class RunContractService extends SessionModules<PSRunContract> {
 	// @ActorRequire
 	// CommonService commonService;
 	
-	@ActorRequire(name = "json_Rpc_Impl")
-    JsonRpc jsonRpc;
+    JsonRpc jsonRpc = new JsonRpcImpl();
 
+
+	@ActorRequire(name = "Transaction_Helper", scope = "global")
+	TransactionHelper transactionHelper;
+    
 	@Override
 	public String getModule() {
 		return PModule.CVM.name();
@@ -54,7 +55,7 @@ public class RunContractService extends SessionModules<PSRunContract> {
 		try {
 			checkNull(pbo);
 			
-			String cowAcct = jsonRpc.personal_newAccount(pbo.getFrom());
+			String cowAcct = jsonRpc.personal_newAccount(pbo.getFromAddr());
 //			
 //            String bal0 = jsonRpc.eth_getBalance(cowAcct);
 //            
@@ -97,13 +98,14 @@ public class RunContractService extends SessionModules<PSRunContract> {
 //            }
 
             
-
+			jsonRpc.setTransactionHelper(transactionHelper);
+			
             JsonRpc.CallArguments callArgs = new JsonRpc.CallArguments();
             callArgs.from = cowAcct;
             // 0x0000000000000000000000000000000000001234
-            callArgs.to = pbo.getTo();
-            callArgs.gas = "0x"+pbo.getGas();
-            callArgs.gasPrice = "0x"+pbo.getGasPrice();
+            callArgs.to = pbo.getToAddr();
+            callArgs.gas = "0x"+pbo.getFeeLimit();
+            callArgs.gasPrice = "0x"+pbo.getFee();
             callArgs.value = "0x"+pbo.getValue();
             
             JsonRpc.CompilationResult compRes = jsonRpc.eth_compileSolidity(pbo.getCode());
@@ -204,11 +206,11 @@ public class RunContractService extends SessionModules<PSRunContract> {
 			throw new IllegalArgumentException("参数fun_name,不能为空");
 		}
 
-		if (StringUtils.isBlank(pb.getFrom())) {
+		if (StringUtils.isBlank(pb.getFromAddr())) {
 			throw new IllegalArgumentException("参数from,不能为空");
 		}
 
-		if(StringUtils.isBlank(pb.getTo())) {
+		if(StringUtils.isBlank(pb.getToAddr())) {
 			throw new IllegalArgumentException("参数to,不能为空");
 		}
 		
@@ -216,12 +218,12 @@ public class RunContractService extends SessionModules<PSRunContract> {
 //			throw new IllegalArgumentException("参数data,不能为空");
 //		}
 		
-		if(pb.getGas()<=0) {
-			throw new IllegalArgumentException("参数gas,不能为空");
-			}
+		if(pb.getFee()<=0) {
+			throw new IllegalArgumentException("参数fee,不能为空");
+		}
 		
-		if(pb.getGasPrice()<=0) {
-			throw new IllegalArgumentException("参数gas_price,不能为空");
+		if(pb.getFeeLimit()<=0) {
+			throw new IllegalArgumentException("参数fee_limit,不能为空");
 		}
 		
 		if(pb.getValue()<=0) {

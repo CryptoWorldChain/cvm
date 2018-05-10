@@ -6,17 +6,27 @@ import static org.brewchain.evm.solidity.compiler.SolidityCompiler.Options.INTER
 import static org.brewchain.evm.solidity.compiler.SolidityCompiler.Options.METADATA;
 
 import org.apache.commons.lang3.StringUtils;
+import org.brewchain.account.core.AccountHelper;
+import org.brewchain.account.core.TransactionHelper;
+import org.brewchain.account.gens.Tx.MultiTransaction;
+import org.brewchain.account.gens.Tx.MultiTransactionBody;
+import org.brewchain.account.gens.Tx.MultiTransactionInput;
+import org.brewchain.account.gens.Tx.MultiTransactionOutput;
+import org.brewchain.account.gens.Tx.MultiTransactionSignature;
 import org.brewchain.cvm.pbgens.Cvm.PCommand;
 import org.brewchain.cvm.pbgens.Cvm.PMContract;
 import org.brewchain.cvm.pbgens.Cvm.PModule;
 import org.brewchain.cvm.pbgens.Cvm.PRetBuild;
 import org.brewchain.cvm.pbgens.Cvm.PSBuildCode;
+import org.brewchain.evm.base.MTransaction;
 import org.brewchain.evm.call.CallTransaction;
 import org.brewchain.evm.solidity.compiler.CompilationResult;
 import org.brewchain.evm.solidity.compiler.SolidityCompiler;
 import org.brewchain.evm.utils.VMUtil;
 import org.fc.brewchain.bcapi.EncAPI;
 import org.fc.brewchain.bcapi.KeyPairs;
+
+import com.google.protobuf.ByteString;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +44,12 @@ public class BuildService extends SessionModules<PSBuildCode> {
 
 	@ActorRequire(name = "bc_encoder",scope = "global")
 	EncAPI encAPI;
+	
+	@ActorRequire(name = "Account_Helper", scope = "global")
+	AccountHelper accountHelper;
+	
+	@ActorRequire(name = "Transaction_Helper", scope = "global")
+	TransactionHelper transactionHelper;
 	
 	@Override
 	public String getModule() {
@@ -77,9 +93,9 @@ public class BuildService extends SessionModules<PSBuildCode> {
 						c.setName(name);
 						CompilationResult.ContractMetadata cm = result.contracts.get(name);
 
-						KeyPairs key = encAPI.genKeys();
+//						KeyPairs key = encAPI.genKeys();
 						
-						c.setAddr(key.getAddress());
+//						c.setAddr(pbo.getAddr());
 						c.setBin(cm.bin);
 						c.setAbi(cm.abi);
 						c.setMetadata(cm.metadata);
@@ -91,7 +107,39 @@ public class BuildService extends SessionModules<PSBuildCode> {
 								c.addFunName(contract.functions[i].toString());
 							}
 						}
+						
+						long fee = 0L;
+						long feeLimit = 0L;
+						if(pbo.getFee() > 0) {
+							fee = pbo.getFee();
+							feeLimit = fee;
+							if(pbo.getFeeLimit() > 0) {
+								feeLimit = pbo.getFeeLimit  ();
+							}
+						}
+						
+						String  version = "v1.0.0";
+						if(StringUtils.isNotBlank(pbo.getVersion())) {
+							version = pbo.getVersion();
+						}
 
+						String exDataStr = "{"
+									+ "'code':'"+pbo.getCode()+"'"
+									+ ",'version':'"+version+"'"
+									+ ",'bin':'"+c.getBin()+"'"
+									+ ",'abi':'"+c.getAbi()+"'"
+									+ ",'metadata':'"+c.getMetadata()+"'"
+								+ "}";
+						
+						MTransaction tx = new MTransaction(accountHelper);
+						tx.addTXInput(pbo.getAddr(), pbo.getPubKey(), pbo.getSign(), 0L, fee, feeLimit);
+						tx.addTXOutput(null, 0L);
+//						MultiTransaction.Builder ctx = tx.genTX(c.getAbi().getBytes(), exDataStr.getBytes());
+						tx.sendTX(transactionHelper, c.getAbi().getBytes(), exDataStr.getBytes());
+						
+						
+						// TODO 创建合约交易
+						
 						// Abi abi = Abi.fromJson(cm.abi);
 						// Entry onlyFunc = abi.get(0);
 						// System.out.println();
@@ -130,6 +178,15 @@ public class BuildService extends SessionModules<PSBuildCode> {
 	public void checkNull(PSBuildCode pb) {
 		if (pb == null) {
 			throw new IllegalArgumentException("无请求参数");
+		}
+		if (StringUtils.isBlank(pb.getAddr())) {
+			throw new IllegalArgumentException("参数addr,不能为空");
+		}
+		if (StringUtils.isBlank(pb.getPubKey())) {
+			throw new IllegalArgumentException("参数pub_key,不能为空");
+		}
+		if (StringUtils.isBlank(pb.getSign())) {
+			throw new IllegalArgumentException("参数sign,不能为空");
 		}
 		if (StringUtils.isBlank(pb.getCode())) {
 			throw new IllegalArgumentException("参数code,不能为空");

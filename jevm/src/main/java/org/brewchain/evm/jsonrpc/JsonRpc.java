@@ -4,13 +4,20 @@ import static org.brewchain.evm.jsonrpc.TypeConverter.toJsonHex;
 
 import java.util.Arrays;
 
+import org.brewchain.account.core.TransactionHelper;
 import org.brewchain.account.gens.Block;
 import org.brewchain.account.gens.Tx.MultiTransaction;
 import org.brewchain.evm.base.LogInfo;
 import org.brewchain.evm.call.CallTransaction;
 
+import lombok.Getter;
+import lombok.Setter;
+import onight.tfw.ntrans.api.annotation.ActorRequire;
+
 public interface JsonRpc {
 
+	public void setTransactionHelper(TransactionHelper transactionHelper) ;
+	
     class SyncingResult {
         public String startingBlock;
         public String currentBlock;

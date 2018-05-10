@@ -13,7 +13,20 @@ enum PCommand {
 };
 
 message PSBuildCode{//编译
-	string code = 1;
+
+	string code = 1 [jstype = JS_NORMAL];//合约代码
+	string version = 5;//合约版本，默认v1.0.0
+
+	string addr = 3; //要创建合约账户地址
+	string pub_key = 4; //要创建合约账户公钥
+//	string token = 5;  //erc20类型需要提供token，默认=非erc20
+
+	int64 fee = 7; //默认=0
+	int64 fee_limit = 8; //默认=fee
+//	string to_addr = 9;
+
+	string sign = 10;//创建合约交易签名
+
 }
 
 message PRetBuild{
@@ -39,8 +52,8 @@ message PSRunFun{//运行方法
 	repeated PMFunPut outputs = 5;//方法的输出
 
 
-	int64 gas_price = 7;
-	int64 gas_limit = 8; //默认=gas_price
+	int64 fee = 7;
+	int64 fee_limit = 8; //默认=fee
 	string to_addr = 9;
 	string ctx_sign = 10; //合约交易签名
 
@@ -60,11 +73,12 @@ message PSRunContract{//运行合约
 	string fun_name = 2; //要运行的合约中的方法名称
 
 
-	string from = 3; // Account Seed
-	string to = 4; // 0x0000000000000000000000000000000000001234
+	string from_addr = 3; // Account Seed
+	string pub_key = 12;
+	string to_addr = 4; // 0x0000000000000000000000000000000000001234
 	string data = 5;
-	int64  gas = 6; //300000
-	int64  gas_price = 7; //10000000000
+	int64  fee = 6; //300000
+	int64  fee_limit = 7; //10000000000
 	int64  value = 8; //
 
 }
