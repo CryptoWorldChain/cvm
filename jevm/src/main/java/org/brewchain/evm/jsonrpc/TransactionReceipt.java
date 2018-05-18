@@ -43,7 +43,7 @@ import org.spongycastle.util.encoders.Hex;
  */
 public class TransactionReceipt {
 
-    private MultiTransaction transaction;
+    private MultiTransaction.Builder transaction;
 
     private byte[] postTxState = EMPTY_BYTE_ARRAY;
     private byte[] cumulativeGas = EMPTY_BYTE_ARRAY;
@@ -261,11 +261,11 @@ public class TransactionReceipt {
         rlpEncoded = null;
     }
 
-    public void setTransaction(MultiTransaction transaction) {
+    public void setTransaction(MultiTransaction.Builder transaction) {
         this.transaction = transaction;
     }
 
-    public MultiTransaction getTransaction() {
+    public MultiTransaction.Builder getTransaction() {
         if (transaction == null) throw new NullPointerException("Transaction is not initialized. Use TransactionInfo and BlockStore to setup Transaction instance");
         return transaction;
     }

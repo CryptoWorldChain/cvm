@@ -1,27 +1,6 @@
-/*
- * Copyright (c) [2016] [ <ether.camp> ]
- * This file is part of the ethereumJ library.
- *
- * The ethereumJ library is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * The ethereumJ library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with the ethereumJ library. If not, see <http://www.gnu.org/licenses/>.
- */
+
 package org.brewchain.evm.exec;
 
-//import org.ethereum.config.BlockchainConfig;
-//import org.ethereum.config.SystemProperties;
-//import org.ethereum.db.ContractDetails;
-//import org.ethereum.vm.program.Program;
-//import org.ethereum.vm.program.Stack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
@@ -40,53 +19,16 @@ import  org.brewchain.evm.base.DataWord;
 import  org.brewchain.evm.base.LogInfo;
 import static org.brewchain.evm.exec.OpCode.*;
 
-/**
- * The Ethereum Virtual Machine (EVM) is responsible for initialization
- * and executing a transaction on a contract.
- *
- * It is a quasi-Turing-complete machine; the quasi qualification
- * comes from the fact that the computation is intrinsically bounded
- * through a parameter, gas, which limits the total amount of computation done.
- *
- * The EVM is a simple stack-based architecture. The word size of the machine
- * (and thus size of stack item) is 256-bit. This was chosen to facilitate
- * the SHA3-256 hash scheme and  elliptic-curve computations. The memory model
- * is a simple word-addressed byte array. The stack has an unlimited size.
- * The machine also has an independent storage model; this is similar in concept
- * to the memory but rather than a byte array, it is a word-addressable word array.
- *
- * Unlike memory, which is volatile, storage is non volatile and is
- * maintained as part of the system state. All locations in both storage
- * and memory are well-defined initially as zero.
- *
- * The machine does not follow the standard von Neumann architecture.
- * Rather than storing program code in generally-accessible memory or storage,
- * it is stored separately in a virtual ROM interactable only though
- * a specialised instruction.
- *
- * The machine can have exceptional execution for several reasons,
- * including stack underflows and invalid instructions. These unambiguously
- * and validly result in immediate halting of the machine with all state changes
- * left intact. The one piece of exceptional execution that does not leave
- * state changes intact is the out-of-gas (OOG) exception.
- *
- * Here, the machine halts immediately and reports the issue to
- * the execution agent (either the transaction processor or, recursively,
- * the spawning execution environment) and which will deal with it separately.
- *
- * @author Roman Mandeleil
- * @since 01.06.2014
- */
 public class VM {
 
     private static final Logger logger = LoggerFactory.getLogger("VM");
-    private static final Logger dumpLogger = LoggerFactory.getLogger("dump");
+//    private static final Logger dumpLogger = LoggerFactory.getLogger("dump");
     private static BigInteger _32_ = BigInteger.valueOf(32);
     private static final String logString = "{}    Op: [{}]  Gas: [{}] Deep: [{}]  Hint: [{}]";
 
     // max mem size which couldn't be paid for ever
     // used to reduce expensive BigInt arithmetic
-    private static BigInteger MAX_MEM_SIZE = BigInteger.valueOf(Integer.MAX_VALUE);
+//    private static BigInteger MAX_MEM_SIZE = BigInteger.valueOf(Integer.MAX_VALUE);
 
 
     /* Keeps track of the number of steps performed in this VM */
@@ -94,46 +36,46 @@ public class VM {
 
     private static VMHook vmHook;
     private boolean vmTrace;
-    private long dumpBlock;
+//    private long dumpBlock;
     
     public VM() {
 //        this.config = config;
 //        vmTrace = config.vmTrace();
 //        dumpBlock = config.dumpBlock();
     		vmTrace = false;
-    		dumpBlock = 100;
+//    		dumpBlock = 100;
     }
 
-    private long calcMemGas(TipCost gasCosts, long oldMemSize, BigInteger newMemSize, long copySize) {
-        long gasCost = 0;
+//    private long calcMemGas(TipCost gasCosts, long oldMemSize, BigInteger newMemSize, long copySize) {
+//        long gasCost = 0;
+//
+//        // Avoid overflows
+//        if (newMemSize.compareTo(MAX_MEM_SIZE) == 1) {
+//            throw Program.Exception.gasOverflow(newMemSize, MAX_MEM_SIZE);
+//        }
+//
+//        // memory gas calc
+//        long memoryUsage = (newMemSize.longValue() + 31) / 32 * 32;
+//        if (memoryUsage > oldMemSize) {
+//            long memWords = (memoryUsage / 32);
+//            long memWordsOld = (oldMemSize / 32);
+//            //TODO #POC9 c_quadCoeffDiv = 512, this should be a constant, not magic number
+//            long memGas = ( gasCosts.getMEMORY() * memWords + memWords * memWords / 512)
+//                    - (gasCosts.getMEMORY() * memWordsOld + memWordsOld * memWordsOld / 512);
+//            gasCost += memGas;
+//        }
+//
+//        if (copySize > 0) {
+//            long copyGas = gasCosts.getCOPY_GAS() * ((copySize + 31) / 32);
+//            gasCost += copyGas;
+//        }
+//        return gasCost;
+//    }
 
-        // Avoid overflows
-        if (newMemSize.compareTo(MAX_MEM_SIZE) == 1) {
-            throw Program.Exception.gasOverflow(newMemSize, MAX_MEM_SIZE);
-        }
-
-        // memory gas calc
-        long memoryUsage = (newMemSize.longValue() + 31) / 32 * 32;
-        if (memoryUsage > oldMemSize) {
-            long memWords = (memoryUsage / 32);
-            long memWordsOld = (oldMemSize / 32);
-            //TODO #POC9 c_quadCoeffDiv = 512, this should be a constant, not magic number
-            long memGas = ( gasCosts.getMEMORY() * memWords + memWords * memWords / 512)
-                    - (gasCosts.getMEMORY() * memWordsOld + memWordsOld * memWordsOld / 512);
-            gasCost += memGas;
-        }
-
-        if (copySize > 0) {
-            long copyGas = gasCosts.getCOPY_GAS() * ((copySize + 31) / 32);
-            gasCost += copyGas;
-        }
-        return gasCost;
-    }
-
-    private boolean isDeadAccount(Program program, byte[] addr) {
+//    private boolean isDeadAccount(Program program, byte[] addr) {
 //        return !program.getStorage().isExist(addr) || program.getStorage().getAccountState(addr).isEmpty();
-    		return true;
-    }
+//    		return true;
+//    }
 
     public void step(Program program) {
 
@@ -1336,9 +1278,9 @@ public class VM {
         }
     }
 
-    public static void setVmHook(VMHook vmHook) {
-        VM.vmHook = vmHook;
-    }
+//    public static void setVmHook(VMHook vmHook) {
+//        VM.vmHook = vmHook;
+//    }
 
     /**
      * Utility to calculate new total memory size needed for an operation.
@@ -1348,9 +1290,9 @@ public class VM {
      * @param size number of bytes needed
      * @return offset + size, unless size is 0. In that case memNeeded is also 0.
      */
-    private static BigInteger memNeeded(DataWord offset, DataWord size) {
-        return size.isZero() ? BigInteger.ZERO : offset.value().add(size.value());
-    }
+//    private static BigInteger memNeeded(DataWord offset, DataWord size) {
+//        return size.isZero() ? BigInteger.ZERO : offset.value().add(size.value());
+//    }
 
     /*
      * Dumping the VM state at the current operation in various styles
@@ -1360,60 +1302,60 @@ public class VM {
      *              vmCounter, internalSteps, operation
                     gasBefore, gasCost, memWords)
      */
-    private void dumpLine(OpCode op, long gasBefore, long gasCost, long memWords, Program program) {
-//        if (config.dumpStyle().equals("standard+")) {
-            switch (op) {
-                case STOP:
-                case RETURN:
-                case SUICIDE:
-                		System.out.println("SUICIDE -- VM.java 1369");
-//                    ContractDetails details = program.getStorage()
-//                            .getContractDetails(program.getOwnerAddress().getLast20Bytes());
-//                    List<DataWord> storageKeys = new ArrayList<>(details.getStorage().keySet());
-//                    Collections.sort(storageKeys);
-//
-//                    for (DataWord key : storageKeys) {
-//                        dumpLogger.trace("{} {}",
-//                                Hex.toHexString(key.getNoLeadZeroesData()),
-//                                Hex.toHexString(details.getStorage().get(key).getNoLeadZeroesData()));
-//                    }
-                default:
-                    break;
-            }
-            String addressString = Hex.toHexString(program.getOwnerAddress().getLast20Bytes());
-            String pcString = Hex.toHexString(new DataWord(program.getPC()).getNoLeadZeroesData());
-            String opString = Hex.toHexString(new byte[]{op.val()});
-            String gasString = Hex.toHexString(program.getGas().getNoLeadZeroesData());
-
-            dumpLogger.trace("{} {} {} {}", addressString, pcString, opString, gasString);
-//        } else if (config.dumpStyle().equals("pretty")) {
-//            dumpLogger.trace("    STACK");
-//            for (DataWord item : program.getStack()) {
-//                dumpLogger.trace("{}", item);
+//    private void dumpLine(OpCode op, long gasBefore, long gasCost, long memWords, Program program) {
+////        if (config.dumpStyle().equals("standard+")) {
+//            switch (op) {
+//                case STOP:
+//                case RETURN:
+//                case SUICIDE:
+//                		System.out.println("SUICIDE -- VM.java 1369");
+////                    ContractDetails details = program.getStorage()
+////                            .getContractDetails(program.getOwnerAddress().getLast20Bytes());
+////                    List<DataWord> storageKeys = new ArrayList<>(details.getStorage().keySet());
+////                    Collections.sort(storageKeys);
+////
+////                    for (DataWord key : storageKeys) {
+////                        dumpLogger.trace("{} {}",
+////                                Hex.toHexString(key.getNoLeadZeroesData()),
+////                                Hex.toHexString(details.getStorage().get(key).getNoLeadZeroesData()));
+////                    }
+//                default:
+//                    break;
 //            }
-//            dumpLogger.trace("    MEMORY");
-//            String memoryString = program.memoryToString();
-//            if (!"".equals(memoryString))
-//                dumpLogger.trace("{}", memoryString);
+//            String addressString = Hex.toHexString(program.getOwnerAddress().getLast20Bytes());
+//            String pcString = Hex.toHexString(new DataWord(program.getPC()).getNoLeadZeroesData());
+//            String opString = Hex.toHexString(new byte[]{op.val()});
+//            String gasString = Hex.toHexString(program.getGas().getNoLeadZeroesData());
 //
-//            dumpLogger.trace("    STORAGE");
-//            ContractDetails details = program.getStorage()
-//                    .getContractDetails(program.getOwnerAddress().getLast20Bytes());
-//            List<DataWord> storageKeys = new ArrayList<>(details.getStorage().keySet());
-//            Collections.sort(storageKeys);
-//
-//            for (DataWord key : storageKeys) {
-//                dumpLogger.trace("{}: {}",
-//                        key.shortHex(),
-//                        details.getStorage().get(key).shortHex());
-//            }
-//
-//            int level = program.getCallDeep();
-//            String contract = Hex.toHexString(program.getOwnerAddress().getLast20Bytes());
-//            String internalSteps = String.format("%4s", Integer.toHexString(program.getPC())).replace(' ', '0').toUpperCase();
-//            dumpLogger.trace("{} | {} | #{} | {} : {} | {} | -{} | {}x32",
-//                    level, contract, vmCounter, internalSteps, op,
-//                    gasBefore, gasCost, memWords);
-//        }
-    }
+//            dumpLogger.trace("{} {} {} {}", addressString, pcString, opString, gasString);
+////        } else if (config.dumpStyle().equals("pretty")) {
+////            dumpLogger.trace("    STACK");
+////            for (DataWord item : program.getStack()) {
+////                dumpLogger.trace("{}", item);
+////            }
+////            dumpLogger.trace("    MEMORY");
+////            String memoryString = program.memoryToString();
+////            if (!"".equals(memoryString))
+////                dumpLogger.trace("{}", memoryString);
+////
+////            dumpLogger.trace("    STORAGE");
+////            ContractDetails details = program.getStorage()
+////                    .getContractDetails(program.getOwnerAddress().getLast20Bytes());
+////            List<DataWord> storageKeys = new ArrayList<>(details.getStorage().keySet());
+////            Collections.sort(storageKeys);
+////
+////            for (DataWord key : storageKeys) {
+////                dumpLogger.trace("{}: {}",
+////                        key.shortHex(),
+////                        details.getStorage().get(key).shortHex());
+////            }
+////
+////            int level = program.getCallDeep();
+////            String contract = Hex.toHexString(program.getOwnerAddress().getLast20Bytes());
+////            String internalSteps = String.format("%4s", Integer.toHexString(program.getPC())).replace(' ', '0').toUpperCase();
+////            dumpLogger.trace("{} | {} | #{} | {} : {} | {} | -{} | {}x32",
+////                    level, contract, vmCounter, internalSteps, op,
+////                    gasBefore, gasCost, memWords);
+////        }
+//    }
 }

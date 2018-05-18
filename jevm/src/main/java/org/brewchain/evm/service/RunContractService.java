@@ -1,5 +1,7 @@
 package org.brewchain.evm.service;
 
+import java.math.BigInteger;
+
 import org.apache.commons.lang3.StringUtils;
 import org.brewchain.account.core.TransactionHelper;
 import org.brewchain.cvm.pbgens.Cvm.PCommand;
@@ -7,10 +9,14 @@ import org.brewchain.cvm.pbgens.Cvm.PModule;
 import org.brewchain.cvm.pbgens.Cvm.PRetRun;
 import org.brewchain.cvm.pbgens.Cvm.PSRunContract;
 import org.brewchain.evm.call.CallTransaction;
+import org.brewchain.evm.call.CallTransaction.Function;
+import org.brewchain.evm.exec.MTransactionHelper;
 import org.brewchain.evm.jsonrpc.JsonRpc;
 import org.brewchain.evm.jsonrpc.JsonRpcImpl;
 import org.brewchain.evm.jsonrpc.TransactionReceiptDTO;
+import org.brewchain.evm.jsonrpc.TransactionResultDTO;
 import org.brewchain.evm.jsonrpc.TypeConverter;
+import org.fc.brewchain.bcapi.EncAPI;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +36,12 @@ public class RunContractService extends SessionModules<PSRunContract> {
 	// CommonService commonService;
 	
     JsonRpc jsonRpc = new JsonRpcImpl();
-
+    
+    @ActorRequire(name = "bc_encoder",scope = "global")
+	EncAPI encAPI;
+    
+//    @ActorRequire(name = "mTransaction_Helper", scope = "global")
+    MTransactionHelper mTransactionHelper = new MTransactionHelper();
 
 	@ActorRequire(name = "Transaction_Helper", scope = "global")
 	TransactionHelper transactionHelper;
@@ -53,124 +64,57 @@ public class RunContractService extends SessionModules<PSRunContract> {
 	public void onPBPacket(FramePacket pack, PSRunContract pbo, CompleteHandler handler) {
 		final PRetRun.Builder ret = PRetRun.newBuilder();
 		try {
+			
 			checkNull(pbo);
 			
-			String cowAcct = jsonRpc.personal_newAccount(pbo.getFromAddr());
-//			
-//            String bal0 = jsonRpc.eth_getBalance(cowAcct);
-//            
-//            if(TypeConverter.StringHexToBigInteger(bal0).compareTo(BigInteger.ZERO) <= 0) {
-//            	log.warn("TypeConverter.StringHexToBigInteger(bal0).compareTo(BigInteger.ZERO) <= 0");
-//            }
-//
-//            String pendingTxFilterId = jsonRpc.eth_newPendingTransactionFilter();
-//            Object[] changes = jsonRpc.eth_getFilterChanges(pendingTxFilterId);
-//            
-//            JsonRpc.CallArguments ca = new JsonRpc.CallArguments();
-//            
-//            
-//            long sGas = TypeConverter.StringHexToBigInteger(jsonRpc.eth_estimateGas(ca)).longValue();
-//
-//            String txHash1 = jsonRpc.eth_sendTransaction(cowAcct,ca.to, ca.gas,ca.gasPrice, ca.value, ca.data, ca.nonce);
-//            log.info("Tx hash: " + txHash1);
-//            
-//            if(TypeConverter.StringHexToBigInteger(txHash1).compareTo(BigInteger.ZERO) <= 0) {
-//            		log.warn("TypeConverter.StringHexToBigInteger(txHash1).compareTo(BigInteger.ZERO) <= 0");
-//            }
-//            
-//            for (int i = 0; i < 50 && changes.length == 0; i++) {
-//                changes = jsonRpc.eth_getFilterChanges(pendingTxFilterId);
-//                Thread.sleep(200);
-//            }
-//            
-//            log.info("changes.length="+changes.length);
-//            
-//            changes = jsonRpc.eth_getFilterChanges(pendingTxFilterId);
-//            
-//            log.info("changes.length="+changes.length);
-//
-//            JsonRpc.BlockResult blockResult = jsonRpc.eth_getBlockByNumber("pending", true);
-//            
-//            log.info("blockResult="+blockResult);
-//            
-//            if(((TransactionResultDTO) blockResult.transactions[0]).hash.equals(txHash1)) {
-//            		log.warn("((TransactionResultDTO) blockResult.transactions[0]).hash.equals(txHash1)");
-//            }
-
+			// 创建合约交易，无用
+			String cowAcct = encAPI.genKeys(pbo.getFromAddr()).getAddress();
+//			MTransactionHelper.CallArguments callArgs =  mTransactionHelper.genCallArguments(
+//					cowAcct, pbo.getToAddr(), pbo.getFee(), pbo.getFeeLimit(), pbo.getValue(), pbo.getCode());
+//			MTransactionHelper.CompilationResult compRes = mTransactionHelper.compileSolidity(callArgs.code);
+//			log.info("compRes.bin.length()>10?="+compRes.bin.length());
+//            callArgs.bin=compRes.bin;
+//            String txHash = mTransactionHelper.sendTransaction(callArgs);
             
-			jsonRpc.setTransactionHelper(transactionHelper);
+			// 获取 创建合约交易 所在块的hash，无用
+//            String hash = mineBlock();
+//            MTransactionHelper.BlockResult blockResult = mTransactionHelper.getBlockByHash(hash, true);
+//            TransactionReceiptDTO receipt2 = mTransactionHelper.getTransactionReceipt(txHash);
+//// //           (hash.equals(blockResult2.hash));
+//// //          (txHash.equals(((TransactionResultDTO) blockResult2.transactions[0]).hash));
+//// //           (receipt2.blockNumber > 1);
+//// //           (receipt2.gasUsed > 0);
+//// //           (sGas == receipt2.gasUsed);
+//// //           (TypeConverter.StringHexToByteArray(receipt2.contractAddress).length == 20);
+            
 			
-            JsonRpc.CallArguments callArgs = new JsonRpc.CallArguments();
-            callArgs.from = cowAcct;
-            // 0x0000000000000000000000000000000000001234
-            callArgs.to = pbo.getToAddr();
-            callArgs.gas = "0x"+pbo.getFeeLimit();
-            callArgs.gasPrice = "0x"+pbo.getFee();
-            callArgs.value = "0x"+pbo.getValue();
-            
-            JsonRpc.CompilationResult compRes = jsonRpc.eth_compileSolidity(pbo.getCode());
-            log.info("compRes.code.length()>10?="+compRes.code.length());
-            callArgs.data=compRes.code;
-            
-            String txHash = jsonRpc.eth_sendTransaction(callArgs);
-            long sGas = TypeConverter.StringHexToBigInteger(jsonRpc.eth_estimateGas(callArgs)).longValue();
 
-            String hash = mineBlock();
-
-            JsonRpc.BlockResult blockResult = jsonRpc.eth_getBlockByHash(hash, true);
-// //           (hash.equals(blockResult2.hash));
-// //          (txHash.equals(((TransactionResultDTO) blockResult2.transactions[0]).hash));
-            TransactionReceiptDTO receipt2 = jsonRpc.eth_getTransactionReceipt(txHash);
-// //           (receipt2.blockNumber > 1);
-// //           (receipt2.gasUsed > 0);
-// //           (sGas == receipt2.gasUsed);
-// //           (TypeConverter.StringHexToByteArray(receipt2.contractAddress).length == 20);
-
-//            JsonRpc.FilterRequest filterReq = new JsonRpc.FilterRequest();
-//            filterReq.topics = new Object[]{"0x2222"};
-//            filterReq.fromBlock = "latest";
-//            filterReq.toBlock = "latest";
-//            String filterId = jsonRpc.eth_newFilter(filterReq);
-
+            MTransactionHelper.CallArguments callArgs =  mTransactionHelper.genCallArguments(
+            		cowAcct, pbo.getToAddr(), pbo.getFee(), pbo.getFeeLimit(), pbo.getValue(), pbo.getCode());
             
-//            CallTransaction.Function function = CallTransaction.Function.fromSignature("set", "uint");
-            CallTransaction.Function function = CallTransaction.Function.fromSignature(pbo.getFunName());
             
+			// 合约方法、参数类型、返回值类型
+            String[] paramTypes = new String[0];
+            String[] resultTypes = new String[0];
+            // TODO pb add param
+//            if(pbo.getParamTypes()) {
+//            		paramTypes = pbo.getParamTypes();
+//            }
+//            if(pbo.getResultTypes()) {
+//            		resultTypes = pbo.getResultTypes();
+//	        }
+            CallTransaction.Function function = CallTransaction.Function.fromSignature(pbo.getFunName(), paramTypes, resultTypes);
 //            Transaction rawTx = ethereum.createTransaction(valueOf(2),
 //                    valueOf(pbo.getGasPrice()),
 //                    valueOf(pbo.getGas()),
 //                    TypeConverter.StringHexToByteArray(receipt2.contractAddress),
 //                    valueOf(0), function.encode(callArgs.value));
-//            
-//            // 签名
 //            rawTx.sign(sha3(pbo.getCode().getBytes()));
+//            String txHash3 = mTransactionHelper.sendRawTransaction(TypeConverter.toJsonHex(rawTx.getEncoded()));
 
-//            String txHash3 = jsonRpc.eth_sendRawTransaction(TypeConverter.toJsonHex(rawTx.getEncoded()));
-//
-//            JsonRpc.CallArguments callArgs2= new JsonRpc.CallArguments();
-//            callArgs2.to = receipt2.contractAddress;
-//            callArgs2.data = TypeConverter.toJsonHex(CallTransaction.Function.fromSignature("num").encode());
-//
-//            String ret3 = jsonRpc.eth_call(callArgs2, "pending");
-//            String ret4 = jsonRpc.eth_call(callArgs2, "latest");
-//
-//            String hash3 = mineBlock();
-//
-//            JsonRpc.BlockResult blockResult3 = jsonRpc.eth_getBlockByHash(hash3, true);
-//            assertEquals(hash3, blockResult3.hash);
-//            assertEquals(txHash3, ((TransactionResultDTO) blockResult3.transactions[0]).hash);
-//            TransactionReceiptDTO receipt3 = jsonRpc.eth_getTransactionReceipt(txHash3);
-//            assertTrue(receipt3.blockNumber > 2);
-//            assertTrue(receipt3.gasUsed > 0);
-//
-//            Object[] logs = jsonRpc.eth_getFilterLogs(filterId);
-//            assertEquals(1, logs.length);
-//            assertEquals("0x0000000000000000000000000000000000000000000000000000000000001111",
-//                    ((JsonRpc.LogFilterElement)logs[0]).data);
-//            assertEquals(0, jsonRpc.eth_getFilterLogs(filterId).length);
+            callArgs.bin = TypeConverter.toJsonHex(function.encode());
 
-//          String ret_info = jsonRpc.eth_call(callArgs, "latest");
-            String ret_info = jsonRpc.eth_call(callArgs, blockResult.number);
+            String ret_info = mTransactionHelper.call(callArgs);
             
 			ret.setRetCode(0);
 			ret.setRunInfo(ret_info);
@@ -232,27 +176,27 @@ public class RunContractService extends SessionModules<PSRunContract> {
 
 	}
 	
-	String mineBlock() throws InterruptedException {
-        String blockFilterId = jsonRpc.eth_newBlockFilter();
-        jsonRpc.miner_start();
-        int cnt = 0;
-        String hash1;
-        while (true) {
-            Object[] blocks = jsonRpc.eth_getFilterChanges(blockFilterId);
-            cnt += blocks.length;
-            if (cnt > 0) {
-                hash1 = (String) blocks[0];
-                break;
-            }
-            Thread.sleep(100);
-        }
-        jsonRpc.miner_stop();
-        Thread.sleep(100);
-        Object[] blocks = jsonRpc.eth_getFilterChanges(blockFilterId);
-        cnt += blocks.length;
-        log.info(cnt + " blocks mined");
-        boolean b = jsonRpc.eth_uninstallFilter(blockFilterId);
-        log.info("jsonRpc.eth_uninstallFilter(blockFilterId)="+b);
-        return hash1;
-    }
+//	String mineBlock() throws InterruptedException {
+//        String blockFilterId = jsonRpc.eth_newBlockFilter();
+//        jsonRpc.miner_start();
+//        int cnt = 0;
+//        String hash1;
+//        while (true) {
+//            Object[] blocks = jsonRpc.eth_getFilterChanges(blockFilterId);
+//            cnt += blocks.length;
+//            if (cnt > 0) {
+//                hash1 = (String) blocks[0];
+//                break;
+//            }
+//            Thread.sleep(100);
+//        }
+//        jsonRpc.miner_stop();
+//        Thread.sleep(100);
+//        Object[] blocks = jsonRpc.eth_getFilterChanges(blockFilterId);
+//        cnt += blocks.length;
+//        log.info(cnt + " blocks mined");
+//        boolean b = jsonRpc.eth_uninstallFilter(blockFilterId);
+//        log.info("jsonRpc.eth_uninstallFilter(blockFilterId)="+b);
+//        return hash1;
+//    }
 }

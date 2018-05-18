@@ -104,7 +104,7 @@ public class Program {
     //Max size for stack checks
     private static final int MAX_STACKSIZE = 1024;
 
-    private MultiTransaction transaction;
+    private MultiTransaction.Builder transaction;
 
     private ProgramInvoke invoke;
     private ProgramInvokeFactory programInvokeFactory = new ProgramInvokeFactoryImpl();
@@ -141,7 +141,7 @@ public class Program {
         this(ops, programInvoke, null);
     }
 
-    public Program(byte[] ops, ProgramInvoke programInvoke, MultiTransaction transaction) {
+    public Program(byte[] ops, ProgramInvoke programInvoke, MultiTransaction.Builder transaction) {
         this(null, ops, programInvoke, transaction);
     }
 
@@ -149,7 +149,7 @@ public class Program {
 //        this(null, ops, programInvoke, transaction, config);
 //    }
 
-    public Program(byte[] codeHash, byte[] ops, ProgramInvoke programInvoke, MultiTransaction transaction) {
+    public Program(byte[] codeHash, byte[] ops, ProgramInvoke programInvoke, MultiTransaction.Builder transaction) {
 //        this.config = config;
         this.invoke = programInvoke;
         this.transaction = transaction;
@@ -182,6 +182,10 @@ public class Program {
         return programPrecompile;
     }
 
+    public Program withCommonConfig() {
+      return this;
+    }
+    	
 //    public Program withCommonConfig(CommonConfig commonConfig) {
 //        this.commonConfig = commonConfig;
 //        return this;
