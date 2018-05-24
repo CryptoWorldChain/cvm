@@ -1,12 +1,20 @@
 
 package org.brewchain.evm.solidity.compiler;
 
-import com.google.common.base.Joiner;
-
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.base.Joiner;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class SolidityCompiler {
 
     private Solc solc;
@@ -94,7 +102,8 @@ public class SolidityCompiler {
                     content.append(line).append("\n");
                 }
             } catch (IOException ioe) {
-                ioe.printStackTrace();
+//                ioe.printStackTrace();
+            		log.error("IO异常",ioe);
             } finally {
                 synchronized (this) {
                     stream = null;

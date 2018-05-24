@@ -139,7 +139,6 @@ public class BuildService extends SessionModules<PSBuildCode> {
 						
 						
 						// TODO 创建合约交易
-						
 						// Abi abi = Abi.fromJson(cm.abi);
 						// Entry onlyFunc = abi.get(0);
 						// System.out.println();
@@ -148,7 +147,12 @@ public class BuildService extends SessionModules<PSBuildCode> {
 						// onlyFunc.outputs.size();
 						// onlyFunc.constant;
 						// }
-
+						
+						ret.setCAddr(
+								encAPI.genKeys(
+										pbo.getAddr()
+										+accountHelper.getNonce(encAPI.hexDec(pbo.getAddr())))
+								.getAddress());
 						ret.addInfo(c);
 					}
 				} else {

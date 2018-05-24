@@ -53,7 +53,7 @@ public class VMUtil {
 
 					KeyPairs key = encAPI.genKeys();
 					
-					c.setAddr(key.getAddress());
+					c.setCAddr(key.getAddress());
 					c.setBin(cm.bin);
 					c.setAbi(cm.abi);
 					c.setMetadata(cm.metadata);

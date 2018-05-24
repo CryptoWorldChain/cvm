@@ -82,7 +82,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class Program {
 
 
@@ -476,8 +478,7 @@ public class Program {
                 return;
             }
         } catch (java.lang.Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+        		log.error("合约-账户.getBalance异常",e);
 		}
 
         // [1] FETCH THE CODE FROM THE MEMORY
@@ -512,8 +513,7 @@ public class Program {
             try {
 				accountHelper.IncreaseNonce(senderAddress);
 			} catch (java.lang.Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+        			log.error("合约-账户.IncreaseNonce异常",e);
 			}
         }
 //        Repository track = getStorage().startTracking();

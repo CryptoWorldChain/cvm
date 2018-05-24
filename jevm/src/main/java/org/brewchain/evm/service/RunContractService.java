@@ -1,20 +1,15 @@
 package org.brewchain.evm.service;
 
-import java.math.BigInteger;
-
 import org.apache.commons.lang3.StringUtils;
+import org.brewchain.account.core.AccountHelper;
 import org.brewchain.account.core.TransactionHelper;
+import org.brewchain.account.gens.Act.Contract;
 import org.brewchain.cvm.pbgens.Cvm.PCommand;
 import org.brewchain.cvm.pbgens.Cvm.PModule;
 import org.brewchain.cvm.pbgens.Cvm.PRetRun;
 import org.brewchain.cvm.pbgens.Cvm.PSRunContract;
 import org.brewchain.evm.call.CallTransaction;
-import org.brewchain.evm.call.CallTransaction.Function;
 import org.brewchain.evm.exec.MTransactionHelper;
-import org.brewchain.evm.jsonrpc.JsonRpc;
-import org.brewchain.evm.jsonrpc.JsonRpcImpl;
-import org.brewchain.evm.jsonrpc.TransactionReceiptDTO;
-import org.brewchain.evm.jsonrpc.TransactionResultDTO;
 import org.brewchain.evm.jsonrpc.TypeConverter;
 import org.fc.brewchain.bcapi.EncAPI;
 
@@ -35,14 +30,16 @@ public class RunContractService extends SessionModules<PSRunContract> {
 	// @ActorRequire
 	// CommonService commonService;
 	
-    JsonRpc jsonRpc = new JsonRpcImpl();
-    
     @ActorRequire(name = "bc_encoder",scope = "global")
 	EncAPI encAPI;
     
 //    @ActorRequire(name = "mTransaction_Helper", scope = "global")
     MTransactionHelper mTransactionHelper = new MTransactionHelper();
 
+
+	@ActorRequire(name = "Account_Helper", scope = "global")
+	AccountHelper accountHelper;
+	
 	@ActorRequire(name = "Transaction_Helper", scope = "global")
 	TransactionHelper transactionHelper;
     
@@ -87,22 +84,36 @@ public class RunContractService extends SessionModules<PSRunContract> {
 //// //           (sGas == receipt2.gasUsed);
 //// //           (TypeConverter.StringHexToByteArray(receipt2.contractAddress).length == 20);
             
-			
-
             MTransactionHelper.CallArguments callArgs =  mTransactionHelper.genCallArguments(
-            		cowAcct, pbo.getToAddr(), pbo.getFee(), pbo.getFeeLimit(), pbo.getValue(), pbo.getCode());
+            		cowAcct, pbo.getToAddr(), pbo.getFee(), pbo.getFeeLimit(), pbo.getValue(), "");
             
             
-			// 合约方法、参数类型、返回值类型
-            String[] paramTypes = new String[0];
-            String[] resultTypes = new String[0];
-            // TODO pb add param
-//            if(pbo.getParamTypes()) {
-//            		paramTypes = pbo.getParamTypes();
-//            }
-//            if(pbo.getResultTypes()) {
-//            		resultTypes = pbo.getResultTypes();
-//	        }
+			// 合约方法、参数类型
+            String[] paramTypes;
+            if(pbo.getParamList() != null) {
+            		paramTypes = new String[pbo.getParamList().size()];
+	            for (int i = 0; i < pbo.getParamList().size(); i++) {
+	            		paramTypes[i] = pbo.getResultList().get(i).getType();
+				}
+            }else {
+            		paramTypes = new String[0];
+            }
+            // 合约方法、返回值类型
+            String[] resultTypes;
+            if(pbo.getResultList() != null) {
+                resultTypes = new String[pbo.getResultList().size()];
+	            for (int i = 0; i < pbo.getResultList().size(); i++) {
+	            		resultTypes[i] = pbo.getResultList().get(i).getType();
+				}
+            }else {
+            		resultTypes = new String[0];
+            }
+            
+            // TODO 
+            Contract contract = accountHelper.GetContract(encAPI.hexDec(pbo.getCAddr()));
+            
+            contract.getValue().getData();
+            
             CallTransaction.Function function = CallTransaction.Function.fromSignature(pbo.getFunName(), paramTypes, resultTypes);
 //            Transaction rawTx = ethereum.createTransaction(valueOf(2),
 //                    valueOf(pbo.getGasPrice()),
@@ -142,8 +153,8 @@ public class RunContractService extends SessionModules<PSRunContract> {
 			throw new IllegalArgumentException("无请求参数");
 		}
 
-		if (StringUtils.isBlank(pb.getCode())) {
-			throw new IllegalArgumentException("参数code,不能为空");
+		if (StringUtils.isBlank(pb.getCAddr())) {
+			throw new IllegalArgumentException("参数c_addr,不能为空");
 		}
 
 		if (StringUtils.isBlank(pb.getFunName())) {
@@ -151,7 +162,11 @@ public class RunContractService extends SessionModules<PSRunContract> {
 		}
 
 		if (StringUtils.isBlank(pb.getFromAddr())) {
-			throw new IllegalArgumentException("参数from,不能为空");
+			throw new IllegalArgumentException("参数from_addr,不能为空");
+		}
+		
+		if (StringUtils.isBlank(pb.getPubKey())) {
+			throw new IllegalArgumentException("参数pub_key,不能为空");
 		}
 
 		if(StringUtils.isBlank(pb.getToAddr())) {
@@ -162,13 +177,13 @@ public class RunContractService extends SessionModules<PSRunContract> {
 //			throw new IllegalArgumentException("参数data,不能为空");
 //		}
 		
-		if(pb.getFee()<=0) {
-			throw new IllegalArgumentException("参数fee,不能为空");
-		}
+//		if(pb.getFee()<=0) {
+//			throw new IllegalArgumentException("参数fee,不能为空");
+//		}
 		
-		if(pb.getFeeLimit()<=0) {
-			throw new IllegalArgumentException("参数fee_limit,不能为空");
-		}
+//		if(pb.getFeeLimit()<=0) {
+//			throw new IllegalArgumentException("参数fee_limit,不能为空");
+//		}
 		
 		if(pb.getValue()<=0) {
 			throw new IllegalArgumentException("参数value,不能为空");
