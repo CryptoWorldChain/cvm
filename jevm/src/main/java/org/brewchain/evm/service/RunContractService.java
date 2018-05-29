@@ -3,7 +3,7 @@ package org.brewchain.evm.service;
 import org.apache.commons.lang3.StringUtils;
 import org.brewchain.account.core.AccountHelper;
 import org.brewchain.account.core.TransactionHelper;
-import org.brewchain.account.gens.Act.Contract;
+import org.brewchain.account.gens.Act.Account;
 import org.brewchain.cvm.pbgens.Cvm.PCommand;
 import org.brewchain.cvm.pbgens.Cvm.PModule;
 import org.brewchain.cvm.pbgens.Cvm.PRetRun;
@@ -109,10 +109,10 @@ public class RunContractService extends SessionModules<PSRunContract> {
             		resultTypes = new String[0];
             }
             
-            // TODO 
-            Contract contract = accountHelper.GetContract(encAPI.hexDec(pbo.getCAddr()));
+            // TODO Contract Account
+            Account contractAccount = accountHelper.GetAccount(encAPI.hexDec(pbo.getCAddr()));
             
-            contract.getValue().getData();
+            System.out.println(contractAccount.getValue().getData());
             
             CallTransaction.Function function = CallTransaction.Function.fromSignature(pbo.getFunName(), paramTypes, resultTypes);
 //            Transaction rawTx = ethereum.createTransaction(valueOf(2),
@@ -124,7 +124,8 @@ public class RunContractService extends SessionModules<PSRunContract> {
 //            String txHash3 = mTransactionHelper.sendRawTransaction(TypeConverter.toJsonHex(rawTx.getEncoded()));
 
             callArgs.bin = TypeConverter.toJsonHex(function.encode());
-
+//            callArgs.code = "";
+            
             String ret_info = mTransactionHelper.call(callArgs);
             
 			ret.setRetCode(0);
