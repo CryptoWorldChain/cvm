@@ -4,12 +4,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.brewchain.account.core.AccountHelper;
 import org.brewchain.account.core.TransactionHelper;
 import org.brewchain.account.gens.Act.Account;
+import org.brewchain.account.gens.Tx.MultiTransaction;
 import org.brewchain.cvm.pbgens.Cvm.PCommand;
 import org.brewchain.cvm.pbgens.Cvm.PModule;
 import org.brewchain.cvm.pbgens.Cvm.PRetRun;
 import org.brewchain.cvm.pbgens.Cvm.PSRunContract;
+import org.brewchain.evm.base.MTransaction;
 import org.brewchain.evm.call.CallTransaction;
 import org.brewchain.evm.exec.MTransactionHelper;
+import org.brewchain.evm.exec.TransactionExecutor;
+import org.brewchain.evm.jsonrpc.TransactionReceipt;
 import org.brewchain.evm.jsonrpc.TypeConverter;
 import org.fc.brewchain.bcapi.EncAPI;
 
@@ -66,70 +70,86 @@ public class RunContractService extends SessionModules<PSRunContract> {
 			
 			// 创建合约交易，无用
 			String cowAcct = encAPI.genKeys(pbo.getFromAddr()).getAddress();
-//			MTransactionHelper.CallArguments callArgs =  mTransactionHelper.genCallArguments(
-//					cowAcct, pbo.getToAddr(), pbo.getFee(), pbo.getFeeLimit(), pbo.getValue(), pbo.getCode());
-//			MTransactionHelper.CompilationResult compRes = mTransactionHelper.compileSolidity(callArgs.code);
-//			log.info("compRes.bin.length()>10?="+compRes.bin.length());
-//            callArgs.bin=compRes.bin;
-//            String txHash = mTransactionHelper.sendTransaction(callArgs);
+			
+			
+//            MTransactionHelper.CallArguments callArgs =  mTransactionHelper.genCallArguments(
+//            		cowAcct, pbo.getToAddr(), pbo.getFee(), pbo.getFeeLimit(), pbo.getValue(), "");
             
-			// 获取 创建合约交易 所在块的hash，无用
-//            String hash = mineBlock();
-//            MTransactionHelper.BlockResult blockResult = mTransactionHelper.getBlockByHash(hash, true);
-//            TransactionReceiptDTO receipt2 = mTransactionHelper.getTransactionReceipt(txHash);
-//// //           (hash.equals(blockResult2.hash));
-//// //          (txHash.equals(((TransactionResultDTO) blockResult2.transactions[0]).hash));
-//// //           (receipt2.blockNumber > 1);
-//// //           (receipt2.gasUsed > 0);
-//// //           (sGas == receipt2.gasUsed);
-//// //           (TypeConverter.StringHexToByteArray(receipt2.contractAddress).length == 20);
-            
-            MTransactionHelper.CallArguments callArgs =  mTransactionHelper.genCallArguments(
-            		cowAcct, pbo.getToAddr(), pbo.getFee(), pbo.getFeeLimit(), pbo.getValue(), "");
-            
-            
-			// 合约方法、参数类型
-            String[] paramTypes;
-            if(pbo.getParamList() != null) {
-            		paramTypes = new String[pbo.getParamList().size()];
-	            for (int i = 0; i < pbo.getParamList().size(); i++) {
-	            		paramTypes[i] = pbo.getResultList().get(i).getType();
-				}
-            }else {
-            		paramTypes = new String[0];
-            }
-            // 合约方法、返回值类型
-            String[] resultTypes;
-            if(pbo.getResultList() != null) {
-                resultTypes = new String[pbo.getResultList().size()];
-	            for (int i = 0; i < pbo.getResultList().size(); i++) {
-	            		resultTypes[i] = pbo.getResultList().get(i).getType();
-				}
-            }else {
-            		resultTypes = new String[0];
-            }
-            
-            // TODO Contract Account
+//			// 合约方法、参数类型
+//            String[] paramTypes;
+//            if(pbo.getParamList() != null) {
+//            		paramTypes = new String[pbo.getParamList().size()];
+//	            for (int i = 0; i < pbo.getParamList().size(); i++) {
+//	            		paramTypes[i] = pbo.getResultList().get(i).getType();
+//				}
+//            }else {
+//            		paramTypes = new String[0];
+//            }
+//            // 合约方法、返回值类型
+//            String[] resultTypes;
+//            if(pbo.getResultList() != null) {
+//                resultTypes = new String[pbo.getResultList().size()];
+//	            for (int i = 0; i < pbo.getResultList().size(); i++) {
+//	            		resultTypes[i] = pbo.getResultList().get(i).getType();
+//				}
+//            }else {
+//            		resultTypes = new String[0];
+//            }
+
             Account contractAccount = accountHelper.GetAccount(encAPI.hexDec(pbo.getCAddr()));
-            
+            if(contractAccount == null) {
+            		throw new IllegalArgumentException("合约"+pbo.getCAddr()+",未找到,hexDec="+encAPI.hexDec(pbo.getCAddr()));
+            }
+//          callArgs.bin = TypeConverter.toJsonHex(contract.getByName(pbo.getFunName()));
+//          callArgs.code = TypeConverter.toJsonHex(contract.getByName(pbo.getFunName()));
+		
+            // TODO Test
             System.out.println(contractAccount.getValue().getData());
             
-            CallTransaction.Function function = CallTransaction.Function.fromSignature(pbo.getFunName(), paramTypes, resultTypes);
-//            Transaction rawTx = ethereum.createTransaction(valueOf(2),
-//                    valueOf(pbo.getGasPrice()),
-//                    valueOf(pbo.getGas()),
-//                    TypeConverter.StringHexToByteArray(receipt2.contractAddress),
-//                    valueOf(0), function.encode(callArgs.value));
-//            rawTx.sign(sha3(pbo.getCode().getBytes()));
-//            String txHash3 = mTransactionHelper.sendRawTransaction(TypeConverter.toJsonHex(rawTx.getEncoded()));
+            CallTransaction.Contract contract = new CallTransaction.Contract(contractAccount.getValue().getData().toString());
+            CallTransaction.Function fun = contract.getByName(pbo.getFunName());
+            if(fun  == null) {
+            		throw new IllegalArgumentException("合约方法"+pbo.getFunName()+",未找到");
+            }
+            byte[] functionCallBytes;
+            if (StringUtils.isNotBlank(pbo.getData())) {
+                Object[] dataArray = pbo.getData().split(",");
+                functionCallBytes = fun.encode(dataArray);
+            }else {
+            		functionCallBytes = fun.encode();
+            }
+            
+//            CallTransaction.Function function = CallTransaction.Function.fromSignature(pbo.getFunName(), paramTypes, resultTypes);
+            
+            long fee = 0L;
+			long feeLimit = 0L;
+			if(pbo.getFee() > 0) {
+				fee = pbo.getFee();
+				feeLimit = fee;
+				if(pbo.getFeeLimit() > 0) {
+					feeLimit = pbo.getFeeLimit  ();
+				}
+			}
+			
+            MTransaction mtx = new MTransaction(accountHelper);
+			mtx.addTXInput(pbo.getFromAddr(), pbo.getPubKey(), pbo.getSign(), 0L, fee, feeLimit);
+			mtx.addTXOutput(null, 0L);
+			MultiTransaction.Builder tx = mtx.genTX(functionCallBytes, pbo.getCAddr().getBytes());
+			
+			
+//            String ret_info = mTransactionHelper.call(callArgs);
+			
+			TransactionExecutor executor = new TransactionExecutor(tx).withCommonConfig().setLocalCall(true);
 
-            callArgs.bin = TypeConverter.toJsonHex(function.encode());
-//            callArgs.code = "";
+            executor.init();
+            executor.execute();
+            executor.go();
+//            executor.finalization();
+            TransactionReceipt res = executor.getReceipt();
             
-            String ret_info = mTransactionHelper.call(callArgs);
-            
+//			String ret_info = mTransactionHelper.call(callArgs);
 			ret.setRetCode(0);
-			ret.setRunInfo(ret_info);
+			ret.setRunInfo(TypeConverter.toJsonHex(res.getExecutionResult()));
 			ret.setRetMessage("");
 			
 		} catch (IllegalArgumentException e) {
@@ -162,17 +182,17 @@ public class RunContractService extends SessionModules<PSRunContract> {
 			throw new IllegalArgumentException("参数fun_name,不能为空");
 		}
 
-		if (StringUtils.isBlank(pb.getFromAddr())) {
-			throw new IllegalArgumentException("参数from_addr,不能为空");
-		}
-		
-		if (StringUtils.isBlank(pb.getPubKey())) {
-			throw new IllegalArgumentException("参数pub_key,不能为空");
-		}
-
-		if(StringUtils.isBlank(pb.getToAddr())) {
-			throw new IllegalArgumentException("参数to,不能为空");
-		}
+//		if (StringUtils.isBlank(pb.getFromAddr())) {
+//			throw new IllegalArgumentException("参数from_addr,不能为空");
+//		}
+//		
+//		if (StringUtils.isBlank(pb.getPubKey())) {
+//			throw new IllegalArgumentException("参数pub_key,不能为空");
+//		}
+//
+//		if(StringUtils.isBlank(pb.getToAddr())) {
+//			throw new IllegalArgumentException("参数to,不能为空");
+//		}
 		
 //		if (StringUtils.isBlank(pb.getData())) {
 //			throw new IllegalArgumentException("参数data,不能为空");
@@ -186,9 +206,9 @@ public class RunContractService extends SessionModules<PSRunContract> {
 //			throw new IllegalArgumentException("参数fee_limit,不能为空");
 //		}
 		
-		if(pb.getValue()<=0) {
-			throw new IllegalArgumentException("参数value,不能为空");
-		}
+//		if(pb.getValue()<=0) {
+//			throw new IllegalArgumentException("参数value,不能为空");
+//		}
 
 	}
 	
