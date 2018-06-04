@@ -108,7 +108,7 @@ public class Program {
 
     private MultiTransaction.Builder transaction;
 
-    private ProgramInvoke invoke;
+//    private ProgramInvoke invoke;
     private ProgramInvokeFactory programInvokeFactory = new ProgramInvokeFactoryImpl();
 
     private ProgramOutListener listener;
@@ -153,7 +153,7 @@ public class Program {
 
     public Program(byte[] codeHash, byte[] ops, ProgramInvoke programInvoke, MultiTransaction.Builder transaction) {
 //        this.config = config;
-        this.invoke = programInvoke;
+//        this.invoke = programInvoke;
         this.transaction = transaction;
 
 //        this.codeHash = codeHash == null || FastByteComparisons.equal(HashUtil.EMPTY_DATA_HASH, codeHash) ? null : codeHash;
@@ -194,7 +194,8 @@ public class Program {
 //    }
 
     public int getCallDeep() {
-        return invoke.getCallDeep();
+//        return invoke.getCallDeep();
+    		return 0;
     }
 
     private InternalTransaction addInternalTx(byte[] nonce, DataWord gasLimit, byte[] senderAddress, byte[] receiveAddress,
@@ -403,9 +404,10 @@ public class Program {
     }
 
     
-    public void suicide(DataWord obtainerAddress) throws java.lang.Exception {
+    public void suicide(DataWord ownerAddress,DataWord obtainerAddress) throws java.lang.Exception {
 
-        byte[] owner = getOwnerAddress().getLast20Bytes();
+//        byte[] owner = getOwnerAddress().getLast20Bytes();
+    		byte[] owner = ownerAddress.getLast20Bytes();
         byte[] obtainer = obtainerAddress.getLast20Bytes();
         BigInteger balance = new BigInteger(accountHelper.getBalance(owner)+"");
         
@@ -425,7 +427,8 @@ public class Program {
 //            transfer(getStorage(), owner, obtainer, balance);
         }
 
-        getResult().addDeleteAccount(this.getOwnerAddress());
+//        getResult().addDeleteAccount(this.getOwnerAddress());
+        getResult().addDeleteAccount(ownerAddress);
     }
 
 //    public Repository getStorage() {
@@ -462,7 +465,7 @@ public class Program {
 //    }
     
     @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-    public void createContract(DataWord value, DataWord memStart, DataWord memSize) {
+    public void createContract(DataWord ownerAddress, DataWord value, DataWord memStart, DataWord memSize) {
         returnDataBuffer = null; // reset return buffer right before the call
 
         if (getCallDeep() == MAX_DEPTH) {
@@ -470,7 +473,8 @@ public class Program {
             return;
         }
 
-        byte[] senderAddress = this.getOwnerAddress().getLast20Bytes();
+//        byte[] senderAddress = this.getOwnerAddress().getLast20Bytes();
+        byte[] senderAddress = ownerAddress.getLast20Bytes();
         try {
             BigInteger endowment = value.value();
             if (isNotCovers(new BigInteger(accountHelper.getBalance(senderAddress)+""), endowment)) {
@@ -602,7 +606,7 @@ public class Program {
             refundGas(refundGas, "remain gas from the internal call");
             if (logger.isInfoEnabled()) {
                 logger.info("The remaining gas is refunded, account: [{}], gas: [{}] ",
-                        Hex.toHexString(getOwnerAddress().getLast20Bytes()),
+                        Hex.toHexString(ownerAddress.getLast20Bytes()),
                         refundGas);
             }
         }
@@ -742,9 +746,9 @@ public class Program {
     }
 
     public void spendGas(long gasValue, String cause) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("[{}] Spent for cause: [{}], gas: [{}]", invoke.hashCode(), cause, gasValue);
-        }
+//        if (logger.isDebugEnabled()) {
+//            logger.debug("[{}] Spent for cause: [{}], gas: [{}]", invoke.hashCode(), cause, gasValue);
+//        }
 
         if (getGasLong() < gasValue) {
             throw Program.Exception.notEnoughSpendingGas(cause, gasValue, this);
@@ -757,7 +761,7 @@ public class Program {
     }
 
     public void refundGas(long gasValue, String cause) {
-        logger.info("[{}] Refund for cause: [{}], gas: [{}]", invoke.hashCode(), cause, gasValue);
+//        logger.info("[{}] Refund for cause: [{}], gas: [{}]", invoke.hashCode(), cause, gasValue);
         getResult().refundGas(gasValue);
     }
 
@@ -791,9 +795,9 @@ public class Program {
     		return null;
     }
 
-    public DataWord getOwnerAddress() {
-        return invoke.getOwnerAddress().clone();
-    }
+//    public DataWord getOwnerAddress() {
+//        return invoke.getOwnerAddress().clone();
+//    }
 
     public DataWord getBlockHash(int index) {
 //        return index < this.getNumber().longValue() && index >= Math.max(256, this.getNumber().intValue()) - 256 ?
@@ -808,41 +812,44 @@ public class Program {
     		return null;
     }
 
-    public DataWord getOriginAddress() {
-        return invoke.getOriginAddress().clone();
-    }
-
-    public DataWord getCallerAddress() {
-        return invoke.getCallerAddress().clone();
-    }
+//    public DataWord getOriginAddress() {
+//        return invoke.getOriginAddress().clone();
+//    }
+//
+//    public DataWord getCallerAddress() {
+//        return invoke.getCallerAddress().clone();
+//    }
 
     public DataWord getGasPrice() {
-        return invoke.getMinGasPrice().clone();
+//        return invoke.getMinGasPrice().clone();
+    		return new DataWord("0".getBytes());
     }
 
     public long getGasLong() {
-        return invoke.getGasLong() - getResult().getGasUsed();
+//        return invoke.getGasLong() - getResult().getGasUsed();
+		return 0L;
     }
 
     public DataWord getGas() {
-        return new DataWord(invoke.getGasLong() - getResult().getGasUsed());
+//        return new DataWord(invoke.getGasLong() - getResult().getGasUsed());
+    	return new DataWord("0".getBytes());
     }
-
-    public DataWord getCallValue() {
-        return invoke.getCallValue().clone();
-    }
-
-    public DataWord getDataSize() {
-        return invoke.getDataSize().clone();
-    }
-
-    public DataWord getDataValue(DataWord index) {
-        return invoke.getDataValue(index);
-    }
-
-    public byte[] getDataCopy(DataWord offset, DataWord length) {
-        return invoke.getDataCopy(offset, length);
-    }
+//
+//    public DataWord getCallValue() {
+//        return invoke.getCallValue().clone();
+//    }
+//
+//    public DataWord getDataSize() {
+//        return invoke.getDataSize().clone();
+//    }
+//
+//    public DataWord getDataValue(DataWord index) {
+//        return invoke.getDataValue(index);
+//    }
+//
+//    public byte[] getDataCopy(DataWord offset, DataWord length) {
+//        return invoke.getDataCopy(offset, length);
+//    }
 
     public DataWord getReturnDataBufferSize() {
         return new DataWord(getReturnDataBufferSizeI());
@@ -864,37 +871,37 @@ public class Program {
     		return null;
     }
 
-    public DataWord getPrevHash() {
-        return invoke.getPrevHash().clone();
-    }
-
-    public DataWord getCoinbase() {
-        return invoke.getCoinbase().clone();
-    }
-
-    public DataWord getTimestamp() {
-        return invoke.getTimestamp().clone();
-    }
-
-    public DataWord getNumber() {
-        return invoke.getNumber().clone();
-    }
+//    public DataWord getPrevHash() {
+//        return invoke.getPrevHash().clone();
+//    }
+//
+//    public DataWord getCoinbase() {
+//        return invoke.getCoinbase().clone();
+//    }
+//
+//    public DataWord getTimestamp() {
+//        return invoke.getTimestamp().clone();
+//    }
+//
+//    public DataWord getNumber() {
+//        return invoke.getNumber().clone();
+//    }
 
 //    public BlockchainConfig getBlockchainConfig() {
 //        return blockchainConfig;
 //    }
 
-    public DataWord getDifficulty() {
-        return invoke.getDifficulty().clone();
-    }
-
-    public DataWord getGasLimit() {
-        return invoke.getGaslimit().clone();
-    }
-
-    public boolean isStaticCall() {
-        return invoke.isStaticCall();
-    }
+//    public DataWord getDifficulty() {
+//        return invoke.getDifficulty().clone();
+//    }
+//
+//    public DataWord getGasLimit() {
+//        return invoke.getGaslimit().clone();
+//    }
+//
+//    public boolean isStaticCall() {
+//        return invoke.isStaticCall();
+//    }
 
     public ProgramResult getResult() {
         return result;
@@ -975,10 +982,10 @@ public class Program {
             logger.trace(" -- STACK --   {}", stackData);
             logger.trace(" -- MEMORY --  {}", memoryData);
             logger.trace(" -- STORAGE -- {}\n", storageData);
-            logger.trace("\n  Spent Gas: [{}]/[{}]\n  Left Gas:  [{}]\n",
-                    getResult().getGasUsed(),
-                    invoke.getGas().longValue(),
-                    getGas().longValue());
+//            logger.trace("\n  Spent Gas: [{}]/[{}]\n  Left Gas:  [{}]\n",
+//                    getResult().getGasUsed(),
+//                    invoke.getGas().longValue(),
+//                    getGas().longValue());
 
             StringBuilder globalOutput = new StringBuilder("\n");
             if (stackData.length() > 0) stackData.append("\n");
@@ -997,13 +1004,14 @@ public class Program {
 
             // sophisticated assumption that msg.data != codedata
             // means we are calling the contract not creating it
-            byte[] txData = invoke.getDataCopy(DataWord.ZERO, getDataSize());
-            if (!Arrays.equals(txData, ops))
-                globalOutput.append("\n  msg.data: ").append(Hex.toHexString(txData));
-            globalOutput.append("\n\n  Spent Gas: ").append(getResult().getGasUsed());
-
-            if (listener != null)
-                listener.output(globalOutput.toString());
+            System.out.println("TODOOOOOOOOOOOO");
+            // TODO 
+//            byte[] txData = invoke.getDataCopy(DataWord.ZERO, getDataSize());
+//            if (!Arrays.equals(txData, ops))
+//                globalOutput.append("\n  msg.data: ").append(Hex.toHexString(txData));
+//            	globalOutput.append("\n\n  Spent Gas: ").append(getResult().getGasUsed());
+//            if (listener != null)
+//                listener.output(globalOutput.toString());
         }
     }
 
@@ -1276,7 +1284,8 @@ public class Program {
 //    }
 
     public boolean byTestingSuite() {
-        return invoke.byTestingSuite();
+        //return invoke.byTestingSuite();
+    		return false;
     }
 
     public interface ProgramOutListener {
@@ -1357,8 +1366,10 @@ public class Program {
         }
 
         public static OutOfGasException notEnoughSpendingGas(String cause, long gasValue, Program program) {
-            return new OutOfGasException("Not enough gas for '%s' cause spending: invokeGas[%d], gas[%d], usedGas[%d];",
-                    cause, program.invoke.getGas().longValue(), gasValue, program.getResult().getGasUsed());
+//            return new OutOfGasException("Not enough gas for '%s' cause spending: invokeGas[%d], gas[%d], usedGas[%d];",
+//                    cause, program.invoke.getGas().longValue(), gasValue, program.getResult().getGasUsed());
+        		return new OutOfGasException("Not enough gas for '%s' cause spending: invokeGas[%d], gas[%d], usedGas[%d];",
+                    cause, program.getGas().longValue(), gasValue, program.getResult().getGasUsed());
         }
 
         public static OutOfGasException gasOverflow(BigInteger actualGas, BigInteger gasLimit) {

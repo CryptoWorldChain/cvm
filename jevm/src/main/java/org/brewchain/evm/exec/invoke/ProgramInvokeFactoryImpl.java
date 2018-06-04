@@ -139,57 +139,59 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
                                              Repository repository, BlockHeader blockStore,
                                              boolean isStaticCall, boolean byTestingSuite) {
 
-        DataWord address = toAddress;
-        DataWord origin = program.getOriginAddress();
-        DataWord caller = callerAddress;
+//        DataWord address = toAddress;
+//        DataWord origin = program.getOriginAddress();
+//        DataWord caller = callerAddress;
+//
+//        DataWord balance = new DataWord(balanceInt.toByteArray());
+//        DataWord gasPrice = program.getGasPrice();
+//        DataWord gas = inGas;
+//        DataWord callValue = inValue;
+//
+//        byte[] data = dataIn;
+//        DataWord lastHash = program.getPrevHash();
+//        DataWord coinbase = program.getCoinbase();
+//        DataWord timestamp = program.getTimestamp();
+//        DataWord number = program.getNumber();
+//        DataWord difficulty = program.getDifficulty();
+//        DataWord gasLimit = program.getGasLimit();
+//
+//        if (logger.isInfoEnabled()) {
+//            logger.info("Internal call: \n" +
+//                            "address={}\n" +
+//                            "origin={}\n" +
+//                            "caller={}\n" +
+//                            "balance={}\n" +
+//                            "gasPrice={}\n" +
+//                            "gas={}\n" +
+//                            "callValue={}\n" +
+//                            "data={}\n" +
+//                            "lastHash={}\n" +
+//                            "coinbase={}\n" +
+//                            "timestamp={}\n" +
+//                            "blockNumber={}\n" +
+//                            "difficulty={}\n" +
+//                            "gaslimit={}\n",
+//                    Hex.toHexString(address.getLast20Bytes()),
+//                    Hex.toHexString(origin.getLast20Bytes()),
+//                    Hex.toHexString(caller.getLast20Bytes()),
+//                    balance.toString(),
+//                    gasPrice.longValue(),
+//                    gas.longValue(),
+//                    Hex.toHexString(callValue.getNoLeadZeroesData()),
+//                    data == null ? "" : Hex.toHexString(data),
+//                    Hex.toHexString(lastHash.getData()),
+//                    Hex.toHexString(coinbase.getLast20Bytes()),
+//                    timestamp.longValue(),
+//                    number.longValue(),
+//                    Hex.toHexString(difficulty.getNoLeadZeroesData()),
+//                    gasLimit.bigIntValue());
+//        }
 
-        DataWord balance = new DataWord(balanceInt.toByteArray());
-        DataWord gasPrice = program.getGasPrice();
-        DataWord gas = inGas;
-        DataWord callValue = inValue;
-
-        byte[] data = dataIn;
-        DataWord lastHash = program.getPrevHash();
-        DataWord coinbase = program.getCoinbase();
-        DataWord timestamp = program.getTimestamp();
-        DataWord number = program.getNumber();
-        DataWord difficulty = program.getDifficulty();
-        DataWord gasLimit = program.getGasLimit();
-
-        if (logger.isInfoEnabled()) {
-            logger.info("Internal call: \n" +
-                            "address={}\n" +
-                            "origin={}\n" +
-                            "caller={}\n" +
-                            "balance={}\n" +
-                            "gasPrice={}\n" +
-                            "gas={}\n" +
-                            "callValue={}\n" +
-                            "data={}\n" +
-                            "lastHash={}\n" +
-                            "coinbase={}\n" +
-                            "timestamp={}\n" +
-                            "blockNumber={}\n" +
-                            "difficulty={}\n" +
-                            "gaslimit={}\n",
-                    Hex.toHexString(address.getLast20Bytes()),
-                    Hex.toHexString(origin.getLast20Bytes()),
-                    Hex.toHexString(caller.getLast20Bytes()),
-                    balance.toString(),
-                    gasPrice.longValue(),
-                    gas.longValue(),
-                    Hex.toHexString(callValue.getNoLeadZeroesData()),
-                    data == null ? "" : Hex.toHexString(data),
-                    Hex.toHexString(lastHash.getData()),
-                    Hex.toHexString(coinbase.getLast20Bytes()),
-                    timestamp.longValue(),
-                    number.longValue(),
-                    Hex.toHexString(difficulty.getNoLeadZeroesData()),
-                    gasLimit.bigIntValue());
-        }
-
-        return new ProgramInvokeImpl(address, origin, caller, balance, gasPrice, gas, callValue,
-                data, lastHash, coinbase, timestamp, number, difficulty, gasLimit,
-                repository, program.getCallDeep() + 1, blockStore, isStaticCall, byTestingSuite);
+//        return new ProgramInvokeImpl(address, origin, caller, balance, gasPrice, gas, callValue,
+//                data, lastHash, coinbase, timestamp, number, difficulty, gasLimit,
+//                repository, program.getCallDeep() + 1, blockStore, isStaticCall, byTestingSuite);
+    	
+    	return null;
     }
 }

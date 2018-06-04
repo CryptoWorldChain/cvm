@@ -105,9 +105,9 @@ public class RunContractService extends SessionModules<PSRunContract> {
 //          callArgs.code = TypeConverter.toJsonHex(contract.getByName(pbo.getFunName()));
 		
             // TODO Test
-            System.out.println(contractAccount.getValue().getData());
+//            System.out.println(contractAccount.getValue().getCode().toStringUtf8());
             
-            CallTransaction.Contract contract = new CallTransaction.Contract(contractAccount.getValue().getData().toString());
+            CallTransaction.Contract contract = new CallTransaction.Contract(contractAccount.getValue().getCode().toStringUtf8());
             CallTransaction.Function fun = contract.getByName(pbo.getFunName());
             if(fun  == null) {
             		throw new IllegalArgumentException("合约方法"+pbo.getFunName()+",未找到");
@@ -165,7 +165,7 @@ public class RunContractService extends SessionModules<PSRunContract> {
 			log.error("error：：" + e.getMessage());
 		} catch (Exception e) {
 			ret.setRetCode(-1);
-			ret.setRetMessage("参数值错误");
+			ret.setRetMessage(e.getMessage());
 		} finally {
 
 		}

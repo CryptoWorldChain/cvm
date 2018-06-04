@@ -656,12 +656,13 @@ public class VM {
                  * Environmental Information
                  */
                 case ADDRESS: {
-                    DataWord address = program.getOwnerAddress();
-
-                    if (logger.isInfoEnabled())
-                        hint = "address: " + Hex.toHexString(address.getLast20Bytes());
-
-                    program.stackPush(address);
+                		System.out.println("ADDRESS -- VM.java 659");
+//                    DataWord address = program.getOwnerAddress();
+//
+//                    if (logger.isInfoEnabled())
+//                        hint = "address: " + Hex.toHexString(address.getLast20Bytes());
+//
+//                    program.stackPush(address);
                     program.step();
                 }
                 break;
@@ -679,67 +680,73 @@ public class VM {
                 }
                 break;
                 case ORIGIN: {
-                    DataWord originAddress = program.getOriginAddress();
-
-                    if (logger.isInfoEnabled())
-                        hint = "address: " + Hex.toHexString(originAddress.getLast20Bytes());
-
-                    program.stackPush(originAddress);
+                		System.out.println("ORIGIN -- VM.java 683");
+//                    DataWord originAddress = program.getOriginAddress();
+//
+//                    if (logger.isInfoEnabled())
+//                        hint = "address: " + Hex.toHexString(originAddress.getLast20Bytes());
+//
+//                    program.stackPush(originAddress);
                     program.step();
                 }
                 break;
                 case CALLER: {
-                    DataWord callerAddress = program.getCallerAddress();
-
-                    if (logger.isInfoEnabled())
-                        hint = "address: " + Hex.toHexString(callerAddress.getLast20Bytes());
-
-                    program.stackPush(callerAddress);
+            			System.out.println("CALLER -- VM.java 694");
+//                    DataWord callerAddress = program.getCallerAddress();
+//
+//                    if (logger.isInfoEnabled())
+//                        hint = "address: " + Hex.toHexString(callerAddress.getLast20Bytes());
+//
+//                    program.stackPush(callerAddress);
                     program.step();
                 }
                 break;
                 case CALLVALUE: {
-                    DataWord callValue = program.getCallValue();
-
-                    if (logger.isInfoEnabled())
-                        hint = "value: " + callValue;
-
-                    program.stackPush(callValue);
+                		System.out.println("CALLVALUE -- VM.java 705");
+//                    DataWord callValue = program.getCallValue();
+//
+//                    if (logger.isInfoEnabled())
+//                        hint = "value: " + callValue;
+//
+//                    program.stackPush(callValue);
                     program.step();
                 }
                 break;
                 case CALLDATALOAD: {
-                    DataWord dataOffs = program.stackPop();
-                    DataWord value = program.getDataValue(dataOffs);
-
-                    if (logger.isInfoEnabled())
-                        hint = "data: " + value;
-
-                    program.stackPush(value);
+                		System.out.println("CALLDATALOAD -- VM.java 716");
+//                    DataWord dataOffs = program.stackPop();
+//                    DataWord value = program.getDataValue(dataOffs);
+//
+//                    if (logger.isInfoEnabled())
+//                        hint = "data: " + value;
+//
+//                    program.stackPush(value);
                     program.step();
                 }
                 break;
                 case CALLDATASIZE: {
-                    DataWord dataSize = program.getDataSize();
-
-                    if (logger.isInfoEnabled())
-                        hint = "size: " + dataSize.value();
-
-                    program.stackPush(dataSize);
+                		System.out.println("CALLDATASIZE -- VM.java 728");
+//                    DataWord dataSize = program.getDataSize();
+//
+//                    if (logger.isInfoEnabled())
+//                        hint = "size: " + dataSize.value();
+//
+//                    program.stackPush(dataSize);
                     program.step();
                 }
                 break;
                 case CALLDATACOPY: {
-                    DataWord memOffsetData = program.stackPop();
-                    DataWord dataOffsetData = program.stackPop();
-                    DataWord lengthData = program.stackPop();
-
-                    byte[] msgData = program.getDataCopy(dataOffsetData, lengthData);
-
-                    if (logger.isInfoEnabled())
-                        hint = "data: " + Hex.toHexString(msgData);
-
-                    program.memorySave(memOffsetData.intValueSafe(), msgData);
+                		System.out.println("CALLDATACOPY -- VM.java 739");
+//                    DataWord memOffsetData = program.stackPop();
+//                    DataWord dataOffsetData = program.stackPop();
+//                    DataWord lengthData = program.stackPop();
+//
+//                    byte[] msgData = program.getDataCopy(dataOffsetData, lengthData);
+//
+//                    if (logger.isInfoEnabled())
+//                        hint = "data: " + Hex.toHexString(msgData);
+//
+//                    program.memorySave(memOffsetData.intValueSafe(), msgData);
                     program.step();
                 }
                 break;
@@ -851,52 +858,57 @@ public class VM {
                 }
                 break;
                 case COINBASE: {
-                    DataWord coinbase = program.getCoinbase();
-
-                    if (logger.isInfoEnabled())
-                        hint = "coinbase: " + Hex.toHexString(coinbase.getLast20Bytes());
-
-                    program.stackPush(coinbase);
+            			System.out.println("COINBASE -- VM.java 861");
+//                    DataWord coinbase = program.getCoinbase();
+//
+//                    if (logger.isInfoEnabled())
+//                        hint = "coinbase: " + Hex.toHexString(coinbase.getLast20Bytes());
+//
+//                    program.stackPush(coinbase);
                     program.step();
                 }
                 break;
                 case TIMESTAMP: {
-                    DataWord timestamp = program.getTimestamp();
-
-                    if (logger.isInfoEnabled())
-                        hint = "timestamp: " + timestamp.value();
-
-                    program.stackPush(timestamp);
+                		System.out.println("TIMESTAMP -- VM.java 872");
+//                    DataWord timestamp = program.getTimestamp();
+//
+//                    if (logger.isInfoEnabled())
+//                        hint = "timestamp: " + timestamp.value();
+//
+//                    program.stackPush(timestamp);
                     program.step();
                 }
                 break;
                 case NUMBER: {
-                    DataWord number = program.getNumber();
-
-                    if (logger.isInfoEnabled())
-                        hint = "number: " + number.value();
-
-                    program.stackPush(number);
+            			System.out.println("NUMBER -- VM.java 883");
+//                    DataWord number = program.getNumber();
+//
+//                    if (logger.isInfoEnabled())
+//                        hint = "number: " + number.value();
+//
+//                    program.stackPush(number);
                     program.step();
                 }
                 break;
                 case DIFFICULTY: {
-                    DataWord difficulty = program.getDifficulty();
-
-                    if (logger.isInfoEnabled())
-                        hint = "difficulty: " + difficulty;
-
-                    program.stackPush(difficulty);
+        				System.out.println("DIFFICULTY -- VM.java 894");
+//                    DataWord difficulty = program.getDifficulty();
+//
+//                    if (logger.isInfoEnabled())
+//                        hint = "difficulty: " + difficulty;
+//
+//                    program.stackPush(difficulty);
                     program.step();
                 }
                 break;
                 case GASLIMIT: {
-                    DataWord gaslimit = program.getGasLimit();
-
-                    if (logger.isInfoEnabled())
-                        hint = "gaslimit: " + gaslimit;
-
-                    program.stackPush(gaslimit);
+    					System.out.println("GASLIMIT -- VM.java 905");
+//                    DataWord gaslimit = program.getGasLimit();
+//
+//                    if (logger.isInfoEnabled())
+//                        hint = "gaslimit: " + gaslimit;
+//
+//                    program.stackPush(gaslimit);
                     program.step();
                 }
                 break;
@@ -931,29 +943,30 @@ public class VM {
                 case LOG3:
                 case LOG4: {
 
-                    if (program.isStaticCall()) throw new Program.StaticCallModificationException();
-                    DataWord address = program.getOwnerAddress();
-
-                    DataWord memStart = stack.pop();
-                    DataWord memOffset = stack.pop();
-
-                    int nTopics = op.val() - OpCode.LOG0.val();
-
-                    List<DataWord> topics = new ArrayList<>();
-                    for (int i = 0; i < nTopics; ++i) {
-                        DataWord topic = stack.pop();
-                        topics.add(topic);
-                    }
-
-                    byte[] data = program.memoryChunk(memStart.intValueSafe(), memOffset.intValueSafe());
-
-                    LogInfo logInfo =
-                            new LogInfo(address.getLast20Bytes(), topics, data);
-
-                    if (logger.isInfoEnabled())
-                        hint = logInfo.toString();
-
-                    program.getResult().addLogInfo(logInfo);
+					System.out.println("LOG4 -- VM.java 946");
+//                    if (program.isStaticCall()) throw new Program.StaticCallModificationException();
+//                    DataWord address = program.getOwnerAddress();
+//
+//                    DataWord memStart = stack.pop();
+//                    DataWord memOffset = stack.pop();
+//
+//                    int nTopics = op.val() - OpCode.LOG0.val();
+//
+//                    List<DataWord> topics = new ArrayList<>();
+//                    for (int i = 0; i < nTopics; ++i) {
+//                        DataWord topic = stack.pop();
+//                        topics.add(topic);
+//                    }
+//
+//                    byte[] data = program.memoryChunk(memStart.intValueSafe(), memOffset.intValueSafe());
+//
+//                    LogInfo logInfo =
+//                            new LogInfo(address.getLast20Bytes(), topics, data);
+//
+//                    if (logger.isInfoEnabled())
+//                        hint = logInfo.toString();
+//
+//                    program.getResult().addLogInfo(logInfo);
                     program.step();
                 }
                 break;
@@ -1002,15 +1015,16 @@ public class VM {
                 }
                 break;
                 case SSTORE: {
-                    if (program.isStaticCall()) throw new Program.StaticCallModificationException();
-
-                    DataWord addr = program.stackPop();
-                    DataWord value = program.stackPop();
-
-                    if (logger.isInfoEnabled())
-                        hint = "[" + program.getOwnerAddress().toPrefixString() + "] key: " + addr + " value: " + value;
-
-                    program.storageSave(addr, value);
+					System.out.println("SSTORE -- VM.java 1018");
+//                    if (program.isStaticCall()) throw new Program.StaticCallModificationException();
+//
+//                    DataWord addr = program.stackPop();
+//                    DataWord value = program.stackPop();
+//
+//                    if (logger.isInfoEnabled())
+//                        hint = "[" + program.getOwnerAddress().toPrefixString() + "] key: " + addr + " value: " + value;
+//
+//                    program.storageSave(addr, value);
                     program.step();
                 }
                 break;
@@ -1123,19 +1137,20 @@ public class VM {
                 }
                 break;
                 case CREATE: {
-                    if (program.isStaticCall()) throw new Program.StaticCallModificationException();
-
-                    DataWord value = program.stackPop();
-                    DataWord inOffset = program.stackPop();
-                    DataWord inSize = program.stackPop();
-
-                    if (logger.isInfoEnabled())
-                        logger.info(logString, String.format("%5s", "[" + program.getPC() + "]"),
-                                String.format("%-12s", op.name()),
-                                program.getGas().value(),
-                                program.getCallDeep(), hint);
-
-                    program.createContract(value, inOffset, inSize);
+					System.out.println("CREATE -- VM.java 1140");
+//                    if (program.isStaticCall()) throw new Program.StaticCallModificationException();
+//
+//                    DataWord value = program.stackPop();
+//                    DataWord inOffset = program.stackPop();
+//                    DataWord inSize = program.stackPop();
+//
+//                    if (logger.isInfoEnabled())
+//                        logger.info(logString, String.format("%5s", "[" + program.getPC() + "]"),
+//                                String.format("%-12s", op.name()),
+//                                program.getGas().value(),
+//                                program.getCallDeep(), hint);
+//
+//                    program.createContract(value, inOffset, inSize);
 
                     program.step();
                 }
@@ -1218,14 +1233,15 @@ public class VM {
                 }
                 break;
                 case SUICIDE: {
-                    if (program.isStaticCall()) throw new Program.StaticCallModificationException();
-
-                    DataWord address = program.stackPop();
-//                    program.suicide(address);
-                    program.getResult().addTouchAccount(address.getLast20Bytes());
-
-                    if (logger.isInfoEnabled())
-                        hint = "address: " + Hex.toHexString(program.getOwnerAddress().getLast20Bytes());
+            			System.out.println("SUICIDE -- VM.java 1236");
+//                    if (program.isStaticCall()) throw new Program.StaticCallModificationException();
+//
+//                    DataWord address = program.stackPop();
+////                    program.suicide(address);
+//                    program.getResult().addTouchAccount(address.getLast20Bytes());
+//
+//                    if (logger.isInfoEnabled())
+//                        hint = "address: " + Hex.toHexString(program.getOwnerAddress().getLast20Bytes());
 
                     program.stop();
                 }

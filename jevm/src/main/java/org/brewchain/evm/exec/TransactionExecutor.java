@@ -6,7 +6,7 @@ import java.util.List;
 import org.brewchain.account.gens.Tx.MultiTransaction;
 import org.brewchain.evm.base.LogInfo;
 import org.brewchain.evm.exec.invoke.ProgramInvoke;
-import org.brewchain.evm.exec.invoke.ProgramInvokeFactory;
+import org.brewchain.evm.exec.invoke.ProgramInvokeImpl;
 import org.brewchain.evm.jsonrpc.TransactionReceipt;
 //import org.ethereum.config.BlockchainConfig;
 //import org.ethereum.config.CommonConfig;
@@ -89,6 +89,8 @@ public class TransactionExecutor {
    
         this.vm = new VM();
         
+        byte[] address = tx.getTxBody().getInputs(0).getAddress().toByteArray();
+//        ProgramInvoke programInvoke = new ProgramInvokeImpl();
 //        ProgramInvoke programInvoke = programInvokeFactory.createProgramInvoke(tx, currentBlock, cacheTrack, blockStore);
 //        this.program = new Program(track.getCodeHash(targetAddress), code, programInvoke, tx, config).withCommonConfig(commonConfig);
         
