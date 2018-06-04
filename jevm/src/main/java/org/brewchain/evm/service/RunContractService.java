@@ -16,6 +16,7 @@ import org.brewchain.evm.exec.TransactionExecutor;
 import org.brewchain.evm.jsonrpc.TransactionReceipt;
 import org.brewchain.evm.jsonrpc.TypeConverter;
 import org.fc.brewchain.bcapi.EncAPI;
+import org.fc.brewchain.bcapi.KeyPairs;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -69,7 +70,7 @@ public class RunContractService extends SessionModules<PSRunContract> {
 			checkNull(pbo);
 			
 			// 创建合约交易，无用
-			String cowAcct = encAPI.genKeys(pbo.getFromAddr()).getAddress();
+			KeyPairs cowAcct = encAPI.genKeys(pbo.getFromAddr());
 			
 			
 //            MTransactionHelper.CallArguments callArgs =  mTransactionHelper.genCallArguments(
@@ -134,7 +135,9 @@ public class RunContractService extends SessionModules<PSRunContract> {
             MTransaction mtx = new MTransaction(accountHelper);
 			mtx.addTXInput(pbo.getFromAddr(), pbo.getPubKey(), pbo.getSign(), 0L, fee, feeLimit);
 			mtx.addTXOutput(null, 0L);
-			MultiTransaction.Builder tx = mtx.genTX(functionCallBytes, pbo.getCAddr().getBytes());
+			mtx.setTXBodyData(functionCallBytes, pbo.getCAddr().getBytes());
+			mtx.txSign(encAPI, cowAcct.getPubkey(), cowAcct.getPrikey());
+			MultiTransaction.Builder tx = mtx.genTX();
 			
 			
 //            String ret_info = mTransactionHelper.call(callArgs);

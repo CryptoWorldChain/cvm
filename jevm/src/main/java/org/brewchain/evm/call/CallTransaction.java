@@ -15,9 +15,9 @@ import org.brewchain.account.gens.Tx.MultiTransactionBody;
 import org.brewchain.account.gens.Tx.MultiTransactionInput;
 import org.brewchain.account.gens.Tx.MultiTransactionOutput;
 import org.brewchain.account.gens.Tx.MultiTransactionSignature;
-import org.brewchain.account.gens.Tx.SingleTransaction;
 import org.brewchain.account.util.ByteUtil;
 import org.brewchain.account.util.FastByteComparisons;
+import org.brewchain.core.crypto.HashUtil;
 import org.brewchain.evm.base.LogInfo;
 import org.brewchain.evm.solidity.SolidityType;
 import org.brewchain.evm.solidity.SolidityType.IntType;
@@ -113,6 +113,13 @@ public class CallTransaction {
         }
     }
 
+    public enum StateMutabilityType {
+        pure,
+        view,
+        nonpayable,
+        payable
+    }
+
     public enum FunctionType {
         constructor,
         function,
@@ -128,6 +135,7 @@ public class CallTransaction {
         public Param[] inputs = new Param[0];
         public Param[] outputs = new Param[0];
         public FunctionType type;
+        public StateMutabilityType stateMutability;
 
         private Function() {}
 
@@ -198,12 +206,9 @@ public class CallTransaction {
             return format("%s(%s)", name, stripEnd(paramsTypes.toString(), ","));
         }
 
-
-		// 被使用
         public byte[] encodeSignatureLong() {
             String signature = formatSignature();
-            // TODO 
-            byte[] sha3Fingerprint = org.brewchain.core.crypto.HashUtil.sha3(signature.getBytes());
+            byte[] sha3Fingerprint = HashUtil.sha3(signature.getBytes());
             return sha3Fingerprint;
         }
 

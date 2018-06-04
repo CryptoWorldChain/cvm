@@ -8,11 +8,6 @@ import static org.brewchain.evm.solidity.compiler.SolidityCompiler.Options.METAD
 import org.apache.commons.lang3.StringUtils;
 import org.brewchain.account.core.AccountHelper;
 import org.brewchain.account.core.TransactionHelper;
-import org.brewchain.account.gens.Tx.MultiTransaction;
-import org.brewchain.account.gens.Tx.MultiTransactionBody;
-import org.brewchain.account.gens.Tx.MultiTransactionInput;
-import org.brewchain.account.gens.Tx.MultiTransactionOutput;
-import org.brewchain.account.gens.Tx.MultiTransactionSignature;
 import org.brewchain.cvm.pbgens.Cvm.PCommand;
 import org.brewchain.cvm.pbgens.Cvm.PMContract;
 import org.brewchain.cvm.pbgens.Cvm.PModule;
@@ -24,9 +19,6 @@ import org.brewchain.evm.solidity.compiler.CompilationResult;
 import org.brewchain.evm.solidity.compiler.SolidityCompiler;
 import org.brewchain.evm.utils.VMUtil;
 import org.fc.brewchain.bcapi.EncAPI;
-import org.fc.brewchain.bcapi.KeyPairs;
-
-import com.google.protobuf.ByteString;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -131,11 +123,13 @@ public class BuildService extends SessionModules<PSBuildCode> {
 									+ ",'metadata':'"+c.getMetadata()+"'"
 								+ "}";
 						
-						MTransaction tx = new MTransaction(accountHelper);
-						tx.addTXInput(pbo.getAddr(), pbo.getPubKey(), pbo.getSign(), 0L, fee, feeLimit);
-						tx.addTXOutput(null, 0L);
-//						MultiTransaction.Builder ctx = tx.genTX(c.getAbi().getBytes(), exDataStr.getBytes());
-						tx.sendTX(transactionHelper, c.getAbi().getBytes(), exDataStr.getBytes());
+						MTransaction mtx = new MTransaction(accountHelper);
+						mtx.addTXInput(pbo.getAddr(), pbo.getPubKey(), pbo.getSign(), 0L, fee, feeLimit);
+						mtx.addTXOutput(null, 0L);
+						mtx.setTXBodyData(c.getAbi().getBytes(), exDataStr.getBytes());
+						mtx.setSign(pbo.getPubKey(), pbo.getSign());
+//						mtx.txSign(encAPI, pbo.getPubKey(), "3d6b03d3fa3ab3959abf2ffca1aa2c5fd14c90256234fb97b2f6b2e6e2549feb");
+						mtx.sendTX(transactionHelper);
 						
 						
 						// TODO 创建合约交易

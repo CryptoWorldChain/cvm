@@ -121,7 +121,7 @@ public class RunFunService extends SessionModules<PSRunFun> {
 			MTransaction tx = new MTransaction(accountHelper);
 			tx.addTXInput(pbo.getFromAddr(), pbo.getPubKey(), pbo.getCtxSignBytes().toString(), 0L, fee, feeLimit);
 			tx.addTXOutput(pbo.getToAddr(), 0L);
-			MultiTransaction.Builder ctx = tx.genTX(null, null);
+			MultiTransaction.Builder ctx = tx.genTX();
 			
 			
 			ret.setRetCode(0);

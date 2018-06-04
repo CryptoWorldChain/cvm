@@ -28,7 +28,7 @@ dependencies {
 	includeInJar 'com.fasterxml.jackson:jackson-parent:2.5'
     includeInJar "com.fasterxml.jackson.core:jackson-databind:2.5.1"
     
-    // includeInJar "org.ethereum:solcJ-all:0.4.8"
+    //  includeInJar "org.ethereum:solcJ-all:0.4.8"
     includeInJar "org.ethereum:solcJ-all:0.4.23"	
     
 	compile 'org.brewchain:org.brewchain.bcapi:3.3.3'
@@ -37,7 +37,6 @@ dependencies {
     compile 'org.brewchain:org.brewchain.account:1.0.5'
     
 	compile 'org.osgi:org.osgi.annotation:6.0.0'
-	
 }
 
 

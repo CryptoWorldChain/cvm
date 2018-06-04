@@ -1,14 +1,16 @@
 package org.brewchain.evm.base;
 
+import java.util.Date;
+
 import org.apache.commons.lang3.StringUtils;
 import org.brewchain.account.core.AccountHelper;
 import org.brewchain.account.core.TransactionHelper;
-import org.brewchain.account.gens.Act.Account;
 import org.brewchain.account.gens.Tx.MultiTransaction;
 import org.brewchain.account.gens.Tx.MultiTransactionBody;
 import org.brewchain.account.gens.Tx.MultiTransactionInput;
 import org.brewchain.account.gens.Tx.MultiTransactionOutput;
 import org.brewchain.account.gens.Tx.MultiTransactionSignature;
+import org.fc.brewchain.bcapi.EncAPI;
 import org.spongycastle.util.encoders.Hex;
 
 import com.google.protobuf.ByteString;
@@ -31,7 +33,7 @@ public class MTransaction {
 		this.tx.setTxHash(ByteString.EMPTY);
 		this.txBody = MultiTransactionBody.newBuilder();
 		this.txBody.clearSignatures();
-		
+
 		this.accountHelper = accountHelper;
 	}
 
@@ -48,7 +50,7 @@ public class MTransaction {
 		this.tx.setTxHash(ByteString.EMPTY);
 		this.txBody = MultiTransactionBody.newBuilder();
 		this.txBody.clearSignatures();
-		
+
 		this.accountHelper = accountHelper;
 	}
 	
@@ -102,12 +104,41 @@ public class MTransaction {
      * @param exData
      * @return
      */
-    public MultiTransaction.Builder genTX(byte[] data, byte[] exData) {
+    public void setTXBodyData(byte[] data, byte[] exData) {
     		if(data != null) this.txBody.setData(ByteString.copyFrom(data));
     		if(exData != null) this.txBody.setExdata(ByteString.copyFrom(exData));
+    }
+    
+    /**
+     * 获取交易对象
+     * @param data
+     * @param exData
+     * @return
+     */
+    public MultiTransaction.Builder genTX() {
+    		tx.clearTxBody();
     		if(StringUtils.isNotBlank(token)) this.txBody.setData(ByteString.copyFromUtf8("02"));
+    		txBody.setTimestamp(new Date().getTime());
 		this.tx.setTxBody(this.txBody);
 		return tx;
+    }
+    
+    public void txSign(EncAPI encAPI,String pubKey,String priKey) {
+    		if(StringUtils.isNotBlank(priKey)) {
+    			txBody.clearSignatures();
+    			// 签名
+    			MultiTransactionSignature.Builder txSignature = MultiTransactionSignature.newBuilder();
+    			txSignature.setPubKey(pubKey);
+    			txSignature.setSignature(encAPI.hexEnc(encAPI.ecSign(priKey, txBody.build().toByteArray())));
+    			txBody.addSignatures(txSignature);
+    		}
+    }
+    public void setSign(String pubKey,String  sign) {
+    		txBody.clearSignatures();
+		// 签名
+		MultiTransactionSignature.Builder txSignature = MultiTransactionSignature.newBuilder();
+		txSignature.setPubKey(pubKey);
+		txSignature.setSignature(sign);
     }
     
     /**
@@ -117,14 +148,18 @@ public class MTransaction {
      * @param exData
      * @throws Exception
      */
-    public void sendTX(TransactionHelper transactionHelper,byte[] data, byte[] exData) throws Exception {
+    public void sendTX(TransactionHelper transactionHelper) throws Exception {
 //		if(txBody.getInputsList().size() == 0) {
 //			//合约交易，无addOutputs
 //		}else if(StringUtils.isNotBlank(token)){
 //			// erc20交易
 //		}else {
 //		}
-		transactionHelper.CreateMultiTransaction(this.genTX(data, exData));	
+    		tx.clearTxBody();
+    		if(StringUtils.isNotBlank(token)) this.txBody.setData(ByteString.copyFromUtf8("02"));
+    		txBody.setTimestamp(new Date().getTime());
+		this.tx.setTxBody(this.txBody);
+		transactionHelper.CreateMultiTransaction(tx);	
     }
     
     
