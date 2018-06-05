@@ -88,8 +88,10 @@ public class VM {
 
             OpCode op = OpCode.code(program.getCurrentOp());
             if (op == null) {
+            	System.out.println("evm op = null");
                 throw Program.Exception.invalidOpCode(program.getCurrentOp());
             }
+            System.out.println("evm="+op.name());
 
 //            switch (op) {
 //                case DELEGATECALL:

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.4;
+pragma solidity ^0.4.22;
 /// http://remix.ethereum.org/#optimize=false&version=soljson-v0.4.21+commit.dfe3193c.js
 contract Ballot {
 
@@ -18,7 +18,7 @@ contract Ballot {
     Proposal[] proposals;
 
     /// Create a new ballot with $(_numProposals) different proposals.
-    function Ballot(uint8 _numProposals) public {
+    function Ballot1(uint8 _numProposals) public {
         chairperson = msg.sender;
         voters[chairperson].weight = 1;
         proposals.length = _numProposals;

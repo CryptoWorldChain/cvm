@@ -750,10 +750,11 @@ public class Program {
 //            logger.debug("[{}] Spent for cause: [{}], gas: [{}]", invoke.hashCode(), cause, gasValue);
 //        }
 
-        if (getGasLong() < gasValue) {
-            throw Program.Exception.notEnoughSpendingGas(cause, gasValue, this);
-        }
-        getResult().spendGas(gasValue);
+    			// TODO 每条命令收取1个gas ，gasValue =1 ；
+//        if (getGasLong() < gasValue) {
+//            throw Program.Exception.notEnoughSpendingGas(cause, gasValue, this);
+//        }
+//        getResult().spendGas(gasValue);
     }
 
     public void spendAllGas() {

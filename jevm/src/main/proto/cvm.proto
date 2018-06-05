@@ -62,8 +62,9 @@ message PSRunContract{//运行合约
 	string pub_key = 6; // Account 公钥
 	//string to_addr = 7; // 0x0000000000000000000000000000000000001234
 	string data = 8; //方法参数，多个英文逗号分割
-	int64  fee = 9; //300000
-	int64  fee_limit = 10; //10000000000
+
+	int64 fee = 9; //默认=0
+	int64 fee_limit = 10; //默认=fee
 	//int64  value = 11; //
 
 	string sign = 12;//执行合约交易签名

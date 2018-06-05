@@ -119,7 +119,7 @@ public class MTransactionHelper {
 //                    .setLocalCall(true);
         	TransactionExecutor executor = new TransactionExecutor(tx).withCommonConfig().setLocalCall(true);
 
-            executor.init();
+            executor.init(null,null);
             executor.execute();
             executor.go();
 //            executor.finalization();

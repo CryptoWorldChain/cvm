@@ -600,7 +600,7 @@ public class JsonRpcImpl implements JsonRpc {
         	
         	TransactionExecutor executor = null;  //new TransactionExecutor(tx, null, repository, blockStore,null, block, 0).withCommonConfig().setLocalCall(true);
 
-            executor.init();
+//            executor.init();
             executor.execute();
             executor.go();
 //            executor.finalization();

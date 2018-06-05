@@ -74,9 +74,12 @@ public class TransactionExecutor {
         logger.warn(err);
         execError = err;
     }
-    
-    public void init() {
+    byte[] codeHash;
+    byte[] code;
+    public void init(byte[] codeHash,byte[] code) {
         readyToExecute = true;
+        this.codeHash=codeHash;
+        this.code=code;
     }
 
     public void execute() {
@@ -94,8 +97,8 @@ public class TransactionExecutor {
 //        ProgramInvoke programInvoke = programInvokeFactory.createProgramInvoke(tx, currentBlock, cacheTrack, blockStore);
 //        this.program = new Program(track.getCodeHash(targetAddress), code, programInvoke, tx, config).withCommonConfig(commonConfig);
         
-        byte[] codeHash = null;//= track.getCodeHash(targetAddress);
-        byte[] code = null;//= track.getCode(targetAddress);
+//        byte[] codeHash = null;//= track.getCodeHash(targetAddress);
+//        byte[] code = null;//= track.getCode(targetAddress);
         
         this.program = new Program(codeHash, code, null, tx).withCommonConfig();
 //        BigInteger endowment = toBI(tx.getValue());
