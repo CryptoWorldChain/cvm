@@ -115,7 +115,6 @@ public class RunContractService extends SessionModules<PSRunContract> {
             byte[] functionCallBytes;
             if (StringUtils.isNotBlank(pbo.getData())) {
                 Object[] dataArray = pbo.getData().split(",");
-//              functionCallBytes = fun.encode();
                 functionCallBytes = fun.encode(dataArray);
             }else {
             		functionCallBytes = fun.encode();

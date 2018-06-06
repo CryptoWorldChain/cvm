@@ -8,6 +8,7 @@ import static org.brewchain.evm.solidity.compiler.SolidityCompiler.Options.METAD
 import org.apache.commons.lang3.StringUtils;
 import org.brewchain.account.core.AccountHelper;
 import org.brewchain.account.core.TransactionHelper;
+import org.brewchain.core.util.ByteUtil;
 import org.brewchain.cvm.pbgens.Cvm.PCommand;
 import org.brewchain.cvm.pbgens.Cvm.PMContract;
 import org.brewchain.cvm.pbgens.Cvm.PModule;
@@ -19,6 +20,7 @@ import org.brewchain.evm.solidity.compiler.CompilationResult;
 import org.brewchain.evm.solidity.compiler.SolidityCompiler;
 import org.brewchain.evm.utils.VMUtil;
 import org.fc.brewchain.bcapi.EncAPI;
+import org.spongycastle.util.encoders.Hex;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -100,6 +102,30 @@ public class BuildService extends SessionModules<PSBuildCode> {
 							}
 						}
 						
+						// 合约构造函数
+						CallTransaction.Function cfun = contract.getConstructor();
+						byte[] functionCallBytes = null;
+						if(cfun != null) {
+							if (StringUtils.isNotBlank(pbo.getData())) {
+				                Object[] dataArray = pbo.getData().split(",");
+				                functionCallBytes = cfun.encodeArguments(dataArray);
+				            }else {
+				            		functionCallBytes = cfun.encodeArguments();
+				            }
+//							new PendingTx(new byte[0], BigInteger.ZERO,
+//									ByteUtil.merge(Hex.decode(contract.getBinary()), functionCallBytes), contract, null,
+//									new TransactionResult())
+							
+//							System.out.println("cm.bin="+cm.bin);
+//							System.out.println("Hex.decode(cm.bin)="+Hex.decode(cm.bin));
+//							System.out.println("functionCallBytes="+functionCallBytes);
+//							System.out.println("ByteUtil.merge(Hex.decode(cm.bin), functionCallBytes)="+ByteUtil.merge(Hex.decode(cm.bin), functionCallBytes));
+							//ByteUtil.merge(Hex.decode(cm.bin), functionCallBytes);
+						}
+						
+						
+						
+						
 						long fee = 0L;
 						long feeLimit = 0L;
 						if(pbo.getFee() > 0) {
@@ -126,7 +152,14 @@ public class BuildService extends SessionModules<PSBuildCode> {
 						MTransaction mtx = new MTransaction(accountHelper);
 						mtx.addTXInput(pbo.getAddr(), pbo.getPubKey(), pbo.getSign(), 0L, fee, feeLimit);
 						mtx.addTXOutput(null, 0L);
-						mtx.setTXBodyData(c.getAbi().getBytes(), exDataStr.getBytes());
+						
+						// TODO ???
+//						mtx.setTXBodyData(c.getAbi().getBytes(), exDataStr.getBytes());
+						if(functionCallBytes == null) {
+							mtx.setTXBodyData(Hex.decode(c.getBin().getBytes()), exDataStr.getBytes());
+						}else {
+							mtx.setTXBodyData(ByteUtil.merge(Hex.decode(cm.bin), functionCallBytes), exDataStr.getBytes());
+						}
 						mtx.setSign(pbo.getPubKey(), pbo.getSign());
 //						mtx.txSign(encAPI, pbo.getPubKey(), "3d6b03d3fa3ab3959abf2ffca1aa2c5fd14c90256234fb97b2f6b2e6e2549feb");
 						mtx.sendTX(transactionHelper);
