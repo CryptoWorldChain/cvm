@@ -8,6 +8,10 @@ import org.brewchain.rcvm.call.CallTransaction;
 import org.brewchain.rcvm.exec.TransactionExecutor;
 import org.brewchain.rcvm.jsonrpc.TransactionReceipt;
 
+import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class SolidityFunRun implements Fun.Run{
 
 	private String codeHash;
@@ -44,8 +48,11 @@ public class SolidityFunRun implements Fun.Run{
 		
 		Fun.Result ret = (new Fun()).new Result();
 		
-		CallTransaction.Contract contract = new CallTransaction.Contract(this.code);
-		if(contract == null) {
+		CallTransaction.Contract contract;
+		try {
+			contract = new CallTransaction.Contract(this.code);
+		} catch (Exception e) {
+			log.error("code异常",e);
 			ret.error = "code异常";
 			return ret;
 		}

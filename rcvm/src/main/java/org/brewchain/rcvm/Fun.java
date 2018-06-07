@@ -1,7 +1,5 @@
 package org.brewchain.rcvm;
 
-import java.io.IOException;
-
 import org.brewchain.rcvm.impl.SolidityFunRun;
 
 public class Fun {
@@ -15,7 +13,6 @@ public class Fun {
 		 * @param funNmae 方法名称
 		 * @param args 方法参数...
 		 * @return
-		 * @throws IOException
 		 */
 		public Fun.Result run(String funName,Object... args);
 		
