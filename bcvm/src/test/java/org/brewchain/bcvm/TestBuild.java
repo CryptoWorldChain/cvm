@@ -20,7 +20,7 @@ public class TestBuild {
 	        reader.close();// 关闭输入流，释放连接  
 	        //System.out.println(code);
 	        
-	        org.brewchain.bcvm.CodeBuild.Build  cvm = org.brewchain.bcvm.CodeBuild.newBuild("sol");
+	        org.brewchain.bcvm.CodeBuild.Build  cvm = org.brewchain.bcvm.CodeBuild.newBuild(org.brewchain.bcvm.CodeBuild.Type.SOLIDITY);
 	        
 	        org.brewchain.bcvm.CodeBuild.Result ret = cvm.build(code);
 	        
