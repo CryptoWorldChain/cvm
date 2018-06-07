@@ -42,7 +42,7 @@ public class SolidityBuild implements CodeBuild.Build {
 					CompilationResult.ContractMetadata cm = result.contracts.get(name);
 					ret.data = cm.abi;
 
-					String exdata = "{" + "\"bin\":\"" + cm.bin + "\"" 
+					String exdata = "{\"bin\":\"" + cm.bin + "\"" 
 										+ ",\"metadata\":\"" + cm.metadata + "\""
 										+ ",\"code\":\"" + code + "\"";
 
