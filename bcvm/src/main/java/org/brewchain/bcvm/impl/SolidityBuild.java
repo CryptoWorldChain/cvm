@@ -7,6 +7,7 @@ import static org.brewchain.bcvm.solidity.compiler.SolidityCompiler.Options.META
 
 import java.io.IOException;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.brewchain.bcvm.CodeBuild;
 import org.brewchain.bcvm.call.CallTransaction;
@@ -41,9 +42,9 @@ public class SolidityBuild implements CodeBuild.Build {
 					CompilationResult.ContractMetadata cm = result.contracts.get(name);
 					ret.data = cm.abi;
 
-					String exdata = "{" + "'bin':'" + cm.bin + "'" 
-										+ ",'metadata':'" + cm.metadata + "'" 
-										+ ",'code':'" + code + "'";
+					String exdata = "{" + "\"bin\":\"" + cm.bin + "\"" 
+										+ ",\"metadata\":\"" + cm.metadata + "\""
+										+ ",\"code\":\"" + code + "\"";
 
 					// Abi abi = Abi.fromJson(cm.abi);
 					// Entry onlyFunc = abi.get(0);
@@ -68,14 +69,19 @@ public class SolidityBuild implements CodeBuild.Build {
 						byte[] functionCallBytes = null;
 						String constructor = "{";
 						if (args != null && args.length > 0) {
-							constructor += "'data':'" + args.toString() + "'";
+							String str = "";
+							for(Object o:args) {
+								str += String.valueOf(o) + ",";
+							}
+							str = str.substring(0, str.length()-1);
+							constructor += "\"data\":\"" + str + "\"";
 							functionCallBytes = cfun.encodeArguments(args);
 						} else {
-							constructor += "'data':''";
+							constructor += "\"data\":\"\"";
 							functionCallBytes = cfun.encodeArguments();
 						}
-						constructor += ",'bin':'" + new String(functionCallBytes) + "'}";
-						exdata += "',constructor':" + constructor;
+						constructor += ",\"bin\":\"" + Base64.encodeBase64String(functionCallBytes) + "\"}";
+						exdata += "\"constructor\":" + constructor;
 					}
 					ret.exdata = exdata + "}";
 				}
