@@ -8,6 +8,7 @@ public class TestRun {
 			
 	        org.brewchain.rcvm.Fun.Run  cvm = org.brewchain.rcvm.Fun.newBuild(org.brewchain.rcvm.Fun.Type.SOLIDITY);
 	        
+	        //执行方法
 	        cvm.setCodeHash("");
 	        cvm.setCode("");
 	        org.brewchain.rcvm.Fun.Result ret = cvm.run("getAAA", "11","22","33","4","55");
@@ -19,6 +20,10 @@ public class TestRun {
     			System.out.println("cmd="+ret.cmd);
     			System.out.println("functionCallBytes="+ret.functionCallBytes);
 	        
+    			//执行方法
+    			org.brewchain.rcvm.Fun.Result ret2 = cvm.run(ret.functionCallBytes);
+    			System.out.println("functionCallBytes="+ret.functionCallBytes);
+    			
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
