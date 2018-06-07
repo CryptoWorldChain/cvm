@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package org.brewchain.cvm.pbgens;
+
+enum PModule {
+	BCVM = 0;
+};
+
+enum PCommand {
+	BCD = 0; //编译合约源码到字节码
+};
+
+message PSBuildCode{//编译
+	string code = 1 [jstype = JS_NORMAL];//合约代码
+	string data = 2; //构造方法参数，无参数时为空，多个英文逗号分割
+	string type = 3; //源码类型，默认为sol, (Solidity)
+
+}
+
+message PRetBuild{
+	int32 ret_code = 2;//返回
+	string ret_message = 3;//返回信息
+	PMContract build = 4;
+}
+
+message PMContract{
+	string data = 1;//data=abi
+	PMEXData exdata = 2 [jstype = JS_NORMAL];
+}
+message PMEXData{
+	string code = 1;//合约源码
+	string bin = 2 [jstype = JS_NORMAL];//合约编码
+	string metadata = 3 [jstype = JS_NORMAL];//合约扩展信息
+	PMConstructor constructor = 4 [jstype = JS_NORMAL]; //合约构造方法
+}
+message PMConstructor{
+	string data = 1;//合约构造函数参数
+	string bin = 2;//合约构造函数编码
+}
+
+
