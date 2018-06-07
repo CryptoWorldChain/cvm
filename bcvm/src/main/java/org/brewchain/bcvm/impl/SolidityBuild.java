@@ -81,7 +81,7 @@ public class SolidityBuild implements CodeBuild.Build {
 							functionCallBytes = cfun.encodeArguments();
 						}
 						constructor += ",\"bin\":\"" + Base64.encodeBase64String(functionCallBytes) + "\"}";
-						exdata += "\"constructor\":" + constructor;
+						exdata += ",\"constructor\":" + constructor;
 					}
 					ret.exdata = exdata + "}";
 				}
