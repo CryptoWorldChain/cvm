@@ -54,10 +54,6 @@ public class CodeBuild{
 		return build;
 	}
 	
-	public static CodeBuild.Build newSolBuild() {
-		CodeBuild.Build build = new SolidityBuild();
-		return build;
-	}
 }
 
 

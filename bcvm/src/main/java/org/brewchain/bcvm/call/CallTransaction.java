@@ -7,11 +7,11 @@ import static org.apache.commons.lang3.StringUtils.stripEnd;
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.brewchain.account.util.ByteUtil;
-import org.brewchain.account.util.FastByteComparisons;
 import org.brewchain.bcvm.solidity.SolidityType;
 import org.brewchain.bcvm.solidity.SolidityType.IntType;
-import org.brewchain.core.crypto.HashUtil;
+import org.brewchain.bcvm.utils.ByteUtil;
+import org.brewchain.bcvm.utils.FastByteComparisons;
+import org.brewchain.bcvm.utils.HashUtil;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonInclude;

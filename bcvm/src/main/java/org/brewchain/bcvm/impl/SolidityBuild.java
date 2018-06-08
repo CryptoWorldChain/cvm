@@ -82,6 +82,8 @@ public class SolidityBuild implements CodeBuild.Build {
 						}
 						constructor += ",\"bin\":\"" + Base64.encodeBase64String(functionCallBytes) + "\"}";
 						exdata += ",\"constructor\":" + constructor;
+					}else {
+						ret.error = "未找到构造方法";
 					}
 					ret.exdata = exdata + "}";
 				}
