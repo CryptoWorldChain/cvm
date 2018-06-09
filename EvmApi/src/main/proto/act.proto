@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package org.brewchain.evm.api.gens;
+package org.brewchain.account.gens;
 
 
 message Account {

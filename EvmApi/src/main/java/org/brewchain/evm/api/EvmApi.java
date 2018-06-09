@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.brewchain.evm.api.gens.Act.Account;
-import org.brewchain.evm.api.gens.Act.AccountCryptoToken;
-import org.brewchain.evm.api.gens.Act.AccountValue;
-import org.brewchain.evm.api.gens.Tx.MultiTransaction;
+import org.brewchain.account.gens.Act.Account;
+import org.brewchain.account.gens.Act.AccountCryptoToken;
+import org.brewchain.account.gens.Act.AccountValue;
+import org.brewchain.account.gens.Tx.MultiTransaction;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
