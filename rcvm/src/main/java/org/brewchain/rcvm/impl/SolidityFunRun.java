@@ -57,7 +57,13 @@ public class SolidityFunRun implements Fun.Run{
 			ret.error = "code异常";
 			return ret;
 		}
-		CallTransaction.Function fun = contract.getByName(funName);
+		
+		CallTransaction.Function fun;
+		if(StringUtils.isNotBlank(funName)) {
+			fun = contract.getByName(funName);
+		}else {
+			fun = contract.getConstructor();
+		}
 		if(fun == null) {
 			ret.error = "未找到方法["+funName+"]";
 			return ret;
@@ -73,10 +79,12 @@ public class SolidityFunRun implements Fun.Run{
 			str = str.substring(0, str.length()-1);
 			funJson += "\"name\":\"" + funName + "\"";
 			funJson += ",\"args\":\"" + str + "\"";
+			funJson += ",\"argsBytes\":\""+Base64.encodeBase64String(fun.encodeArguments(args))+"\"";
 			functionCallBytes = fun.encode(args);
 		} else {
 			funJson += "\"name\":\"" + funName + "\"";
 			funJson += ",\"args\":\"\"";
+			funJson += ",\"argsBytes\":\"\"";
 			functionCallBytes = fun.encode();
 		}
 		funJson += ",\"bin\":\"" + Base64.encodeBase64String(functionCallBytes) + "\"}";
