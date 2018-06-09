@@ -123,7 +123,8 @@ public class TransactionExecutor {
                     vm.play(program);
                     
                 result = program.getResult();
-                receipt.setCmds(result.getCmds());
+                System.out.println("result.getCmds()="+result.getCmds());
+                this.getReceipt().setCmds(result.getCmds());
 //                m_endFee = toBI(tx.getGasLimit()).subtract(toBI(program.getResult().getGasUsed()));
 //
                 if (result.getException() != null || result.isRevert()) {

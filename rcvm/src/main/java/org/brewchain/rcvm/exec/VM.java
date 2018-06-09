@@ -91,7 +91,7 @@ public class VM {
                 throw Program.Exception.invalidOpCode(program.getCurrentOp());
             }
             System.out.println("opName="+op.name()+",opVal="+op.val());
-            program.getResult().addCmds(op.name() + " " + op.val() + ",");
+            program.getResult().addCmds(op.name() + ",");
 //            switch (op) {
 //                case DELEGATECALL:
 //                    if (!blockchainConfig.getConstants().hasDelegateCallOpcode()) {

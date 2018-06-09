@@ -45,10 +45,8 @@ public class Fun {
     }
 	
 	public class Result{
-		public String args;
-		public String functionCallBytes;
 		public String cmd;
-		
+		public String fun;
 		public String error;
 	}
 	
