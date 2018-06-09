@@ -19,7 +19,8 @@ public class TestRun {
     			System.out.println("args="+ret.args);
     			System.out.println("cmd="+ret.cmd);
     			System.out.println("functionCallBytes="+ret.functionCallBytes);
-	        
+    			
+    			
     			//执行方法
     			org.brewchain.rcvm.Fun.Result ret2 = cvm.run(ret.functionCallBytes);
     			System.out.println("functionCallBytes="+ret.functionCallBytes);
