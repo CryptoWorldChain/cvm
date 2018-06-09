@@ -324,7 +324,10 @@ public abstract class SolidityType {
                 value = "0x" + value;
             }
             byte[] addr = super.encode(value);
-            for (int i = 0; i < 12; i++) {
+            
+            // TODO MT
+            for (int i = 0; i < 11; i++) {
+            //for (int i = 0; i < 12; i++) {
                 if (addr[i] != 0) {
                     throw new RuntimeException("Invalid address (should be 20 bytes length): " + addr);
                 }
