@@ -76,11 +76,13 @@ public class SolidityBuild implements CodeBuild.Build {
 							str = str.substring(0, str.length()-1);
 							fun += "\"name\":\"\"";
 							fun += ",\"args\":\"" + str + "\"";
+							fun += ",\"argsBytes\":\""+Base64.encodeBase64String(cfun.encodeArguments(args))+"\"";
 							functionCallBytes = cfun.encode(args);
 							//functionCallBytes = cfun.encode(args);
 						} else {
 							fun += "\"name\":\"\"";
 							fun += ",\"args\":\"\"";
+							fun += ",\"argsBytes\":\"\"";
 							functionCallBytes = cfun.encode();
 							//functionCallBytes = cfun.encode();
 						}
