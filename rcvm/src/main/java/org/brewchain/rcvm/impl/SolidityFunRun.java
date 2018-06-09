@@ -7,6 +7,7 @@ import org.brewchain.rcvm.Fun.Result;
 import org.brewchain.rcvm.call.CallTransaction;
 import org.brewchain.rcvm.exec.TransactionExecutor;
 import org.brewchain.rcvm.jsonrpc.TransactionReceipt;
+import org.spongycastle.util.encoders.Hex;
 
 import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
@@ -62,19 +63,24 @@ public class SolidityFunRun implements Fun.Run{
 			return ret;
 		}
 		
+		String funJson = "{";
 		byte[] functionCallBytes = null;
 		if (args != null && args.length > 0) {
 			String str = "";
 			for(Object o:args) {
 				str += String.valueOf(o) + ",";
 			}
-			ret.args = str.substring(0, str.length()-1);
-			functionCallBytes = fun.encodeArguments(args);
+			str = str.substring(0, str.length()-1);
+			funJson += "\"name\":\"" + funName + "\"";
+			funJson += ",\"args\":\"" + str + "\"";
+			functionCallBytes = fun.encode(args);
 		} else {
-			functionCallBytes = fun.encodeArguments();
+			funJson += "\"name\":\"" + funName + "\"";
+			funJson += ",\"args\":\"\"";
+			functionCallBytes = fun.encode();
 		}
-		
-		ret.functionCallBytes = Base64.encodeBase64String(functionCallBytes);
+		funJson += ",\"bin\":\"" + Base64.encodeBase64String(functionCallBytes) + "\"}";
+		ret.fun = funJson;
 		
 		TransactionExecutor executor = new TransactionExecutor().withCommonConfig().setLocalCall(true);
 
@@ -97,12 +103,17 @@ public class SolidityFunRun implements Fun.Run{
 		
 		TransactionExecutor executor = new TransactionExecutor().withCommonConfig().setLocalCall(true);
 
-		executor.init(null,Base64.decodeBase64(functionCallBytes));
+		executor.init(codeHash.getBytes(),Base64.decodeBase64(functionCallBytes));
 		executor.execute();
 		executor.go();
 		
 		TransactionReceipt res = executor.getReceipt();
-//		ret.cmd = res.get
+		if(StringUtils.isNotBlank(res.getError())) {
+			ret.error = res.getError();
+		}
+		ret.cmd = res.getCmds();
+//		ret.fun = "";
+		
 		return ret;
 	}
 

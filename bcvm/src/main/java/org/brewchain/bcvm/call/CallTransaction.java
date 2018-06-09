@@ -102,7 +102,7 @@ public class CallTransaction {
             }
             return ByteUtil.merge(bb);
         }
-
+        
         private Object[] decode(byte[] encoded, Param[] params) {
             Object[] ret = new Object[params.length];
 

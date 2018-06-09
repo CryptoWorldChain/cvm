@@ -17,7 +17,7 @@ public class TransactionReceiptDTO {
     public long cumulativeGasUsed;   // The total amount of gas used when this transaction was executed in the block.
     public long gasUsed;             //The amount of gas used by this specific transaction alone.
     public String contractAddress; // The contract address created, if the transaction was a contract creation, otherwise  null .
-    public JsonRpc.LogFilterElement[] logs;         // Array of log objects, which this transaction generated.
+//    public JsonRpc.LogFilterElement[] logs;         // Array of log objects, which this transaction generated.
 
     public  TransactionReceiptDTO(Block block, MultiTransaction txInfo){
     		throw new RuntimeException("该方法待实现");

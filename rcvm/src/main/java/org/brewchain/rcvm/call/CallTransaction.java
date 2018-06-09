@@ -17,10 +17,10 @@ import org.brewchain.account.gens.Tx.MultiTransactionOutput;
 import org.brewchain.account.gens.Tx.MultiTransactionSignature;
 import org.brewchain.account.util.ByteUtil;
 import org.brewchain.account.util.FastByteComparisons;
-import org.brewchain.core.crypto.HashUtil;
 import org.brewchain.rcvm.base.LogInfo;
 import org.brewchain.rcvm.solidity.SolidityType;
 import org.brewchain.rcvm.solidity.SolidityType.IntType;
+import org.brewchain.rcvm.utils.HashUtil;
 import org.spongycastle.util.encoders.Hex;
 
 import com.fasterxml.jackson.annotation.JsonGetter;

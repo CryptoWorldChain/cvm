@@ -14,6 +14,7 @@ import org.brewchain.bcvm.call.CallTransaction;
 import org.brewchain.bcvm.solidity.compiler.CompilationResult;
 import org.brewchain.bcvm.solidity.compiler.SolidityCompiler;
 import org.brewchain.bcvm.utils.VMUtil;
+import org.spongycastle.util.encoders.Hex;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,12 +44,10 @@ public class SolidityBuild implements CodeBuild.Build {
 					ret.data = cm.abi;
 
 					String exdata = "{\"bin\":\"" + cm.bin + "\"" 
-										+ ",\"metadata\":\"" + cm.metadata + "\""
 										+ ",\"code\":\"" + code + "\"";
 
 					// Abi abi = Abi.fromJson(cm.abi);
 					// Entry onlyFunc = abi.get(0);
-					// System.out.println();
 					// if(onlyFunc.type == Type.function){
 					// onlyFunc.inputs.size();
 					// onlyFunc.outputs.size();
@@ -56,6 +55,7 @@ public class SolidityBuild implements CodeBuild.Build {
 					// }
 
 					CallTransaction.Contract contract = new CallTransaction.Contract(cm.abi);
+					
 					// if (contract.functions != null && contract.functions.length > 0) {
 					// for (int i = 0; i < contract.functions.length; i++) {
 					// System.out.println("contract.functions[" + i + "]:「" +
@@ -67,23 +67,28 @@ public class SolidityBuild implements CodeBuild.Build {
 					CallTransaction.Function cfun = contract.getConstructor();
 					if (cfun != null) {
 						byte[] functionCallBytes = null;
-						String constructor = "{";
+						String fun = "{";
 						if (args != null && args.length > 0) {
 							String str = "";
 							for(Object o:args) {
 								str += String.valueOf(o) + ",";
 							}
 							str = str.substring(0, str.length()-1);
-							constructor += "\"data\":\"" + str + "\"";
-							functionCallBytes = cfun.encodeArguments(args);
+							fun += "\"name\":\"\"";
+							fun += ",\"args\":\"" + str + "\"";
+							functionCallBytes = cfun.encode(args);
+							//functionCallBytes = cfun.encode(args);
 						} else {
-							constructor += "\"data\":\"\"";
-							functionCallBytes = cfun.encodeArguments();
+							fun += "\"name\":\"\"";
+							fun += ",\"args\":\"\"";
+							functionCallBytes = cfun.encode();
+							//functionCallBytes = cfun.encode();
 						}
-						constructor += ",\"bin\":\"" + Base64.encodeBase64String(functionCallBytes) + "\"}";
-						exdata += ",\"constructor\":" + constructor;
+						fun += ",\"bin\":\"" + Base64.encodeBase64String(functionCallBytes) + "\"}";
+						exdata += ",\"funs\":[" + fun+"]";
 					}else {
-						ret.error = "未找到构造方法";
+//						ret.error = "未找到构造方法";
+						exdata += ",\"funs\":[]";
 					}
 					ret.exdata = exdata + "}";
 				}
