@@ -30,8 +30,8 @@ public class MTransaction {
 	 * 创建交易对象
 	 * @param accountHelper
 	 */
-//	public MTransaction(AccountHelper accountHelper) {
-	public MTransaction(EvmApi evmApi) {
+	public MTransaction(AccountHelper accountHelper) {
+//	public MTransaction(EvmApi evmApi) {
 		
 		this.tx = MultiTransaction.newBuilder();
 		this.tx.setTxHash(ByteString.EMPTY);

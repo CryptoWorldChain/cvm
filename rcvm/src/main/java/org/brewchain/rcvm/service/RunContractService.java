@@ -40,18 +40,18 @@ public class RunContractService extends SessionModules<PSRunContract> {
     @ActorRequire(name = "bc_encoder",scope = "global")
 	EncAPI encAPI;
     
-    @ActorRequire(name = "evm_api",scope = "global")
-    EvmApi evmApi;
+//    @ActorRequire(name = "evm_api",scope = "global")
+//    EvmApi evmApi;
     
 //    @ActorRequire(name = "mTransaction_Helper", scope = "global")
     MTransactionHelper mTransactionHelper = new MTransactionHelper();
 
 
-//	@ActorRequire(name = "Account_Helper", scope = "global")
-//	AccountHelper accountHelper;
-//	
-//	@ActorRequire(name = "Transaction_Helper", scope = "global")
-//	TransactionHelper transactionHelper;
+	@ActorRequire(name = "Account_Helper", scope = "global")
+	AccountHelper accountHelper;
+	
+	@ActorRequire(name = "Transaction_Helper", scope = "global")
+	TransactionHelper transactionHelper;
     
 	@Override
 	public String getModule() {
@@ -102,7 +102,7 @@ public class RunContractService extends SessionModules<PSRunContract> {
 //            		resultTypes = new String[0];
 //            }
 
-            Account contractAccount = evmApi.GetAccount(encAPI.hexDec(pbo.getCAddr()));
+            Account contractAccount = null;//accountHelper.GetAccount(encAPI.hexDec(pbo.getCAddr()));
             if(contractAccount == null) {
             		throw new IllegalArgumentException("合约"+pbo.getCAddr()+",未找到,hexDec="+encAPI.hexDec(pbo.getCAddr()));
             }
@@ -137,7 +137,7 @@ public class RunContractService extends SessionModules<PSRunContract> {
 				}
 			}
 			
-            MTransaction mtx = new MTransaction(evmApi);
+            MTransaction mtx = new MTransaction(accountHelper);
 			mtx.addTXInput(pbo.getFromAddr(), pbo.getPubKey(), pbo.getSign(), 0L, fee, feeLimit);
 			mtx.addTXOutput(null, 0L);
 			mtx.setTXBodyData(functionCallBytes, pbo.getCAddr().getBytes());

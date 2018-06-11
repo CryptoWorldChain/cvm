@@ -162,7 +162,7 @@ public class BuildService extends SessionModules<PSBuildCode> {
 //						}
 						mtx.setSign(pbo.getPubKey(), pbo.getSign());
 //						mtx.txSign(encAPI, pbo.getPubKey(), "3d6b03d3fa3ab3959abf2ffca1aa2c5fd14c90256234fb97b2f6b2e6e2549feb");
-						mtx.sendTX(transactionHelper);
+						//mtx.sendTX(transactionHelper);
 						
 						if(functionCallBytes != null) {
 							TransactionExecutor executor = new TransactionExecutor().withCommonConfig().setLocalCall(true);

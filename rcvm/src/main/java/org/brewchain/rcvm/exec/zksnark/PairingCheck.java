@@ -4,6 +4,10 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.brewchain.rcvm.exec.zksnark.Params.B_Fp2;
+import static org.brewchain.rcvm.exec.zksnark.Params.TWIST;
+import static org.brewchain.rcvm.exec.zksnark.Params.PAIRING_FINAL_EXPONENT_Z;
+
 public class PairingCheck {
 	static final BigInteger LOOP_COUNT = new BigInteger("29793968203157093288");
 

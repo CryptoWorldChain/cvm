@@ -435,7 +435,7 @@ public class Program {
 
         log.info("creating a new contract inside contract run: [{}]", Hex.toHexString(senderAddress));
 
-        BlockchainConfig blockchainConfig = config.getBlockchainConfig().getConfigForBlock(getNumber().longValue());
+        BlockchainConfig blockchainConfig = null;//config.getBlockchainConfig().getConfigForBlock(getNumber().longValue());
         //  actual gas subtract
         DataWord gasLimit = blockchainConfig.getCreateGas(getGas());
         spendGas(gasLimit.longValue(), "internal call");
@@ -444,8 +444,8 @@ public class Program {
         byte[] nonce = ByteUtil.intToBytes(getStorage().getNonce(senderAddress));
         byte[] newAddress = HashUtil.calcNewAddr(getOwnerAddress().getLast20Bytes(), nonce);
 
-        EvmApi existingAddr = getStorage().getAccountState(newAddress);
-        boolean contractAlreadyExists = existingAddr != null && existingAddr.isContractExist(blockchainConfig);
+        EvmApi existingAddr = null;//getStorage().getAccountState(newAddress);
+        boolean contractAlreadyExists = true;// existingAddr != null && existingAddr.isContractExist(blockchainConfig);
 
         if (byTestingSuite()) {
             // This keeps track of the contracts created for a test
@@ -465,7 +465,7 @@ public class Program {
         //In case of hashing collisions, check for any balance before createAccount()
         BigInteger oldBalance = BigInteger.valueOf(track.getBalance(newAddress));
         byte[] tempAddr = null;
-        track.createAccount(newAddress,tempAddr);
+        //track.createAccount(newAddress,tempAddr);
         if (blockchainConfig.eip161()) {
             track.IncreaseNonce(newAddress);
         }
@@ -490,9 +490,9 @@ public class Program {
         if (contractAlreadyExists) {
             result.setException(new BytecodeExecutionException("Trying to create a contract with existing contract address: 0x" + Hex.toHexString(newAddress)));
         } else if (isNotEmpty(programCode)) {
-            VM vm = new VM(config);
-            Program program = new Program(programCode, programInvoke, internalTx, config).withCommonConfig(commonConfig);
-            vm.play(program);
+            //VM vm = new VM(config);
+            Program program = null;//new Program(programCode, programInvoke, internalTx, config).withCommonConfig(commonConfig);
+            //vm.play(program);
             result = program.getResult();
 
             getResult().merge(result);
@@ -501,21 +501,21 @@ public class Program {
         // 4. CREATE THE CONTRACT OUT OF RETURN
         byte[] code = result.getHReturn();
 
-        long storageCost = getLength(code) * getBlockchainConfig().getGasCost().getCREATE_DATA();
+        long storageCost = 0;//getLength(code) * getBlockchainConfig().getGasCost().getCREATE_DATA();
         long afterSpend = programInvoke.getGas().longValue() - storageCost - result.getGasUsed();
         if (afterSpend < 0) {
             if (!blockchainConfig.getConstants().createEmptyContractOnOOG()) {
                 result.setException(Program.Exception.notEnoughSpendingGas("No gas to return just created contract",
                         storageCost, this));
             } else {
-                track.saveCode(newAddress, EMPTY_BYTE_ARRAY);
+                //track.saveCode(newAddress, EMPTY_BYTE_ARRAY);
             }
         } else if (getLength(code) > blockchainConfig.getConstants().getMAX_CONTRACT_SZIE()) {
             result.setException(Program.Exception.notEnoughSpendingGas("Contract size too large: " + getLength(result.getHReturn()),
                     storageCost, this));
         } else if (!result.isRevert()){
             result.spendGas(storageCost);
-            track.saveCode(newAddress, code);
+           // track.saveCode(newAddress, code);
         }
 
         if (result.getException() != null || result.isRevert()) {
@@ -526,7 +526,7 @@ public class Program {
             internalTx.reject();
             result.rejectInternalTransactions();
 
-            track.rollback();
+            //track.rollback();
             stackPushZero();
 
             if (result.getException() != null) {
@@ -536,7 +536,7 @@ public class Program {
             }
         } else {
             if (!byTestingSuite())
-                track.commit();
+                //track.commit();
 
             // IN SUCCESS PUSH THE ADDRESS INTO THE STACK
             stackPush(new DataWord(newAddress));
@@ -579,11 +579,11 @@ public class Program {
         log.info(msg.getType().name() + " for existing contract: address: [{}], outDataOffs: [{}], outDataSize: [{}]  ",
                     Hex.toHexString(contextAddress), msg.getOutDataOffs().longValue(), msg.getOutDataSize().longValue());
 
-        Repository track = getStorage().startTracking();
+        Repository track = null;//getStorage().startTracking();
 
         // 2.1 PERFORM THE VALUE (endowment) PART
         BigInteger endowment = msg.getEndowment().value();
-        BigInteger senderBalance = track.getBalance(senderAddress);
+        BigInteger senderBalance = BigInteger.valueOf(0);//track.getBalance(senderAddress);
         if (isNotCovers(senderBalance, endowment)) {
             stackPushZero();
             refundGas(msg.getGas().longValue(), "refund gas from message call");
@@ -592,7 +592,7 @@ public class Program {
 
 
         // FETCH THE CODE
-        byte[] programCode = getStorage().isExist(codeAddress) ? getStorage().getCode(codeAddress) : EMPTY_BYTE_ARRAY;
+        byte[] programCode = null;//getStorage().isExist(codeAddress) ? getStorage().getCode(codeAddress) : EMPTY_BYTE_ARRAY;
 
 
         BigInteger contextBalance = ZERO;
@@ -602,8 +602,8 @@ public class Program {
                     msg.getGas().getNoLeadZeroesData(),
                     msg.getEndowment().getNoLeadZeroesData());
         } else {
-            track.addBalance(senderAddress, endowment.negate());
-            contextBalance = track.addBalance(contextAddress, endowment);
+//            track.addBalance(senderAddress, endowment.negate());
+//            contextBalance = track.addBalance(contextAddress, endowment);
         }
 
         // CREATE CALL INTERNAL TRANSACTION
@@ -611,16 +611,17 @@ public class Program {
 
         ProgramResult result = null;
         if (isNotEmpty(programCode)) {
-            ProgramInvoke programInvoke = programInvokeFactory.createProgramInvoke(
-                    this, new DataWord(contextAddress),
-                    msg.getType().callIsDelegate() ? getCallerAddress() : getOwnerAddress(),
-                    msg.getType().callIsDelegate() ? getCallValue() : msg.getEndowment(),
-                    msg.getGas(), contextBalance, data, track, this.invoke.getBlockStore(),
-                    msg.getType().callIsStatic() || isStaticCall(), byTestingSuite());
+            ProgramInvoke programInvoke = null;
+//            		programInvokeFactory.createProgramInvoke(
+//                    this, new DataWord(contextAddress),
+//                    msg.getType().callIsDelegate() ? getCallerAddress() : getOwnerAddress(),
+//                    msg.getType().callIsDelegate() ? getCallValue() : msg.getEndowment(),
+//                    msg.getGas(), contextBalance, data, track, this.invoke.getBlockStore(),
+//                    msg.getType().callIsStatic() || isStaticCall(), byTestingSuite());
 
-            VM vm = new VM(config);
-            Program program = new Program(getStorage().getCodeHash(codeAddress), programCode, programInvoke, internalTx, config).withCommonConfig(commonConfig);
-            vm.play(program);
+           // VM vm = new VM(config);
+            Program program = null;//new Program(getStorage().getCodeHash(codeAddress), programCode, programInvoke, internalTx, config).withCommonConfig(commonConfig);
+            //vm.play(program);
             result = program.getResult();
 
             getTrace().merge(program.getTrace());
@@ -634,7 +635,7 @@ public class Program {
                 internalTx.reject();
                 result.rejectInternalTransactions();
 
-                track.rollback();
+                //track.rollback();
                 stackPushZero();
 
                 if (result.getException() != null) {
@@ -642,18 +643,19 @@ public class Program {
                 }
             } else {
                 // 4. THE FLAG OF SUCCESS IS ONE PUSHED INTO THE STACK
-                track.commit();
+                //track.commit();
                 stackPushOne();
             }
 
             if (byTestingSuite()) {
                 log.info("Testing run, skipping storage diff listener");
-            } else if (Arrays.equals(transaction.getReceiveAddress(), internalTx.getReceiveAddress())) {
-                storageDiffListener.merge(program.getStorageDiff());
-            }
+            } 
+//            else if (Arrays.equals(transaction.getReceiveAddress(), internalTx.getReceiveAddress())) {
+//                storageDiffListener.merge(program.getStorageDiff());
+//            }
         } else {
             // 4. THE FLAG OF SUCCESS IS ONE PUSHED INTO THE STACK
-            track.commit();
+            //track.commit();
             stackPushOne();
         }
 
@@ -716,7 +718,7 @@ public class Program {
     public void storageSave(byte[] key, byte[] val) {
         DataWord keyWord = new DataWord(key);
         DataWord valWord = new DataWord(val);
-        getStorage().addStorageRow(getOwnerAddress().getLast20Bytes(), keyWord, valWord);
+        //getStorage().addStorageRow(getOwnerAddress().getLast20Bytes(), keyWord, valWord);
     }
 
     public byte[] getCode() {
@@ -724,7 +726,7 @@ public class Program {
     }
 
     public byte[] getCodeAt(DataWord address) {
-        byte[] code = invoke.getRepository().getCode(address.getLast20Bytes());
+        byte[] code = null;//invoke.getRepository().getCode(address.getLast20Bytes());
         return nullToEmpty(code);
     }
 
@@ -733,13 +735,14 @@ public class Program {
     }
 
     public DataWord getBlockHash(int index) {
-        return index < this.getNumber().longValue() && index >= Math.max(256, this.getNumber().intValue()) - 256 ?
+        return  null; 
+        		/*index < this.getNumber().longValue() && index >= Math.max(256, this.getNumber().intValue()) - 256 ?
                 new DataWord(this.invoke.getBlockStore().getBlockHashByNumber(index, getPrevHash().getData())).clone() :
-                DataWord.ZERO.clone();
+                DataWord.ZERO.clone();*/
     }
 
     public DataWord getBalance(DataWord address) {
-        BigInteger balance = getStorage().getBalance(address.getLast20Bytes());
+        BigInteger balance = BigInteger.valueOf(0);//getStorage().getBalance(address.getLast20Bytes());
         return new DataWord(balance.toByteArray());
     }
 
@@ -794,7 +797,7 @@ public class Program {
     }
 
     public DataWord storageLoad(DataWord key) {
-        DataWord ret = getStorage().getStorageValue(getOwnerAddress().getLast20Bytes(), key.clone());
+        DataWord ret = null;//getStorage().getStorageValue(getOwnerAddress().getLast20Bytes(), key.clone());
         return ret == null ? null : ret.clone();
     }
 
@@ -815,7 +818,7 @@ public class Program {
     }
 
     public BlockchainConfig getBlockchainConfig() {
-        return blockchainConfig;
+        return null;//blockchainConfig;
     }
 
     public DataWord getDifficulty() {
@@ -854,22 +857,22 @@ public class Program {
 
             if (stackData.length() > 0) stackData.insert(0, "\n");
 
-            ContractDetails contractDetails = getStorage().
-                    getContractDetails(getOwnerAddress().getLast20Bytes());
+//            ContractDetails contractDetails = getStorage().
+//                    getContractDetails(getOwnerAddress().getLast20Bytes());
             StringBuilder storageData = new StringBuilder();
-            if (contractDetails != null) {
-                try {
-                    List<DataWord> storageKeys = new ArrayList<>(contractDetails.getStorage().keySet());
-                    Collections.sort(storageKeys);
-                    for (DataWord key : storageKeys) {
-                        storageData.append(" ").append(key).append(" -> ").
-                                append(contractDetails.getStorage().get(key)).append("\n");
-                    }
-                    if (storageData.length() > 0) storageData.insert(0, "\n");
-                } catch (java.lang.Exception e) {
-                    storageData.append("Failed to print storage: ").append(e.getMessage());
-                }
-            }
+//            if (contractDetails != null) {
+//                try {
+//                    List<DataWord> storageKeys = new ArrayList<>(contractDetails.getStorage().keySet());
+//                    Collections.sort(storageKeys);
+//                    for (DataWord key : storageKeys) {
+//                        storageData.append(" ").append(key).append(" -> ").
+//                                append(contractDetails.getStorage().get(key)).append("\n");
+//                    }
+//                    if (storageData.length() > 0) storageData.insert(0, "\n");
+//                } catch (java.lang.Exception e) {
+//                    storageData.append("Failed to print storage: ").append(e.getMessage());
+//                }
+//            }
 
             StringBuilder memoryData = new StringBuilder();
             StringBuilder oneLine = new StringBuilder();
@@ -1155,7 +1158,7 @@ public class Program {
             return;
         }
 
-        Repository track = getStorage().startTracking();
+        Repository track = null;// getStorage().startTracking();
 
         byte[] senderAddress = this.getOwnerAddress().getLast20Bytes();
         byte[] codeAddress = msg.getCodeAddress().getLast20Bytes();
@@ -1163,7 +1166,7 @@ public class Program {
 
 
         BigInteger endowment = msg.getEndowment().value();
-        BigInteger senderBalance = track.getBalance(senderAddress);
+        BigInteger senderBalance = null;//track.getBalance(senderAddress);
         if (senderBalance.compareTo(endowment) < 0) {
             stackPushZero();
             this.refundGas(msg.getGas().longValue(), "refund gas from message call");
@@ -1174,7 +1177,7 @@ public class Program {
                 msg.getInDataSize().intValue());
 
         // Charge for endowment - is not reversible by rollback
-        transfer(track, senderAddress, contextAddress, msg.getEndowment().value());
+        //transfer(track, senderAddress, contextAddress, msg.getEndowment().value());
 
         if (byTestingSuite()) {
             // This keeps track of the calls created for a test
@@ -1193,11 +1196,11 @@ public class Program {
 
             this.refundGas(0, "call pre-compiled"); //matches cpp logic
             this.stackPushZero();
-            track.rollback();
+            //track.rollback();
         } else {
 
-            if (logger.isDebugEnabled())
-                logger.debug("Call {}(data = {})", contract.getClass().getSimpleName(), Hex.toHexString(data));
+//            if (logger.isDebugEnabled())
+//                logger.debug("Call {}(data = {})", contract.getClass().getSimpleName(), Hex.toHexString(data));
 
             Pair<Boolean, byte[]> out = contract.execute(data);
 
@@ -1205,12 +1208,12 @@ public class Program {
                 this.refundGas(msg.getGas().longValue() - requiredGas, "call pre-compiled");
                 this.stackPushOne();
                 returnDataBuffer = out.getRight();
-                track.commit();
+                //track.commit();
             } else {
                 // spend all gas on failure, push zero and revert state changes
                 this.refundGas(0, "call pre-compiled");
                 this.stackPushZero();
-                track.rollback();
+               // track.rollback();
             }
 
             this.memorySave(msg.getOutDataOffs().intValue(), out.getRight());

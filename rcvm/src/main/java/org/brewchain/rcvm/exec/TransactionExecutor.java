@@ -103,7 +103,7 @@ public class TransactionExecutor {
 //        byte[] codeHash = null;//= track.getCodeHash(targetAddress);
 //        byte[] code = null;//= track.getCode(targetAddress);
         
-        this.program = new Program(codeHash, code, null, tx).withCommonConfig();
+        this.program = null;//new Program(codeHash, code, null, tx).withCommonConfig();
 //        BigInteger endowment = toBI(tx.getValue());
 
 ////      byte[] targetAddress = tx.getReceiveAddress();
