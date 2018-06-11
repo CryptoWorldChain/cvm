@@ -3,12 +3,14 @@ package org.brewchain.rcvm.service;
 import org.apache.commons.lang3.StringUtils;
 import org.brewchain.account.core.AccountHelper;
 import org.brewchain.account.core.TransactionHelper;
-import org.brewchain.account.gens.Act.Account;
+//import org.brewchain.account.gens.Act.Account;
+import org.brewchain.evm.api.gens.Act.Account;
 import org.brewchain.account.gens.Tx.MultiTransaction;
 import org.brewchain.cvm.pbgens.Cvm.PCommand;
 import org.brewchain.cvm.pbgens.Cvm.PModule;
 import org.brewchain.cvm.pbgens.Cvm.PRetRun;
 import org.brewchain.cvm.pbgens.Cvm.PSRunContract;
+import org.brewchain.evm.api.EvmApi;
 import org.brewchain.rcvm.base.MTransaction;
 import org.brewchain.rcvm.call.CallTransaction;
 import org.brewchain.rcvm.exec.MTransactionHelper;
@@ -38,15 +40,18 @@ public class RunContractService extends SessionModules<PSRunContract> {
     @ActorRequire(name = "bc_encoder",scope = "global")
 	EncAPI encAPI;
     
+    @ActorRequire(name = "evm_api",scope = "global")
+    EvmApi evmApi;
+    
 //    @ActorRequire(name = "mTransaction_Helper", scope = "global")
     MTransactionHelper mTransactionHelper = new MTransactionHelper();
 
 
-	@ActorRequire(name = "Account_Helper", scope = "global")
-	AccountHelper accountHelper;
-	
-	@ActorRequire(name = "Transaction_Helper", scope = "global")
-	TransactionHelper transactionHelper;
+//	@ActorRequire(name = "Account_Helper", scope = "global")
+//	AccountHelper accountHelper;
+//	
+//	@ActorRequire(name = "Transaction_Helper", scope = "global")
+//	TransactionHelper transactionHelper;
     
 	@Override
 	public String getModule() {
@@ -97,7 +102,7 @@ public class RunContractService extends SessionModules<PSRunContract> {
 //            		resultTypes = new String[0];
 //            }
 
-            Account contractAccount = accountHelper.GetAccount(encAPI.hexDec(pbo.getCAddr()));
+            Account contractAccount = evmApi.GetAccount(encAPI.hexDec(pbo.getCAddr()));
             if(contractAccount == null) {
             		throw new IllegalArgumentException("合约"+pbo.getCAddr()+",未找到,hexDec="+encAPI.hexDec(pbo.getCAddr()));
             }
@@ -132,7 +137,7 @@ public class RunContractService extends SessionModules<PSRunContract> {
 				}
 			}
 			
-            MTransaction mtx = new MTransaction(accountHelper);
+            MTransaction mtx = new MTransaction(evmApi);
 			mtx.addTXInput(pbo.getFromAddr(), pbo.getPubKey(), pbo.getSign(), 0L, fee, feeLimit);
 			mtx.addTXOutput(null, 0L);
 			mtx.setTXBodyData(functionCallBytes, pbo.getCAddr().getBytes());

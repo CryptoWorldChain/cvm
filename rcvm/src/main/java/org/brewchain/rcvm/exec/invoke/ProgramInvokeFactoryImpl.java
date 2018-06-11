@@ -21,16 +21,14 @@ import static org.apache.commons.lang3.ArrayUtils.nullToEmpty;
 
 import java.math.BigInteger;
 
-import org.apache.maven.model.Repository;
 import org.brewchain.account.gens.Block;
 import org.brewchain.account.gens.Block.BlockHeader;
 import org.brewchain.account.gens.Tx.MultiTransaction;
-import org.brewchain.account.util.ByteUtil;
+import org.brewchain.evm.api.EvmApi;
 import org.brewchain.rcvm.base.DataWord;
-import org.brewchain.rcvm.exec.Program;
+import org.brewchain.rcvm.program.Program;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.spongycastle.util.encoders.Hex;
 
 
 public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
@@ -39,7 +37,7 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
 
     // Invocation by the wire tx
     @Override
-    public ProgramInvoke createProgramInvoke(MultiTransaction tx, Block block, Repository repository,
+    public ProgramInvoke createProgramInvoke(MultiTransaction tx, Block block, EvmApi repository,
                                              BlockHeader blockStore) {
 
         /***         ADDRESS op       ***/
@@ -136,7 +134,7 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
     public ProgramInvoke createProgramInvoke(Program program, DataWord toAddress, DataWord callerAddress,
                                              DataWord inValue, DataWord inGas,
                                              BigInteger balanceInt, byte[] dataIn,
-                                             Repository repository, BlockHeader blockStore,
+                                             EvmApi repository, BlockHeader blockStore,
                                              boolean isStaticCall, boolean byTestingSuite) {
 
 //        DataWord address = toAddress;
@@ -194,4 +192,6 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
     	
     	return null;
     }
+
+	
 }

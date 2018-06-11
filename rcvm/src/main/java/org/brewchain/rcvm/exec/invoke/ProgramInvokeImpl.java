@@ -21,14 +21,12 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Map;
 
-import org.apache.maven.model.Repository;
+//import org.apache.maven.model.Repository;
 import org.brewchain.account.gens.Block.BlockHeader;
+import org.brewchain.evm.api.EvmApi;
 import org.brewchain.rcvm.base.DataWord;
 
-/**
- * @author Roman Mandeleil
- * @since 03.06.2014
- */
+
 public class ProgramInvokeImpl implements ProgramInvoke {
 
     private BlockHeader blockStore;
@@ -50,7 +48,7 @@ public class ProgramInvokeImpl implements ProgramInvoke {
 
     private Map<DataWord, DataWord> storage;
 
-    private final Repository repository;
+    private final EvmApi repository;
     private boolean byTransaction = true;
     private boolean byTestingSuite = false;
     private int callDeep = 0;
@@ -60,7 +58,7 @@ public class ProgramInvokeImpl implements ProgramInvoke {
                              DataWord gasPrice, DataWord gas, DataWord callValue, byte[] msgData,
                              DataWord lastHash, DataWord coinbase, DataWord timestamp, DataWord number, DataWord
                                      difficulty,
-                             DataWord gaslimit, Repository repository, int callDeep, BlockHeader blockStore,
+                             DataWord gaslimit, EvmApi repository, int callDeep, BlockHeader blockStore,
                              boolean isStaticCall, boolean byTestingSuite) {
 
         // Transaction env
@@ -94,7 +92,7 @@ public class ProgramInvokeImpl implements ProgramInvoke {
                              byte[] gasPrice, byte[] gas, byte[] callValue, byte[] msgData,
                              byte[] lastHash, byte[] coinbase, long timestamp, long number, byte[] difficulty,
                              byte[] gaslimit,
-                             Repository repository, BlockHeader blockStore, boolean byTestingSuite) {
+                             EvmApi repository, BlockHeader blockStore, boolean byTestingSuite) {
         this(address, origin, caller, balance, gasPrice, gas, callValue, msgData, lastHash, coinbase,
                 timestamp, number, difficulty, gaslimit, repository, blockStore);
         this.byTestingSuite = byTestingSuite;
@@ -105,7 +103,7 @@ public class ProgramInvokeImpl implements ProgramInvoke {
                              byte[] gasPrice, byte[] gas, byte[] callValue, byte[] msgData,
                              byte[] lastHash, byte[] coinbase, long timestamp, long number, byte[] difficulty,
                              byte[] gaslimit,
-                             Repository repository, BlockHeader blockStore) {
+                             EvmApi repository, BlockHeader blockStore) {
 
         // Transaction env
         this.address = new DataWord(address);
@@ -257,7 +255,7 @@ public class ProgramInvokeImpl implements ProgramInvoke {
         return storage;
     }
 
-    public Repository getRepository() {
+    public EvmApi getRepository() {
         return repository;
     }
 

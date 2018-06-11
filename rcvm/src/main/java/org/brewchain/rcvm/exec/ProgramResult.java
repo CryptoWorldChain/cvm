@@ -28,6 +28,7 @@ import java.util.Set;
 
 import org.brewchain.rcvm.base.DataWord;
 import org.brewchain.rcvm.base.LogInfo;
+import org.brewchain.rcvm.program.InternalTransaction;
 import org.brewchain.rcvm.utils.ByteArraySet;
 
 /**

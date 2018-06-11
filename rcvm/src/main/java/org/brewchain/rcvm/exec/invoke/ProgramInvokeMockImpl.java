@@ -21,6 +21,7 @@ import java.security.interfaces.ECKey;
 
 import org.apache.maven.model.Repository;
 import org.brewchain.account.gens.Block.BlockHeader;
+import org.brewchain.evm.api.EvmApi;
 import org.brewchain.rcvm.base.DataWord;
 import org.fc.brewchain.bcapi.EncAPI;
 import org.spongycastle.util.encoders.Hex;
@@ -38,7 +39,7 @@ public class ProgramInvokeMockImpl implements ProgramInvoke {
 	
     private byte[] msgData;
 
-    private Repository repository;
+    private EvmApi repository;
     private byte[] ownerAddress = Hex.decode("cd2a3d9f938e13cd947ec05abc7fe734df8dd826");
     private final byte[] contractAddress = Hex.decode("471fd3ad3e9eeadeec4608b92d16ce6b500704cc");
 
@@ -234,7 +235,7 @@ public class ProgramInvokeMockImpl implements ProgramInvoke {
     }
 
     @Override
-    public Repository getRepository() {
+    public EvmApi getRepository() {
         return this.repository;
     }
 
@@ -245,7 +246,7 @@ public class ProgramInvokeMockImpl implements ProgramInvoke {
     		return this.getBlockStore();
     }
 
-    public void setRepository(Repository repository) {
+    public void setRepository(EvmApi repository) {
         this.repository = repository;
     }
 

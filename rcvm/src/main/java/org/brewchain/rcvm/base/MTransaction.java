@@ -10,6 +10,7 @@ import org.brewchain.account.gens.Tx.MultiTransactionBody;
 import org.brewchain.account.gens.Tx.MultiTransactionInput;
 import org.brewchain.account.gens.Tx.MultiTransactionOutput;
 import org.brewchain.account.gens.Tx.MultiTransactionSignature;
+import org.brewchain.evm.api.EvmApi;
 import org.fc.brewchain.bcapi.EncAPI;
 import org.spongycastle.util.encoders.Hex;
 
@@ -21,20 +22,23 @@ public class MTransaction {
 	private MultiTransactionBody.Builder txBody = MultiTransactionBody.newBuilder();
 	private String token;
 	
-	private AccountHelper accountHelper;
+//	private AccountHelper accountHelper;
+	private EvmApi evmApi;
+	
 	
 	/**
 	 * 创建交易对象
 	 * @param accountHelper
 	 */
-	public MTransaction(AccountHelper accountHelper) {
+//	public MTransaction(AccountHelper accountHelper) {
+	public MTransaction(EvmApi evmApi) {
 		
 		this.tx = MultiTransaction.newBuilder();
 		this.tx.setTxHash(ByteString.EMPTY);
 		this.txBody = MultiTransactionBody.newBuilder();
 		this.txBody.clearSignatures();
 
-		this.accountHelper = accountHelper;
+		this.evmApi = evmApi;
 	}
 
 	/**
@@ -42,7 +46,8 @@ public class MTransaction {
 	 * @param token
 	 * @param accountHelper
 	 */
-	public MTransaction(String token,AccountHelper accountHelper) {
+	public MTransaction(String token,EvmApi evmApi) {
+	//	public MTransaction(String token,AccountHelper accountHelper) {
 		
 		this.token = token;
 		
@@ -51,7 +56,7 @@ public class MTransaction {
 		this.txBody = MultiTransactionBody.newBuilder();
 		this.txBody.clearSignatures();
 
-		this.accountHelper = accountHelper;
+		this.evmApi = evmApi;
 	}
 	
 	/**
@@ -71,7 +76,7 @@ public class MTransaction {
 		txInput.setAmount(value);
 		txInput.setFee((int)fee);
 		txInput.setFeeLimit((int)feeLimit);
-		txInput.setNonce(accountHelper.getNonce(Hex.decode(address)));
+		txInput.setNonce(evmApi.getNonce(Hex.decode(address)));
 		if(StringUtils.isNotBlank(token)) txInput.setToken(token);
 		this.txBody.addInputs(txInput);
 		
@@ -148,7 +153,7 @@ public class MTransaction {
      * @param exData
      * @throws Exception
      */
-    public void sendTX(TransactionHelper transactionHelper) throws Exception {
+    public void sendTX(EvmApi evmApi) throws Exception {
 //		if(txBody.getInputsList().size() == 0) {
 //			//合约交易，无addOutputs
 //		}else if(StringUtils.isNotBlank(token)){
@@ -159,7 +164,7 @@ public class MTransaction {
     		if(StringUtils.isNotBlank(token)) this.txBody.setData(ByteString.copyFromUtf8("02"));
     		txBody.setTimestamp(new Date().getTime());
 		this.tx.setTxBody(this.txBody);
-		transactionHelper.CreateMultiTransaction(tx);	
+		//evmApi.CreateMultiTransaction(tx);	
     }
     
     

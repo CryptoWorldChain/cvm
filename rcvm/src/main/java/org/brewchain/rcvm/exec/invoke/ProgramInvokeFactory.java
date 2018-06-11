@@ -19,26 +19,24 @@ package org.brewchain.rcvm.exec.invoke;
 
 import java.math.BigInteger;
 
-import org.apache.maven.model.Repository;
+//import org.apache.maven.model.Repository;
 import org.brewchain.account.gens.Block;
 import org.brewchain.account.gens.Block.BlockHeader;
 import org.brewchain.account.gens.Tx.MultiTransaction;
+import org.brewchain.evm.api.EvmApi;
 import org.brewchain.rcvm.base.DataWord;
-import org.brewchain.rcvm.exec.Program;
+import org.brewchain.rcvm.program.Program;
 
-/**
- * @author Roman Mandeleil
- * @since 19.12.2014
- */
+
 public interface ProgramInvokeFactory {
 
     ProgramInvoke createProgramInvoke(MultiTransaction tx, Block block,
-                                      Repository repository, BlockHeader blockStore);
+                                      EvmApi repository, BlockHeader blockStore);
 
     ProgramInvoke createProgramInvoke(Program program, DataWord toAddress, DataWord callerAddress,
                                              DataWord inValue, DataWord inGas,
                                              BigInteger balanceInt, byte[] dataIn,
-                                             Repository repository, BlockHeader blockStore,
+                                             EvmApi repository, BlockHeader blockStore,
                                             boolean staticCall, boolean byTestingSuite);
 
 

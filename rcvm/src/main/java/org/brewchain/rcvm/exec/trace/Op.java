@@ -23,7 +23,7 @@ import org.brewchain.rcvm.exec.OpCode;
 
 public class Op {
 
-    private OpCode code;
+	private OpCode code;
     private int deep;
     private int pc;
     private BigInteger gas;

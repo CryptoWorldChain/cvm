@@ -1,8 +1,9 @@
 
 package org.brewchain.rcvm.exec.invoke;
 
-import org.apache.maven.model.Repository;
+//import org.apache.maven.model.Repository;
 import org.brewchain.account.gens.Block.BlockHeader;
+import org.brewchain.evm.api.EvmApi;
 import org.brewchain.rcvm.base.DataWord;
 
 public interface ProgramInvoke {
@@ -47,7 +48,7 @@ public interface ProgramInvoke {
 
     int getCallDeep();
 
-    Repository getRepository();
+    EvmApi getRepository();
 
     BlockHeader getBlockStore();
 

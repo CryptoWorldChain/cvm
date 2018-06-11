@@ -3,6 +3,7 @@ package org.brewchain.rcvm.exec;
 
 import org.brewchain.rcvm.base.DataWord;
 import org.brewchain.rcvm.base.LogInfo;
+import org.brewchain.rcvm.program.Program;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
