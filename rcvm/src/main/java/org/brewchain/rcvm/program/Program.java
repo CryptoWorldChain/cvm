@@ -612,7 +612,7 @@ public class Program {
                     this, new DataWord(contextAddress),
                     msg.getType().callIsDelegate() ? getCallerAddress() : getOwnerAddress(),
                     msg.getType().callIsDelegate() ? getCallValue() : msg.getEndowment(),
-                    msg.getGas(), contextBalance, data, getStorage(), this.invoke.getBlockStore(),
+                    msg.getGas(), contextBalance, data, getStorage(),
                     msg.getType().callIsStatic() || isStaticCall(), byTestingSuite());
 
             VM vm = new VM();
