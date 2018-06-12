@@ -26,12 +26,12 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.interfaces.ECKey;
 
-import org.brewchain.account.util.ByteUtil;
-import org.brewchain.account.util.RLP;
-import org.brewchain.account.util.RLPList;
+import org.brewchain.rcvm.utils.ByteUtil;
+import org.brewchain.rcvm.utils.RLP;
+import org.brewchain.rcvm.utils.RLPList;
 import org.brewchain.rcvm.base.DataWord;
 
-import com.sleepycat.je.Transaction;
+//import com.sleepycat.je.Transaction;
 
 //public class InternalTransaction extends Transaction {
 

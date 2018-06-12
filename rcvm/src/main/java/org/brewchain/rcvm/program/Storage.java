@@ -1,15 +1,15 @@
-package org.brewchain.rcvm.exec;
+package org.brewchain.rcvm.program;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.brewchain.evm.api.EvmApi;
-import org.brewchain.evm.api.gens.Act.Account;
-import org.brewchain.evm.api.gens.Act.AccountCryptoToken;
-import org.brewchain.evm.api.gens.Act.AccountValue;
-import org.brewchain.evm.api.gens.Tx.MultiTransaction;
-import org.brewchain.evm.api.gens.Tx.MultiTransaction.Builder;
+import org.brewchain.evmapi.gens.Act.Account;
+import org.brewchain.evmapi.gens.Act.AccountCryptoToken;
+import org.brewchain.evmapi.gens.Act.AccountValue;
+import org.brewchain.evmapi.gens.Tx.MultiTransaction;
+import org.brewchain.evmapi.gens.Tx.MultiTransaction.Builder;
 import org.brewchain.rcvm.base.DataWord;
 import org.brewchain.rcvm.exec.invoke.ProgramInvoke;
 import org.brewchain.rcvm.exec.listener.ProgramListener;
@@ -132,7 +132,7 @@ public class Storage implements EvmApi, ProgramListenerAware {
 
 	@Override
 	public long addCryptoBalance(byte[] arg0, String arg1,
-			org.brewchain.evm.api.gens.Act.AccountCryptoToken.Builder arg2) {
+			AccountCryptoToken.Builder arg2) {
 		// TODO Auto-generated method stub
 		return repository.addCryptoBalance(arg0, arg1, arg2);
 	}
@@ -229,7 +229,7 @@ public class Storage implements EvmApi, ProgramListenerAware {
 
 	@Override
 	public long newCryptoBalances(byte[] arg0, String arg1,
-			ArrayList<org.brewchain.evm.api.gens.Act.AccountCryptoToken.Builder> arg2) {
+			ArrayList<AccountCryptoToken.Builder> arg2) {
 		// TODO Auto-generated method stub
 		return repository.newCryptoBalances(arg0, arg1, arg2);
 	}

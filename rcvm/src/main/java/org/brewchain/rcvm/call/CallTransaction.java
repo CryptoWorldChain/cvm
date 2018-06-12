@@ -9,14 +9,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.brewchain.account.core.TransactionHelper;
-import org.brewchain.account.gens.Tx.MultiTransaction;
-import org.brewchain.account.gens.Tx.MultiTransactionBody;
-import org.brewchain.account.gens.Tx.MultiTransactionInput;
-import org.brewchain.account.gens.Tx.MultiTransactionOutput;
-import org.brewchain.account.gens.Tx.MultiTransactionSignature;
-import org.brewchain.account.util.ByteUtil;
-import org.brewchain.account.util.FastByteComparisons;
+import org.brewchain.evm.api.EvmApi;
+//import org.brewchain.account.core.TransactionHelper;
+import org.brewchain.evmapi.gens.Tx.MultiTransaction;
+import org.brewchain.evmapi.gens.Tx.MultiTransactionBody;
+import org.brewchain.evmapi.gens.Tx.MultiTransactionInput;
+import org.brewchain.evmapi.gens.Tx.MultiTransactionOutput;
+import org.brewchain.evmapi.gens.Tx.MultiTransactionSignature;
+import org.brewchain.rcvm.utils.ByteUtil;
+import org.brewchain.rcvm.utils.FastByteComparisons;
 import org.brewchain.rcvm.base.LogInfo;
 import org.brewchain.rcvm.solidity.SolidityType;
 import org.brewchain.rcvm.solidity.SolidityType.IntType;
@@ -38,7 +39,7 @@ import com.google.protobuf.ByteString;
 public class CallTransaction {
 
 	
-	public static TransactionHelper transactionHelper;
+	public EvmApi transactionHelper;
 	
     private final static ObjectMapper DEFAULT_MAPPER = new ObjectMapper()
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)

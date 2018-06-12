@@ -20,9 +20,9 @@ package org.brewchain.rcvm.exec;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.brewchain.account.util.ByteUtil;
-import org.brewchain.account.util.RLP;
-import org.brewchain.account.util.RLPList;
+import org.brewchain.rcvm.utils.ByteUtil;
+import org.brewchain.rcvm.utils.RLP;
+import org.brewchain.rcvm.utils.RLPList;
 
 /**
  * Created by Anton Nashatyrev on 06.02.2017.

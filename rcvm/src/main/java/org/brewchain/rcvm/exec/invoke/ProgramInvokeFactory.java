@@ -20,9 +20,9 @@ package org.brewchain.rcvm.exec.invoke;
 import java.math.BigInteger;
 
 //import org.apache.maven.model.Repository;
-import org.brewchain.account.gens.Block;
-import org.brewchain.account.gens.Block.BlockHeader;
-import org.brewchain.account.gens.Tx.MultiTransaction;
+import org.brewchain.evmapi.gens.Block;
+import org.brewchain.evmapi.gens.Block.BlockHeader;
+import org.brewchain.evmapi.gens.Tx.MultiTransaction;
 import org.brewchain.evm.api.EvmApi;
 import org.brewchain.rcvm.base.DataWord;
 import org.brewchain.rcvm.program.Program;

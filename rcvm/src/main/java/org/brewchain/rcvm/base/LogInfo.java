@@ -3,17 +3,15 @@ package org.brewchain.rcvm.base;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.brewchain.account.util.RLP;
-import org.brewchain.account.util.RLPElement;
-import org.brewchain.account.util.RLPItem;
-import org.brewchain.account.util.RLPList;
+import org.brewchain.rcvm.utils.RLP;
+import org.brewchain.rcvm.utils.RLPElement;
+import org.brewchain.rcvm.utils.RLPItem;
+import org.brewchain.rcvm.utils.RLPList;
 import org.brewchain.rcvm.jsonrpc.Bloom;
 import org.fc.brewchain.bcapi.EncAPI;
 import org.spongycastle.util.encoders.Hex;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import onight.tfw.ntrans.api.annotation.ActorRequire;
 

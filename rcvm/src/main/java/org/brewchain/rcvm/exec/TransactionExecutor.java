@@ -3,20 +3,14 @@ package org.brewchain.rcvm.exec;
 
 import java.util.List;
 
-import org.brewchain.account.gens.Tx.MultiTransaction;
+//import org.brewchain.evmapi.gens.Tx.MultiTransaction;
+import org.brewchain.evm.api.EvmApi;
+import org.brewchain.evmapi.gens.Tx.MultiTransaction;
 import org.brewchain.rcvm.base.LogInfo;
-import org.brewchain.rcvm.exec.invoke.ProgramInvoke;
-import org.brewchain.rcvm.exec.invoke.ProgramInvokeImpl;
+//import org.brewchain.rcvm.exec.invoke.ProgramInvoke;
+//import org.brewchain.rcvm.exec.invoke.ProgramInvokeImpl;
 import org.brewchain.rcvm.jsonrpc.TransactionReceipt;
 import org.brewchain.rcvm.program.Program;
-//import org.ethereum.config.BlockchainConfig;
-//import org.ethereum.config.CommonConfig;
-//import org.ethereum.config.SystemProperties;
-//import org.ethereum.db.BlockStore;
-//import org.ethereum.db.ContractDetails;
-//import org.ethereum.listener.EthereumListener;
-//import org.ethereum.listener.EthereumListenerAdapter;
-//import org.brewchain.account.util.ByteArraySet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +24,7 @@ public class TransactionExecutor {
 //    BlockchainConfig blockchainConfig;
 //
     private MultiTransaction.Builder tx;
+//    private EvmApi tx;
 //    private Repository track;
 //    private Repository cacheTrack;
 //    private BlockHeader blockStore;
@@ -58,6 +53,7 @@ public class TransactionExecutor {
     boolean localCall = false;
 
     public TransactionExecutor(MultiTransaction.Builder tx) {
+//    	public TransactionExecutor(EvmApi tx) {
         this.tx = tx;
     }
     public TransactionExecutor() {
@@ -103,7 +99,7 @@ public class TransactionExecutor {
 //        byte[] codeHash = null;//= track.getCodeHash(targetAddress);
 //        byte[] code = null;//= track.getCode(targetAddress);
         
-        this.program = null;//new Program(codeHash, code, null, tx).withCommonConfig();
+        this.program = new Program(codeHash, code, null, tx).withCommonConfig();
 //        BigInteger endowment = toBI(tx.getValue());
 
 ////      byte[] targetAddress = tx.getReceiveAddress();
@@ -251,7 +247,7 @@ public class TransactionExecutor {
             receipt = new TransactionReceipt();
 //            long totalGasUsed = gasUsedInTheBlock + getGasUsed();
 //            receipt.setCumulativeGas(totalGasUsed);
-            receipt.setTransaction(tx);
+//            receipt.setTransaction(tx);
             receipt.setLogInfoList(getVMLogs());
 //            receipt.setGasUsed(getGasUsed());
             receipt.setExecutionResult(getResult().getHReturn());

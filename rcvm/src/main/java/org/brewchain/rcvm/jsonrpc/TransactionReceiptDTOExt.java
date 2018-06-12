@@ -2,8 +2,8 @@ package org.brewchain.rcvm.jsonrpc;
 
 import static org.brewchain.rcvm.jsonrpc.TypeConverter.toJsonHex;
 
-import org.brewchain.account.gens.Block;
-import org.brewchain.account.gens.Tx.MultiTransaction;
+import org.brewchain.evmapi.gens.Block;
+import org.brewchain.evmapi.gens.Tx.MultiTransaction;
 
 public class TransactionReceiptDTOExt extends TransactionReceiptDTO {
 

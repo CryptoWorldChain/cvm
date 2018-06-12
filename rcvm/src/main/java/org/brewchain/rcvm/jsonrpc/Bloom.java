@@ -19,7 +19,7 @@ package org.brewchain.rcvm.jsonrpc;
 
 import java.util.Arrays;
 
-import org.brewchain.account.util.ByteUtil;
+import org.brewchain.rcvm.utils.ByteUtil;
 import org.spongycastle.util.encoders.Hex;
 
 /**

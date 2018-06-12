@@ -1,7 +1,7 @@
 package org.brewchain.rcvm.jsonrpc;
 
-import org.brewchain.account.gens.Block;
-import org.brewchain.account.gens.Tx.MultiTransaction;
+import org.brewchain.evmapi.gens.Block;
+import org.brewchain.evmapi.gens.Tx.MultiTransaction;
 
 public class TransactionResultDTO {
 

@@ -6,13 +6,12 @@ import static org.brewchain.rcvm.solidity.compiler.SolidityCompiler.Options.INTE
 import static org.brewchain.rcvm.solidity.compiler.SolidityCompiler.Options.METADATA;
 
 import org.apache.commons.lang3.StringUtils;
-import org.brewchain.account.core.AccountHelper;
-import org.brewchain.account.core.TransactionHelper;
 import org.brewchain.cvm.pbgens.Cvm.PCommand;
 import org.brewchain.cvm.pbgens.Cvm.PMContract;
 import org.brewchain.cvm.pbgens.Cvm.PModule;
 import org.brewchain.cvm.pbgens.Cvm.PRetBuild;
 import org.brewchain.cvm.pbgens.Cvm.PSBuildCode;
+import org.brewchain.evm.api.EvmApi;
 import org.brewchain.rcvm.base.MTransaction;
 import org.brewchain.rcvm.call.CallTransaction;
 import org.brewchain.rcvm.exec.TransactionExecutor;
@@ -39,11 +38,14 @@ public class BuildService extends SessionModules<PSBuildCode> {
 	@ActorRequire(name = "bc_encoder",scope = "global")
 	EncAPI encAPI;
 	
-	@ActorRequire(name = "Account_Helper", scope = "global")
-	AccountHelper accountHelper;
 	
-	@ActorRequire(name = "Transaction_Helper", scope = "global")
-	TransactionHelper transactionHelper;
+	EvmApi evmapi;
+	
+//	@ActorRequire(name = "Account_Helper", scope = "global")
+//	AccountHelper accountHelper;
+//	
+//	@ActorRequire(name = "Transaction_Helper", scope = "global")
+//	TransactionHelper transactionHelper;
 	
 	@Override
 	public String getModule() {
@@ -150,7 +152,7 @@ public class BuildService extends SessionModules<PSBuildCode> {
 									+ ",'cfuncode':"+functionCallBytes == null?"":functionCallBytes+"'"
 								+ "}";
 						
-						MTransaction mtx = new MTransaction(accountHelper);
+						MTransaction mtx = new MTransaction(evmapi);
 						mtx.addTXInput(pbo.getAddr(), pbo.getPubKey(), pbo.getSign(), 0L, fee, feeLimit);
 						mtx.addTXOutput(null, 0L);
 						
@@ -162,7 +164,7 @@ public class BuildService extends SessionModules<PSBuildCode> {
 //						}
 						mtx.setSign(pbo.getPubKey(), pbo.getSign());
 //						mtx.txSign(encAPI, pbo.getPubKey(), "3d6b03d3fa3ab3959abf2ffca1aa2c5fd14c90256234fb97b2f6b2e6e2549feb");
-						//mtx.sendTX(transactionHelper);
+						mtx.sendTX(evmapi);
 						
 						if(functionCallBytes != null) {
 							TransactionExecutor executor = new TransactionExecutor().withCommonConfig().setLocalCall(true);
@@ -186,7 +188,7 @@ public class BuildService extends SessionModules<PSBuildCode> {
 						ret.setCAddr(
 								encAPI.genKeys(
 										pbo.getAddr()
-										+accountHelper.getNonce(encAPI.hexDec(pbo.getAddr())))
+										+evmapi.getNonce(encAPI.hexDec(pbo.getAddr())))
 								.getAddress());
 						ret.addInfo(c);
 					}

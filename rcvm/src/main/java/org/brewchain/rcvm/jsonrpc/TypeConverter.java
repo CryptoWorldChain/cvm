@@ -2,7 +2,7 @@ package org.brewchain.rcvm.jsonrpc;
 
 import java.math.BigInteger;
 
-import org.brewchain.account.util.ByteUtil;
+import org.brewchain.rcvm.utils.ByteUtil;
 import org.spongycastle.util.encoders.Hex;
 
 public class TypeConverter {

@@ -18,19 +18,19 @@
 package org.brewchain.rcvm.jsonrpc;
 
 import static org.apache.commons.lang3.ArrayUtils.nullToEmpty;
-import static org.brewchain.account.util.ByteUtil.EMPTY_BYTE_ARRAY;
+import static org.brewchain.rcvm.utils.ByteUtil.EMPTY_BYTE_ARRAY;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.brewchain.account.gens.Tx.MultiTransaction;
-import org.brewchain.account.util.ByteUtil;
-import org.brewchain.account.util.RLP;
-import org.brewchain.account.util.RLPElement;
-import org.brewchain.account.util.RLPItem;
-import org.brewchain.account.util.RLPList;
+import org.brewchain.evmapi.gens.Tx.MultiTransaction;
+import org.brewchain.rcvm.utils.ByteUtil;
+import org.brewchain.rcvm.utils.RLP;
+import org.brewchain.rcvm.utils.RLPElement;
+import org.brewchain.rcvm.utils.RLPItem;
+import org.brewchain.rcvm.utils.RLPList;
 import org.brewchain.rcvm.base.LogInfo;
 import org.spongycastle.util.BigIntegers;
 import org.spongycastle.util.encoders.Hex;

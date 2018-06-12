@@ -20,8 +20,8 @@ package org.brewchain.rcvm.program;
 import static java.lang.Math.ceil;
 import static java.lang.Math.min;
 import static java.lang.String.format;
-import static org.brewchain.account.util.ByteUtil.EMPTY_BYTE_ARRAY;
-import static org.brewchain.account.util.ByteUtil.oneByteToHexString;
+import static org.brewchain.rcvm.utils.ByteUtil.EMPTY_BYTE_ARRAY;
+import static org.brewchain.rcvm.utils.ByteUtil.oneByteToHexString;
 
 import java.util.LinkedList;
 import java.util.List;

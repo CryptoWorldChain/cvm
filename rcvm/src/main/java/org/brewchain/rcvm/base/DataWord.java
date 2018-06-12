@@ -3,8 +3,8 @@ package org.brewchain.rcvm.base;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
-import org.brewchain.account.util.ByteUtil;
-import org.brewchain.account.util.FastByteComparisons;
+import org.brewchain.rcvm.utils.ByteUtil;
+import org.brewchain.rcvm.utils.FastByteComparisons;
 import org.spongycastle.util.Arrays;
 import org.spongycastle.util.encoders.Hex;
 

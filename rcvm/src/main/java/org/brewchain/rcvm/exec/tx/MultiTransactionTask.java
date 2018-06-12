@@ -17,8 +17,9 @@
  */
 package org.brewchain.rcvm.exec.tx;
 
-import org.brewchain.account.core.TransactionHelper;
-import org.brewchain.account.gens.Tx.MultiTransaction;
+import org.brewchain.evm.api.EvmApi;
+//import org.brewchain.account.core.TransactionHelper;
+import org.brewchain.evmapi.gens.Tx.MultiTransaction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,15 +39,15 @@ public class MultiTransactionTask implements Callable<List<MultiTransaction.Buil
     private static final Logger logger = LoggerFactory.getLogger("net");
 
     private final List<MultiTransaction.Builder> tx;
-    private final TransactionHelper transactionHelper;
+    private final EvmApi transactionHelper;
 //    private final ChannelManager channelManager;
 //    private final Channel receivedFrom;
 
-    public MultiTransactionTask(MultiTransaction.Builder tx, TransactionHelper transactionHelper) {
+    public MultiTransactionTask(MultiTransaction.Builder tx, EvmApi transactionHelper) {
         this(Collections.singletonList(tx), transactionHelper);
     }
 
-    public MultiTransactionTask(List<MultiTransaction.Builder> tx, TransactionHelper transactionHelper) {
+    public MultiTransactionTask(List<MultiTransaction.Builder> tx, EvmApi transactionHelper) {
 //        this(tx, channelManager, null);
     		this.tx = tx;
     		this.transactionHelper = transactionHelper;

@@ -3,13 +3,13 @@ package org.brewchain.rcvm.base;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
-import org.brewchain.account.core.AccountHelper;
-import org.brewchain.account.core.TransactionHelper;
-import org.brewchain.account.gens.Tx.MultiTransaction;
-import org.brewchain.account.gens.Tx.MultiTransactionBody;
-import org.brewchain.account.gens.Tx.MultiTransactionInput;
-import org.brewchain.account.gens.Tx.MultiTransactionOutput;
-import org.brewchain.account.gens.Tx.MultiTransactionSignature;
+//import org.brewchain.account.core.AccountHelper;
+//import org.brewchain.account.core.TransactionHelper;
+import org.brewchain.evmapi.gens.Tx.MultiTransaction;
+import org.brewchain.evmapi.gens.Tx.MultiTransactionBody;
+import org.brewchain.evmapi.gens.Tx.MultiTransactionInput;
+import org.brewchain.evmapi.gens.Tx.MultiTransactionOutput;
+import org.brewchain.evmapi.gens.Tx.MultiTransactionSignature;
 import org.brewchain.evm.api.EvmApi;
 import org.fc.brewchain.bcapi.EncAPI;
 import org.spongycastle.util.encoders.Hex;
@@ -30,8 +30,8 @@ public class MTransaction {
 	 * 创建交易对象
 	 * @param accountHelper
 	 */
-	public MTransaction(AccountHelper accountHelper) {
-//	public MTransaction(EvmApi evmApi) {
+//	public MTransaction(AccountHelper accountHelper) {
+	public MTransaction(EvmApi evmApi) {
 		
 		this.tx = MultiTransaction.newBuilder();
 		this.tx.setTxHash(ByteString.EMPTY);

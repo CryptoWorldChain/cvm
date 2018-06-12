@@ -9,12 +9,11 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.Repository;
-import org.brewchain.account.core.AccountHelper;
-import org.brewchain.account.core.TransactionHelper;
-import org.brewchain.account.gens.Block;
-import org.brewchain.account.gens.Act.Account;
-import org.brewchain.account.gens.Block.BlockHeader;
-import org.brewchain.account.gens.Tx.MultiTransaction;
+import org.brewchain.evmapi.gens.Block;
+import org.brewchain.evmapi.gens.Act.Account;
+import org.brewchain.evmapi.gens.Block.BlockHeader;
+import org.brewchain.evmapi.gens.Tx.MultiTransaction;
+import org.brewchain.evm.api.EvmApi;
 import org.brewchain.rcvm.base.MTransaction;
 import org.brewchain.rcvm.call.CallTransaction;
 import org.brewchain.rcvm.exec.tx.MultiTransactionTask;
@@ -34,11 +33,13 @@ import onight.tfw.ntrans.api.annotation.ActorRequire;
 @Slf4j
 public class MTransactionHelper {
 
-	@ActorRequire(name = "Transaction_Helper", scope = "global")
-	TransactionHelper transactionHelper;
-
-	@ActorRequire(name = "Account_Helper", scope = "global")
-	AccountHelper accountHelper;
+//	@ActorRequire(name = "Transaction_Helper", scope = "global")
+//	TransactionHelper transactionHelper;
+//
+//	@ActorRequire(name = "Account_Helper", scope = "global")
+//	AccountHelper accountHelper;
+	
+	EvmApi accountHelper;
 	
 	SolidityCompiler solidityCompiler;
 	
@@ -67,7 +68,7 @@ public class MTransactionHelper {
     }
     
 
-	public void submitTransaction(MultiTransaction.Builder transaction,TransactionHelper transactionHelper) {
+	public void submitTransaction(MultiTransaction.Builder transaction,EvmApi transactionHelper) {
 		
 		MultiTransactionTask txTask = new MultiTransactionTask(transaction, transactionHelper);
 		

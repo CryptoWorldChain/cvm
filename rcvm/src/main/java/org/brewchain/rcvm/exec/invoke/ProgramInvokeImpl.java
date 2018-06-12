@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 //import org.apache.maven.model.Repository;
-import org.brewchain.account.gens.Block.BlockHeader;
+import org.brewchain.evmapi.gens.Block.BlockHeader;
 import org.brewchain.evm.api.EvmApi;
 import org.brewchain.rcvm.base.DataWord;
 

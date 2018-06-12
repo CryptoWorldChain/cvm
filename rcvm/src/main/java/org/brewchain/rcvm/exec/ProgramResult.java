@@ -19,7 +19,7 @@ package org.brewchain.rcvm.exec;
 
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.size;
-import static org.brewchain.account.util.ByteUtil.EMPTY_BYTE_ARRAY;
+import static org.brewchain.rcvm.utils.ByteUtil.EMPTY_BYTE_ARRAY;
 
 import java.util.ArrayList;
 import java.util.HashSet;

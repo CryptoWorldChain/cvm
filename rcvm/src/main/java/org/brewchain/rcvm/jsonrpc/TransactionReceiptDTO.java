@@ -2,9 +2,9 @@ package org.brewchain.rcvm.jsonrpc;
 
 import static org.brewchain.rcvm.jsonrpc.TypeConverter.toJsonHex;
 
-import org.brewchain.account.gens.Block;
-import org.brewchain.account.gens.Tx.MultiTransaction;
-import org.brewchain.account.util.ByteUtil;
+import org.brewchain.evmapi.gens.Block;
+import org.brewchain.evmapi.gens.Tx.MultiTransaction;
+import org.brewchain.rcvm.utils.ByteUtil;
 import org.brewchain.rcvm.base.LogInfo;
 import org.brewchain.rcvm.jsonrpc.TransactionReceipt;
 
