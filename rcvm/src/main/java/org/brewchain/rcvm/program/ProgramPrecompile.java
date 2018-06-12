@@ -15,11 +15,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the ethereumJ library. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.brewchain.rcvm.exec;
+package org.brewchain.rcvm.program;
 
 import java.util.HashSet;
 import java.util.Set;
 
+import org.brewchain.rcvm.exec.OpCode;
 import org.brewchain.rcvm.utils.ByteUtil;
 import org.brewchain.rcvm.utils.RLP;
 import org.brewchain.rcvm.utils.RLPList;
