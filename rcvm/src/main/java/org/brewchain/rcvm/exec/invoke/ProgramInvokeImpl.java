@@ -58,7 +58,7 @@ public class ProgramInvokeImpl implements ProgramInvoke {
                              DataWord gasPrice, DataWord gas, DataWord callValue, byte[] msgData,
                              DataWord lastHash, DataWord coinbase, DataWord timestamp, DataWord number, DataWord
                                      difficulty,
-                             DataWord gaslimit, EvmApi repository, int callDeep, BlockHeader blockStore,
+                             DataWord gaslimit, EvmApi repository, int callDeep,
                              boolean isStaticCall, boolean byTestingSuite) {
 
         // Transaction env
@@ -83,7 +83,7 @@ public class ProgramInvokeImpl implements ProgramInvoke {
         this.repository = repository;
         this.byTransaction = false;
         this.callDeep = callDeep;
-        this.blockStore = blockStore;
+//        this.blockStore = blockStore;
         this.isStaticCall = isStaticCall;
         this.byTestingSuite = byTestingSuite;
     }
@@ -125,7 +125,7 @@ public class ProgramInvokeImpl implements ProgramInvoke {
         this.gaslimit = new DataWord(gaslimit);
 
         this.repository = repository;
-        this.blockStore = blockStore;
+//        this.blockStore = blockStore;
     }
 
     /*           ADDRESS op         */

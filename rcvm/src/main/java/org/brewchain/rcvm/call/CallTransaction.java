@@ -39,7 +39,7 @@ import com.google.protobuf.ByteString;
 public class CallTransaction {
 
 	
-	public EvmApi transactionHelper;
+//	public EvmApi transactionHelper;
 	
     private final static ObjectMapper DEFAULT_MAPPER = new ObjectMapper()
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
