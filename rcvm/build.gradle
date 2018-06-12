@@ -34,7 +34,7 @@ dependencies {
     includeInJar "org.ethereum:solcJ-all:0.4.23"	
     
     compile "com.cedarsoftware:java-util:1.8.0"
-	compile 'org.brewchain:org.brewchain.bcapi:3.3.3'
+	//compile 'org.brewchain:org.brewchain.bcapi:3.3.3'
 	compile 'org.brewchain:org.brewchain.ecrypto:3.0.5'
 	
 	
