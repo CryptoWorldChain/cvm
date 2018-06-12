@@ -15,9 +15,11 @@ import org.brewchain.rcvm.program.ProgramResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class TransactionExecutor {
 
-    private static final Logger logger = LoggerFactory.getLogger("execute");
 //    private static final Logger stateLogger = LoggerFactory.getLogger("state");
 
 //    SystemProperties config;
@@ -71,7 +73,7 @@ public class TransactionExecutor {
 	  }
 
     private void execError(String err) {
-        logger.warn(err);
+        log.warn(err);
         execError = err;
     }
     byte[] codeHash;

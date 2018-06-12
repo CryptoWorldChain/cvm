@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public class DataWord implements Comparable<DataWord> {
 
+	
     /* Maximum value of the DataWord */
     public static final BigInteger _2_256 = BigInteger.valueOf(2).pow(256);
     public static final BigInteger MAX_VALUE = _2_256.subtract(BigInteger.ONE);

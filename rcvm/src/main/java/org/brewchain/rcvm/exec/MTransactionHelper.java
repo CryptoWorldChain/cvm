@@ -39,7 +39,7 @@ public class MTransactionHelper {
 //	@ActorRequire(name = "Account_Helper", scope = "global")
 //	AccountHelper accountHelper;
 	
-	EvmApi accountHelper;
+//	EvmApi accountHelper;
 	
 	SolidityCompiler solidityCompiler;
 	
