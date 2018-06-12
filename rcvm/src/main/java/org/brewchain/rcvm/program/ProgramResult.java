@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with the ethereumJ library. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.brewchain.rcvm.exec;
+package org.brewchain.rcvm.program;
 
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 import static org.apache.commons.collections4.CollectionUtils.size;
@@ -28,7 +28,7 @@ import java.util.Set;
 
 import org.brewchain.rcvm.base.DataWord;
 import org.brewchain.rcvm.base.LogInfo;
-import org.brewchain.rcvm.program.InternalTransaction;
+import org.brewchain.rcvm.exec.CallCreate;
 import org.brewchain.rcvm.utils.ByteArraySet;
 
 /**

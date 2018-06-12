@@ -13,8 +13,7 @@ import java.util.Map;
 
 
 public enum OpCode {
-    // TODO #POC9 Need to make tiers more accurate
-    /**
+	/**
      * Halts execution (0x00)
      */
     STOP(0x00, 0, 0, ZeroTier),

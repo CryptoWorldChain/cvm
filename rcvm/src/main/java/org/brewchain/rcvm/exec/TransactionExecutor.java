@@ -11,6 +11,7 @@ import org.brewchain.rcvm.base.LogInfo;
 //import org.brewchain.rcvm.exec.invoke.ProgramInvokeImpl;
 import org.brewchain.rcvm.jsonrpc.TransactionReceipt;
 import org.brewchain.rcvm.program.Program;
+import org.brewchain.rcvm.program.ProgramResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
