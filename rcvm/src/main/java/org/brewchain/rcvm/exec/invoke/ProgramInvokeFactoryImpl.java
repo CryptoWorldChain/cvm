@@ -37,8 +37,7 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
 
     // Invocation by the wire tx
     @Override
-    public ProgramInvoke createProgramInvoke(MultiTransaction tx, Block block, EvmApi repository,
-                                             BlockHeader blockStore) {
+    public ProgramInvoke createProgramInvoke(MultiTransaction tx, Block block, EvmApi repository) {
 
         /***         ADDRESS op       ***/
         // YP: Get address of currently executing account.
@@ -134,7 +133,7 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
     public ProgramInvoke createProgramInvoke(Program program, DataWord toAddress, DataWord callerAddress,
                                              DataWord inValue, DataWord inGas,
                                              BigInteger balanceInt, byte[] dataIn,
-                                             EvmApi repository, BlockHeader blockStore,
+                                             EvmApi repository,
                                              boolean isStaticCall, boolean byTestingSuite) {
 
 //        DataWord address = toAddress;

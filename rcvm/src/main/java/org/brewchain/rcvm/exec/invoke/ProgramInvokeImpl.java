@@ -92,9 +92,9 @@ public class ProgramInvokeImpl implements ProgramInvoke {
                              byte[] gasPrice, byte[] gas, byte[] callValue, byte[] msgData,
                              byte[] lastHash, byte[] coinbase, long timestamp, long number, byte[] difficulty,
                              byte[] gaslimit,
-                             EvmApi repository, BlockHeader blockStore, boolean byTestingSuite) {
+                             EvmApi repository, boolean byTestingSuite) {
         this(address, origin, caller, balance, gasPrice, gas, callValue, msgData, lastHash, coinbase,
-                timestamp, number, difficulty, gaslimit, repository, blockStore);
+                timestamp, number, difficulty, gaslimit, repository);
         this.byTestingSuite = byTestingSuite;
     }
 
@@ -103,7 +103,7 @@ public class ProgramInvokeImpl implements ProgramInvoke {
                              byte[] gasPrice, byte[] gas, byte[] callValue, byte[] msgData,
                              byte[] lastHash, byte[] coinbase, long timestamp, long number, byte[] difficulty,
                              byte[] gaslimit,
-                             EvmApi repository, BlockHeader blockStore) {
+                             EvmApi repository) {
 
         // Transaction env
         this.address = new DataWord(address);

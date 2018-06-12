@@ -31,12 +31,12 @@ import org.brewchain.rcvm.program.Program;
 public interface ProgramInvokeFactory {
 
     ProgramInvoke createProgramInvoke(MultiTransaction tx, Block block,
-                                      EvmApi repository, BlockHeader blockStore);
+                                      EvmApi repository);
 
     ProgramInvoke createProgramInvoke(Program program, DataWord toAddress, DataWord callerAddress,
                                              DataWord inValue, DataWord inGas,
                                              BigInteger balanceInt, byte[] dataIn,
-                                             EvmApi repository, BlockHeader blockStore,
+                                             EvmApi repository,
                                             boolean staticCall, boolean byTestingSuite);
 
 
