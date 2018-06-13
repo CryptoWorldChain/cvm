@@ -131,7 +131,6 @@ public class VM {
             String hint = "";
             long callGas = 0, memWords = 0; // parameters for logging
             long gasCost = op.getTier().asInt();
-            long gasBefore = program.getGasLong();
             int stepBefore = program.getPC();
 //            GasCost gasCosts = blockchainConfig.getGasCost();
             DataWord adjustedCallGas = null;
@@ -267,8 +266,6 @@ public class VM {
 //                        throw Program.Exception.notEnoughOpGas(op, callGasWord, program.getGas());
 //                    }
 
-                    DataWord gasLeft = program.getGas().clone();
-                    gasLeft.sub(new DataWord(gasCost));
 //                    adjustedCallGas = blockchainConfig.getCallGas(op, callGasWord, gasLeft);
 //                    gasCost += adjustedCallGas.longValueSafe();
                     break;
@@ -306,11 +303,10 @@ public class VM {
             }
 
             //DEBUG System.out.println(" OP IS " + op.name() + " GASCOST IS " + gasCost + " NUM IS " + op.asInt());
-            program.spendGas(gasCost, op.name());
 
             // Log debugging line for VM
-            if (program.getNumber().intValue() == dumpBlock)
-                this.dumpLine(op, gasBefore, gasCost + callGas, memWords, program);
+//            if (program.getNumber().intValue() == dumpBlock)
+//                this.dumpLine(op, gasBefore, gasCost + callGas, memWords, program);
 
             if (vmHook != null) {
                 vmHook.step(program, op);
@@ -822,12 +818,6 @@ public class VM {
                 }
                 break;
                 case GASPRICE: {
-                    DataWord gasPrice = program.getGasPrice();
-
-                    if (log.isInfoEnabled())
-                        hint = "price: " + gasPrice.toString();
-
-                    program.stackPush(gasPrice);
                     program.step();
                 }
                 break;
@@ -889,12 +879,6 @@ public class VM {
                 }
                 break;
                 case GASLIMIT: {
-                    DataWord gaslimit = program.getGasLimit();
-
-                    if (log.isInfoEnabled())
-                        hint = "gaslimit: " + gaslimit;
-
-                    program.stackPush(gaslimit);
                     program.step();
                 }
                 break;
@@ -1063,12 +1047,6 @@ public class VM {
                 }
                 break;
                 case GAS: {
-                    DataWord gas = program.getGas();
-
-                    if (log.isInfoEnabled())
-                        hint = "" + gas;
-
-                    program.stackPush(gas);
                     program.step();
                 }
                 break;
@@ -1130,7 +1108,7 @@ public class VM {
                     if (log.isInfoEnabled())
                         log.info(logString, String.format("%5s", "[" + program.getPC() + "]"),
                                 String.format("%-12s", op.name()),
-                                program.getGas().value(),
+                                0,
                                 program.getCallDeep(), hint);
 
 //                    program.createContract(value, inOffset, inSize);
@@ -1162,12 +1140,12 @@ public class VM {
 
                     if (log.isInfoEnabled()) {
                         hint = "addr: " + Hex.toHexString(codeAddress.getLast20Bytes())
-                                + " gas: " + adjustedCallGas.shortHex()
+                                + " gas: " + 0
                                 + " inOff: " + inDataOffs.shortHex()
                                 + " inSize: " + inDataSize.shortHex();
                         log.info(logString, String.format("%5s", "[" + program.getPC() + "]"),
                                 String.format("%-12s", op.name()),
-                                program.getGas().value(),
+                                0,
                                 program.getCallDeep(), hint);
                     }
 
@@ -1236,13 +1214,12 @@ public class VM {
             if (log.isInfoEnabled() && !op.isCall())
                 log.info(logString, String.format("%5s", "[" + program.getPC() + "]"),
                         String.format("%-12s",
-                                op.name()), program.getGas().value(),
+                                op.name()), 0,
                         program.getCallDeep(), hint);
 
             vmCounter++;
         } catch (RuntimeException e) {
             log.warn("VM halted: [{}]", e);
-            program.spendAllGas();
             program.resetFutureRefund();
             program.stop();
             throw e;
@@ -1299,7 +1276,7 @@ public class VM {
      *              vmCounter, internalSteps, operation
                     gasBefore, gasCost, memWords)
      */
-    private void dumpLine(OpCode op, long gasBefore, long gasCost, long memWords, Program program) {
+//    private void dumpLine(OpCode op, long gasBefore, long gasCost, long memWords, Program program) {
 //        if (config.dumpStyle().equals("standard+")) {
 //            switch (op) {
 //                case STOP:
@@ -1355,5 +1332,5 @@ public class VM {
 //                    level, contract, vmCounter, internalSteps, op,
 //                    gasBefore, gasCost, memWords);
 //        }
-    }
+//    }
 }

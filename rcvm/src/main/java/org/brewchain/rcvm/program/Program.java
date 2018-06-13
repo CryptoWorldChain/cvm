@@ -1217,10 +1217,6 @@ public class Program {
             return notEnoughOpGas(op, opGas.longValue(), programGas.longValue());
         }
 
-        public static OutOfGasException notEnoughSpendingGas(String cause, long gasValue, Program program) {
-            return new OutOfGasException("Not enough gas for '%s' cause spending: invokeGas[%d], gas[%d], usedGas[%d];",
-                    cause, program.invoke.getGas().longValue(), gasValue, program.getResult().getGasUsed());
-        }
 
         public static OutOfGasException gasOverflow(BigInteger actualGas, BigInteger gasLimit) {
             return new OutOfGasException("Gas value overflow: actualGas[%d], gasLimit[%d];", actualGas.longValue(), gasLimit.longValue());

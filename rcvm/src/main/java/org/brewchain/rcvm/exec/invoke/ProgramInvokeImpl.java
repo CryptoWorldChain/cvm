@@ -18,8 +18,7 @@ public class ProgramInvokeImpl implements ProgramInvoke {
      */
     private final DataWord address;
     private final DataWord origin, caller,
-            balance, gas, gasPrice, callValue;
-    private final long gasLong;
+            balance, callValue;
 
     byte[] msgData;
 
@@ -27,7 +26,7 @@ public class ProgramInvokeImpl implements ProgramInvoke {
      * BLOCK  env **
      */
     private final DataWord prevHash, coinbase, timestamp,
-            number, difficulty, gaslimit;
+            number, difficulty;
 
     private Map<DataWord, DataWord> storage;
 
@@ -38,10 +37,10 @@ public class ProgramInvokeImpl implements ProgramInvoke {
     private boolean isStaticCall = false;
 
     public ProgramInvokeImpl(DataWord address, DataWord origin, DataWord caller, DataWord balance,
-                             DataWord gasPrice, DataWord gas, DataWord callValue, byte[] msgData,
+                              DataWord callValue, byte[] msgData,
                              DataWord lastHash, DataWord coinbase, DataWord timestamp, DataWord number, DataWord
                                      difficulty,
-                             DataWord gaslimit, EvmApi repository, int callDeep,
+                              EvmApi repository, int callDeep,
                              boolean isStaticCall, boolean byTestingSuite) {
 
         // Transaction env
@@ -49,9 +48,6 @@ public class ProgramInvokeImpl implements ProgramInvoke {
         this.origin = origin;
         this.caller = caller;
         this.balance = balance;
-        this.gasPrice = gasPrice;
-        this.gas = gas;
-        this.gasLong = this.gas.longValueSafe();
         this.callValue = callValue;
         this.msgData = msgData;
 
@@ -61,7 +57,6 @@ public class ProgramInvokeImpl implements ProgramInvoke {
         this.timestamp = timestamp;
         this.number = number;
         this.difficulty = difficulty;
-        this.gaslimit = gaslimit;
 
         this.repository = repository;
         this.byTransaction = false;
@@ -72,20 +67,19 @@ public class ProgramInvokeImpl implements ProgramInvoke {
     }
 
     public ProgramInvokeImpl(byte[] address, byte[] origin, byte[] caller, byte[] balance,
-                             byte[] gasPrice, byte[] gas, byte[] callValue, byte[] msgData,
+                              byte[] callValue, byte[] msgData,
                              byte[] lastHash, byte[] coinbase, long timestamp, long number, byte[] difficulty,
-                             byte[] gaslimit,
+                             
                              EvmApi repository, boolean byTestingSuite) {
-        this(address, origin, caller, balance, gasPrice, gas, callValue, msgData, lastHash, coinbase,
-                timestamp, number, difficulty, gaslimit, repository);
+        this(address, origin, caller, balance,  callValue, msgData, lastHash, coinbase,
+                timestamp, number, difficulty,  repository);
         this.byTestingSuite = byTestingSuite;
     }
 
 
     public ProgramInvokeImpl(byte[] address, byte[] origin, byte[] caller, byte[] balance,
-                             byte[] gasPrice, byte[] gas, byte[] callValue, byte[] msgData,
+                              byte[] callValue, byte[] msgData,
                              byte[] lastHash, byte[] coinbase, long timestamp, long number, byte[] difficulty,
-                             byte[] gaslimit,
                              EvmApi repository) {
 
         // Transaction env
@@ -93,9 +87,6 @@ public class ProgramInvokeImpl implements ProgramInvoke {
         this.origin = new DataWord(origin);
         this.caller = new DataWord(caller);
         this.balance = new DataWord(balance);
-        this.gasPrice = new DataWord(gasPrice);
-        this.gas = new DataWord(gas);
-        this.gasLong = this.gas.longValueSafe();
         this.callValue = new DataWord(callValue);
         this.msgData = msgData;
 
@@ -105,10 +96,8 @@ public class ProgramInvokeImpl implements ProgramInvoke {
         this.timestamp = new DataWord(timestamp);
         this.number = new DataWord(number);
         this.difficulty = new DataWord(difficulty);
-        this.gaslimit = new DataWord(gaslimit);
 
         this.repository = repository;
-//        this.blockStore = blockStore;
     }
 
     /*           ADDRESS op         */
@@ -131,20 +120,6 @@ public class ProgramInvokeImpl implements ProgramInvoke {
         return caller;
     }
 
-    /*           GASPRICE op       */
-    public DataWord getMinGasPrice() {
-        return gasPrice;
-    }
-
-    /*           GAS op       */
-    public DataWord getGas() {
-        return gas;
-    }
-
-    @Override
-    public long getGasLong() {
-        return gasLong;
-    }
 
     /*          CALLVALUE op    */
     public DataWord getCallValue() {
@@ -228,10 +203,6 @@ public class ProgramInvokeImpl implements ProgramInvoke {
         return difficulty;
     }
 
-    /*     GASLIMIT op    */
-    public DataWord getGaslimit() {
-        return gaslimit;
-    }
 
     /*  Storage */
     public Map<DataWord, DataWord> getStorage() {
@@ -282,9 +253,6 @@ public class ProgramInvokeImpl implements ProgramInvoke {
         if (caller != null ? !caller.equals(that.caller) : that.caller != null) return false;
         if (coinbase != null ? !coinbase.equals(that.coinbase) : that.coinbase != null) return false;
         if (difficulty != null ? !difficulty.equals(that.difficulty) : that.difficulty != null) return false;
-        if (gas != null ? !gas.equals(that.gas) : that.gas != null) return false;
-        if (gasPrice != null ? !gasPrice.equals(that.gasPrice) : that.gasPrice != null) return false;
-        if (gaslimit != null ? !gaslimit.equals(that.gaslimit) : that.gaslimit != null) return false;
         if (!Arrays.equals(msgData, that.msgData)) return false;
         if (number != null ? !number.equals(that.number) : that.number != null) return false;
         if (origin != null ? !origin.equals(that.origin) : that.origin != null) return false;
@@ -303,8 +271,6 @@ public class ProgramInvokeImpl implements ProgramInvoke {
                 ", origin=" + origin +
                 ", caller=" + caller +
                 ", balance=" + balance +
-                ", gas=" + gas +
-                ", gasPrice=" + gasPrice +
                 ", callValue=" + callValue +
                 ", msgData=" + Arrays.toString(msgData) +
                 ", prevHash=" + prevHash +
@@ -312,7 +278,6 @@ public class ProgramInvokeImpl implements ProgramInvoke {
                 ", timestamp=" + timestamp +
                 ", number=" + number +
                 ", difficulty=" + difficulty +
-                ", gaslimit=" + gaslimit +
                 ", storage=" + storage +
                 ", repository=" + repository +
                 ", byTransaction=" + byTransaction +

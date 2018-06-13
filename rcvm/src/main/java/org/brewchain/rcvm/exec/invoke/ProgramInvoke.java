@@ -16,11 +16,8 @@ public interface ProgramInvoke {
 
     DataWord getCallerAddress();
 
-    DataWord getMinGasPrice();
 
-    DataWord getGas();
 
-    long getGasLong();
 
     DataWord getCallValue();
 
@@ -40,7 +37,6 @@ public interface ProgramInvoke {
 
     DataWord getDifficulty();
 
-    DataWord getGaslimit();
 
     boolean byTransaction();
 

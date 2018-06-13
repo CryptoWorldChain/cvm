@@ -80,27 +80,9 @@ public class ProgramInvokeMockImpl implements ProgramInvoke {
 //        return new DataWord(addr);
 //    }
 
-    /*           GASPRICE op       */
-    public DataWord getMinGasPrice() {
 
-        byte[] minGasPrice = Hex.decode("09184e72a000");
-        return new DataWord(minGasPrice);
-    }
 
-    /*           GAS op       */
-    public DataWord getGas() {
 
-        return new DataWord(gasLimit);
-    }
-
-    @Override
-    public long getGasLong() {
-        return gasLimit;
-    }
-
-    public void setGas(long gasLimit) {
-        this.gasLimit = gasLimit;
-    }
 
     /*          CALLVALUE op    */
     public DataWord getCallValue() {
@@ -186,14 +168,6 @@ public class ProgramInvokeMockImpl implements ProgramInvoke {
         return new DataWord(difficulty);
     }
 
-    @Override
-    public DataWord getGaslimit() {
-        return new DataWord(gasLimit);
-    }
-
-    public void setGasLimit(long gasLimit) {
-        this.gasLimit = gasLimit;
-    }
 
     public void setOwnerAddress(byte[] ownerAddress) {
         this.ownerAddress = ownerAddress;

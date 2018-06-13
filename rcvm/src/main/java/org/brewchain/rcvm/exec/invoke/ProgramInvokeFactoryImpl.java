@@ -108,8 +108,8 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
                     gaslimit);
         }
 
-        return new ProgramInvokeImpl(address, origin, caller, balance, gasPrice, gas, callValue, data,
-                lastHash, coinbase, timestamp, number, difficulty, gaslimit,
+        return new ProgramInvokeImpl(address, origin, caller, balance, callValue, data,
+                lastHash, coinbase, timestamp, number, difficulty, 
                 repository);
     }
 
@@ -118,7 +118,7 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
      */
     @Override
     public ProgramInvoke createProgramInvoke(Program program, DataWord toAddress, DataWord callerAddress,
-                                             DataWord inValue, DataWord inGas,
+                                             DataWord inValue, 
                                              BigInteger balanceInt, byte[] dataIn,
                                              EvmApi repository,
                                              boolean isStaticCall, boolean byTestingSuite) {
@@ -128,8 +128,6 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
         DataWord caller = callerAddress;
 
         DataWord balance = new DataWord(balanceInt.toByteArray());
-        DataWord gasPrice = program.getGasPrice();
-        DataWord gas = inGas;
         DataWord callValue = inValue;
 
         byte[] data = dataIn;
@@ -138,7 +136,6 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
         DataWord timestamp = program.getTimestamp();
         DataWord number = program.getNumber();
         DataWord difficulty = program.getDifficulty();
-        DataWord gasLimit = program.getGasLimit();
 
         if (log.isInfoEnabled()) {
             log.info("Internal call: \n" +
@@ -160,8 +157,8 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
                     Hex.toHexString(origin.getLast20Bytes()),
                     Hex.toHexString(caller.getLast20Bytes()),
                     balance.toString(),
-                    gasPrice.longValue(),
-                    gas.longValue(),
+                    0,
+                    0,
                     Hex.toHexString(callValue.getNoLeadZeroesData()),
                     data == null ? "" : Hex.toHexString(data),
                     Hex.toHexString(lastHash.getData()),
@@ -169,11 +166,11 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
                     timestamp.longValue(),
                     number.longValue(),
                     Hex.toHexString(difficulty.getNoLeadZeroesData()),
-                    gasLimit.bigIntValue());
+                    0);
         }
 
-        return new ProgramInvokeImpl(address, origin, caller, balance, gasPrice, gas, callValue,
-                data, lastHash, coinbase, timestamp, number, difficulty, gasLimit,
+        return new ProgramInvokeImpl(address, origin, caller, balance,  callValue,
+                data, lastHash, coinbase, timestamp, number, difficulty,
                 repository, program.getCallDeep() + 1, isStaticCall, byTestingSuite);
     }
 
