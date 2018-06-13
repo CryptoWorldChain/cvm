@@ -566,7 +566,6 @@ public class Program {
         BigInteger senderBalance = BigInteger.valueOf(getStorage().getBalance(senderAddress));
         if (isNotCovers(senderBalance, endowment)) {
             stackPushZero();
-            refundGas(msg.getGas().longValue(), "refund gas from message call");
             return;
         }
 
@@ -579,7 +578,6 @@ public class Program {
         if (byTestingSuite()) {
             // This keeps track of the calls created for a test
             getResult().addCallCreate(data, contextAddress,
-                    msg.getGas().getNoLeadZeroesData(),
                     msg.getEndowment().getNoLeadZeroesData());
         } else {
         		getStorage().addBalance(senderAddress, endowment.negate().longValue());
@@ -595,7 +593,7 @@ public class Program {
                     this, new DataWord(contextAddress),
                     msg.getType().callIsDelegate() ? getCallerAddress() : getOwnerAddress(),
                     msg.getType().callIsDelegate() ? getCallValue() : msg.getEndowment(),
-                    msg.getGas(), contextBalance, data, getStorage(),
+                     contextBalance, data, getStorage(),
                     msg.getType().callIsStatic() || isStaticCall(), byTestingSuite());
 
             VM vm = new VM();
@@ -650,42 +648,9 @@ public class Program {
             returnDataBuffer = buffer;
         }
 
-        // 5. REFUND THE REMAIN GAS
-//        if (result != null) {
-//            BigInteger refundGas = msg.getGas().value().subtract(toBI(result.getGasUsed()));
-//            if (isPositive(refundGas)) {
-//                refundGas(refundGas.longValue(), "remaining gas from the internal call");
-//                log.info("The remaining gas refunded, account: [{}], gas: [{}] ",
-//                            Hex.toHexString(senderAddress),
-//                            refundGas.toString());
-//            }
-//        } else {
-//            refundGas(msg.getGas().longValue(), "remaining gas from the internal call");
-//        }
     }
 
-    public void spendGas(long gasValue, String cause) {
-//        log.debug("[{}] Spent for cause: [{}], gas: [{}]", invoke.hashCode(), cause, gasValue);
 
-//        if (getGasLong() < gasValue) {
-//            throw Program.Exception.notEnoughSpendingGas(cause, gasValue, this);
-//        }
-//        getResult().spendGas(gasValue);
-    }
-
-    public void spendAllGas() {
-//        spendGas(getGas().longValue(), "Spending all remaining");
-    }
-
-    public void refundGas(long gasValue, String cause) {
-        log.info("[{}] Refund for cause: [{}], gas: [{}]", invoke.hashCode(), cause, gasValue);
-        getResult().refundGas(gasValue);
-    }
-
-    public void futureRefundGas(long gasValue) {
-        log.info("Future refund added: [{}]", gasValue);
-        getResult().addFutureRefund(gasValue);
-    }
 
     public void resetFutureRefund() {
         getResult().resetFutureRefund();
@@ -733,17 +698,6 @@ public class Program {
         return invoke.getCallerAddress().clone();
     }
 
-    public DataWord getGasPrice() {
-        return invoke.getMinGasPrice().clone();
-    }
-
-    public long getGasLong() {
-        return invoke.getGasLong() - getResult().getGasUsed();
-    }
-
-    public DataWord getGas() {
-        return new DataWord(invoke.getGasLong() - getResult().getGasUsed());
-    }
 
     public DataWord getCallValue() {
         return invoke.getCallValue().clone();
@@ -802,10 +756,6 @@ public class Program {
 
     public DataWord getDifficulty() {
         return invoke.getDifficulty().clone();
-    }
-
-    public DataWord getGasLimit() {
-        return invoke.getGaslimit().clone();
     }
 
     public boolean isStaticCall() {
@@ -930,7 +880,7 @@ public class Program {
 
     public void saveOpTrace() {
         if (this.pc < ops.length) {
-            trace.addOp(ops[pc], pc, getCallDeep(), getGas(), traceListener.resetActions());
+            trace.addOp(ops[pc], pc, getCallDeep(), traceListener.resetActions());
         }
     }
 
@@ -1133,7 +1083,6 @@ public class Program {
 
         if (getCallDeep() == MAX_DEPTH) {
             stackPushZero();
-            //this.refundGas(msg.getGas().longValue(), " call deep limit reach");
             return;
         }
 
@@ -1145,10 +1094,9 @@ public class Program {
 
 
         BigInteger endowment = msg.getEndowment().value();
-        BigInteger senderBalance = null;//track.getBalance(senderAddress);
+        BigInteger senderBalance = BigInteger.valueOf(getStorage().getBalance(senderAddress));
         if (senderBalance.compareTo(endowment) < 0) {
             stackPushZero();
-            this.refundGas(msg.getGas().longValue(), "refund gas from message call");
             return;
         }
 
@@ -1162,7 +1110,6 @@ public class Program {
             // This keeps track of the calls created for a test
             this.getResult().addCallCreate(data,
                     msg.getCodeAddress().getLast20Bytes(),
-                    msg.getGas().getNoLeadZeroesData(),
                     msg.getEndowment().getNoLeadZeroesData());
 
             stackPushOne();
@@ -1170,13 +1117,6 @@ public class Program {
         }
 
 
-        long requiredGas = contract.getGasForData(data);
-        if (requiredGas > msg.getGas().longValue()) {
-
-            this.refundGas(0, "call pre-compiled"); //matches cpp logic
-            this.stackPushZero();
-            //track.rollback();
-        } else {
 
 //            if (logger.isDebugEnabled())
 //                logger.debug("Call {}(data = {})", contract.getClass().getSimpleName(), Hex.toHexString(data));
@@ -1184,19 +1124,16 @@ public class Program {
             Pair<Boolean, byte[]> out = contract.execute(data);
 
             if (out.getLeft()) { // success
-                this.refundGas(msg.getGas().longValue() - requiredGas, "call pre-compiled");
                 this.stackPushOne();
                 returnDataBuffer = out.getRight();
                 //track.commit();
             } else {
                 // spend all gas on failure, push zero and revert state changes
-                this.refundGas(0, "call pre-compiled");
                 this.stackPushZero();
                // track.rollback();
             }
 
             this.memorySave(msg.getOutDataOffs().intValue(), out.getRight());
-        }
     }
 
     public boolean byTestingSuite() {

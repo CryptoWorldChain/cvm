@@ -141,8 +141,8 @@ public class ProgramResult {
         return callCreateList;
     }
 
-    public void addCallCreate(byte[] data, byte[] destination, byte[] gasLimit, byte[] value) {
-        getCallCreateList().add(new CallCreate(data, destination, gasLimit, value));
+    public void addCallCreate(byte[] data, byte[] destination,  byte[] value) {
+        getCallCreateList().add(new CallCreate(data, destination, value));
     }
 
     public List<InternalTransaction> getInternalTransactions() {

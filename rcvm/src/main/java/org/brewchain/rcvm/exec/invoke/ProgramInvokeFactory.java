@@ -18,7 +18,7 @@ public interface ProgramInvokeFactory {
                                       EvmApi repository);
 
     ProgramInvoke createProgramInvoke(Program program, DataWord toAddress, DataWord callerAddress,
-                                             DataWord inValue, DataWord inGas,
+                                             DataWord inValue,
                                              BigInteger balanceInt, byte[] dataIn,
                                              EvmApi repository,
                                             boolean staticCall, boolean byTestingSuite);
