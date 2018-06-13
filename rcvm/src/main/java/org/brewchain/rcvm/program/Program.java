@@ -651,26 +651,26 @@ public class Program {
         }
 
         // 5. REFUND THE REMAIN GAS
-        if (result != null) {
-            BigInteger refundGas = msg.getGas().value().subtract(toBI(result.getGasUsed()));
-            if (isPositive(refundGas)) {
-                refundGas(refundGas.longValue(), "remaining gas from the internal call");
-                log.info("The remaining gas refunded, account: [{}], gas: [{}] ",
-                            Hex.toHexString(senderAddress),
-                            refundGas.toString());
-            }
-        } else {
-            refundGas(msg.getGas().longValue(), "remaining gas from the internal call");
-        }
+//        if (result != null) {
+//            BigInteger refundGas = msg.getGas().value().subtract(toBI(result.getGasUsed()));
+//            if (isPositive(refundGas)) {
+//                refundGas(refundGas.longValue(), "remaining gas from the internal call");
+//                log.info("The remaining gas refunded, account: [{}], gas: [{}] ",
+//                            Hex.toHexString(senderAddress),
+//                            refundGas.toString());
+//            }
+//        } else {
+//            refundGas(msg.getGas().longValue(), "remaining gas from the internal call");
+//        }
     }
 
     public void spendGas(long gasValue, String cause) {
-        log.debug("[{}] Spent for cause: [{}], gas: [{}]", invoke.hashCode(), cause, gasValue);
+//        log.debug("[{}] Spent for cause: [{}], gas: [{}]", invoke.hashCode(), cause, gasValue);
 
-        if (getGasLong() < gasValue) {
-            throw Program.Exception.notEnoughSpendingGas(cause, gasValue, this);
-        }
-        getResult().spendGas(gasValue);
+//        if (getGasLong() < gasValue) {
+//            throw Program.Exception.notEnoughSpendingGas(cause, gasValue, this);
+//        }
+//        getResult().spendGas(gasValue);
     }
 
     public void spendAllGas() {
