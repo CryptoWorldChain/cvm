@@ -1,4 +1,3 @@
-
 package org.brewchain.rcvm.program;
 
 import org.brewchain.rcvm.base.DataWord;

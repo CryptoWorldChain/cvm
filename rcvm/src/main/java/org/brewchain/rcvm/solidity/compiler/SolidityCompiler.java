@@ -1,4 +1,3 @@
-
 package org.brewchain.rcvm.solidity.compiler;
 
 import java.io.BufferedOutputStream;

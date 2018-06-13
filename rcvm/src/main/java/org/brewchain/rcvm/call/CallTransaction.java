@@ -30,12 +30,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.ByteString;
 
-/**
- * Creates a contract function call transaction.
- * Serializes arguments according to the function ABI .
- *
- * Created by Anton Nashatyrev on 25.08.2015.
- */
 public class CallTransaction {
 
 	

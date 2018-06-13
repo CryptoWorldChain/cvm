@@ -17,12 +17,7 @@
  */
 package org.brewchain.rcvm.exec;
 
-/**
- * The fundamental network cost unit. Paid for exclusively by Ether, which is converted
- * freely to and from Gas as required. Gas does not exist outside of the internal Ethereum
- * computation engine; its price is set by the Transaction and miners are free to
- * ignore Transactions whose Gas price is too low.
- */
+
 public class TipCost {
 
     /* backwards compatibility, remove eventually */

@@ -7,9 +7,7 @@ import org.brewchain.rcvm.Fun.Result;
 import org.brewchain.rcvm.call.CallTransaction;
 import org.brewchain.rcvm.exec.TransactionExecutor;
 import org.brewchain.rcvm.jsonrpc.TransactionReceipt;
-import org.spongycastle.util.encoders.Hex;
 
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

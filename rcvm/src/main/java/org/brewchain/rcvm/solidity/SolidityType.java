@@ -1,4 +1,3 @@
-
 package org.brewchain.rcvm.solidity;
 
 import java.lang.reflect.Array;
