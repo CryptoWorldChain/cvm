@@ -1,22 +1,16 @@
 package org.brewchain.rcvm.exec.invoke;
 
-import java.security.interfaces.ECKey;
 
-import org.apache.maven.model.Repository;
-import org.brewchain.evmapi.gens.Block.BlockHeader;
+import org.brewchain.core.crypto.ECKey;
 import org.brewchain.evm.api.EvmApi;
 import org.brewchain.rcvm.base.DataWord;
-import org.fc.brewchain.bcapi.EncAPI;
+import org.brewchain.rcvm.utils.HashUtil;
 import org.spongycastle.util.encoders.Hex;
 
-import onight.tfw.ntrans.api.annotation.ActorRequire;
 
 
 public class ProgramInvokeMockImpl implements ProgramInvoke {
 
-	@ActorRequire(name = "bc_encoder", scope = "global")
-	EncAPI encApi;
-	
     private byte[] msgData;
 
     private EvmApi repository;
@@ -36,7 +30,7 @@ public class ProgramInvokeMockImpl implements ProgramInvoke {
 
 //        this.repository = new RepositoryRoot(new HashMapDB<byte[]>());
 //        this.repository.createAccount(ownerAddress);
-
+//
 //        this.repository.createAccount(contractAddress);
 //        this.repository.saveCode(contractAddress,
 //                Hex.decode("385E60076000396000605f556014600054601e60"
@@ -63,24 +57,22 @@ public class ProgramInvokeMockImpl implements ProgramInvoke {
     }
 
     /*           ORIGIN op         */
-//    public DataWord getOriginAddress() {
-//
-//        byte[] cowPrivKey = encApi.sha3Encode("horse".getBytes());
-//        byte[] addr = ECKey.fromPrivate(cowPrivKey).getAddress();
-//
-//        return new DataWord(addr);
-//    }
+    public DataWord getOriginAddress() {
+
+        byte[] cowPrivKey = HashUtil.sha3("horse".getBytes());
+        byte[] addr = ECKey.fromPrivate(cowPrivKey).getAddress();
+
+        return new DataWord(addr);
+    }
 
     /*           CALLER op         */
-//    public DataWord getCallerAddress() {
-//
-//        byte[] cowPrivKey = encApi.sha3Encode("monkey".getBytes());
-//        byte[] addr = ECKey.fromPrivate(cowPrivKey).getAddress();
-//
-//        return new DataWord(addr);
-//    }
+    public DataWord getCallerAddress() {
 
+        byte[] cowPrivKey = HashUtil.sha3("monkey".getBytes());
+        byte[] addr = ECKey.fromPrivate(cowPrivKey).getAddress();
 
+        return new DataWord(addr);
+    }
 
 
 
@@ -169,6 +161,10 @@ public class ProgramInvokeMockImpl implements ProgramInvoke {
     }
 
 
+    public void setGasLimit(long gasLimit) {
+        this.gasLimit = gasLimit;
+    }
+
     public void setOwnerAddress(byte[] ownerAddress) {
         this.ownerAddress = ownerAddress;
     }
@@ -193,12 +189,10 @@ public class ProgramInvokeMockImpl implements ProgramInvoke {
         return this.repository;
     }
 
-    @Override
-    public BlockHeader getBlockStore() {
-//    	TODO MT update
-//        return new  org.ethereum.db.BlockStoreDummy();
-    		return this.getBlockStore();
-    }
+//    @Override
+//    public BlockStore getBlockStore() {
+//        return new BlockStoreDummy();
+//    }
 
     public void setRepository(EvmApi repository) {
         this.repository = repository;
@@ -208,19 +202,4 @@ public class ProgramInvokeMockImpl implements ProgramInvoke {
     public int getCallDeep() {
         return 0;
     }
-
-    
-    
-    // MT add
-	@Override
-	public DataWord getOriginAddress() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public DataWord getCallerAddress() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }

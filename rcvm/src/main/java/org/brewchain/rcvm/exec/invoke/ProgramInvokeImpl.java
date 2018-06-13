@@ -213,10 +213,10 @@ public class ProgramInvokeImpl implements ProgramInvoke {
         return repository;
     }
 
-    @Override
-    public BlockHeader getBlockStore() {
-        return blockStore;
-    }
+//    @Override
+//    public BlockHeader getBlockStore() {
+//        return blockStore;
+//    }
 
     @Override
     public boolean byTransaction() {

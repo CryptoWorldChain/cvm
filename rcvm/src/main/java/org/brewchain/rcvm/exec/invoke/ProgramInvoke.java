@@ -46,7 +46,7 @@ public interface ProgramInvoke {
 
     EvmApi getRepository();
 
-    BlockHeader getBlockStore();
+//    BlockHeader getBlockStore();
 
     boolean isStaticCall();
 }
