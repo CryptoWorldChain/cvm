@@ -545,7 +545,7 @@ public class Program {
 
         if (getCallDeep() == MAX_DEPTH) {
             stackPushZero();
-            refundGas(msg.getGas().longValue(), " call deep limit reach");
+            //refundGas(msg.getGas().longValue(), " call deep limit reach");
             return;
         }
 
@@ -674,7 +674,7 @@ public class Program {
     }
 
     public void spendAllGas() {
-        spendGas(getGas().longValue(), "Spending all remaining");
+//        spendGas(getGas().longValue(), "Spending all remaining");
     }
 
     public void refundGas(long gasValue, String cause) {
@@ -1133,11 +1133,11 @@ public class Program {
 
         if (getCallDeep() == MAX_DEPTH) {
             stackPushZero();
-            this.refundGas(msg.getGas().longValue(), " call deep limit reach");
+            //this.refundGas(msg.getGas().longValue(), " call deep limit reach");
             return;
         }
 
-        Repository track = null;// getStorage().startTracking();
+        //Repository track = getStorage()..startTracking();
 
         byte[] senderAddress = this.getOwnerAddress().getLast20Bytes();
         byte[] codeAddress = msg.getCodeAddress().getLast20Bytes();
@@ -1156,7 +1156,7 @@ public class Program {
                 msg.getInDataSize().intValue());
 
         // Charge for endowment - is not reversible by rollback
-        //transfer(track, senderAddress, contextAddress, msg.getEndowment().value());
+        transfer(getStorage(), senderAddress, contextAddress, msg.getEndowment().value());
 
         if (byTestingSuite()) {
             // This keeps track of the calls created for a test
