@@ -286,9 +286,9 @@ public class VM {
 
                     BigInteger dataSize = stack.get(stack.size() - 2).value();
                     BigInteger dataCost = dataSize.multiply(BigInteger.valueOf(8));
-                    if (program.getGas().value().compareTo(dataCost) < 0) {
-                        throw Program.Exception.notEnoughOpGas(op, dataCost, program.getGas().value());
-                    }
+//                    if (program.getGas().value().compareTo(dataCost) < 0) {
+//                        throw Program.Exception.notEnoughOpGas(op, dataCost, program.getGas().value());
+//                    }
 
 //                    gasCost = gasCosts.getLOG_GAS() +
 //                            gasCosts.getLOG_TOPIC_GAS() * nTopics +
