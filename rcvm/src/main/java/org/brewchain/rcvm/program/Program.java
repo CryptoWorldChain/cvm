@@ -49,7 +49,7 @@ import org.brewchain.rcvm.exec.listener.ProgramStorageChangeListener;
 import org.brewchain.rcvm.exec.trace.ProgramTrace;
 import org.brewchain.rcvm.exec.trace.ProgramTraceListener;
 import org.brewchain.rcvm.utils.ByteArraySet;
-import org.brewchain.rcvm.utils.HashUtil;
+//import org.brewchain.rcvm.utils.HashUtil;
 import org.brewchain.rcvm.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,7 +124,8 @@ public class Program {
         this.invoke = programInvoke;
         this.transaction = transaction;
 
-        this.codeHash = codeHash == null || FastByteComparisons.equal(HashUtil.EMPTY_DATA_HASH, codeHash) ? null : codeHash;
+//        this.codeHash = codeHash == null || FastByteComparisons.equal(HashUtil.EMPTY_DATA_HASH, codeHash) ? null : codeHash;
+        this.codeHash = codeHash;
         this.ops = nullToEmpty(ops);
 
         traceListener = new ProgramTraceListener(true);
