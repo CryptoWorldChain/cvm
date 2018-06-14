@@ -49,7 +49,7 @@ import org.brewchain.rcvm.exec.listener.ProgramStorageChangeListener;
 import org.brewchain.rcvm.exec.trace.ProgramTrace;
 import org.brewchain.rcvm.exec.trace.ProgramTraceListener;
 import org.brewchain.rcvm.utils.ByteArraySet;
-import org.brewchain.rcvm.utils.HashUtil;
+//import org.brewchain.rcvm.utils.HashUtil;
 import org.brewchain.rcvm.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1217,5 +1217,4 @@ public class Program {
 	public void initMem(byte[] data) {
 		this.memory.write(0, data, data.length, false);
 	}
-
 }
