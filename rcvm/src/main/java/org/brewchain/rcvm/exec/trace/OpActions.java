@@ -5,18 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.bouncycastle.util.encoders.Hex;
 import org.brewchain.rcvm.base.DataWord;
-import org.fc.brewchain.bcapi.EncAPI;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import onight.tfw.ntrans.api.annotation.ActorRequire;
-
 public class OpActions {
 
-	@ActorRequire(name = "bc_encoder", scope = "global")
-	EncAPI encApi;
-	
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class Action {
 
@@ -121,7 +116,7 @@ public class OpActions {
     public Action addMemoryWrite(int address, byte[] data, int size) {
         return addAction(memory, Action.Name.write)
                 .addParam("address", address)
-                .addParam("data", encApi.hexEnc(data).substring(0, size));
+                .addParam("data", Hex.toHexString(data).substring(0, size));
     }
 
     public Action addStoragePut(DataWord key, DataWord value) {

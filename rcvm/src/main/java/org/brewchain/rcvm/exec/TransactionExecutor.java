@@ -26,7 +26,7 @@ public class TransactionExecutor {
 //    CommonConfig commonConfig;
 //    BlockchainConfig blockchainConfig;
 //
-    private MultiTransaction.Builder tx;
+    private MultiTransaction tx;
 //    private EvmApi tx;
 //    private Repository track;
 //    private Repository cacheTrack;
@@ -55,7 +55,7 @@ public class TransactionExecutor {
 
     boolean localCall = false;
 
-    public TransactionExecutor(MultiTransaction.Builder tx) {
+    public TransactionExecutor(MultiTransaction tx) {
 //    	public TransactionExecutor(EvmApi tx) {
         this.tx = tx;
     }

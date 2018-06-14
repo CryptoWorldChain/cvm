@@ -19,25 +19,30 @@ import com.google.protobuf.ByteString;
 
 public class Storage implements EvmApi, ProgramListenerAware {
 
-    private final EvmApi repository;
-    private final DataWord address;
-    private ProgramListener programListener;
+	@Override
+	public void saveCode(byte[] code, byte[] addr) {
+		repository.saveCode(code, addr);
+	}
 
-    public Storage(ProgramInvoke programInvoke) {
-        this.address = programInvoke.getOwnerAddress();
-        this.repository = programInvoke.getRepository();
-    }
+	private final EvmApi repository;
+	private final DataWord address;
+	private ProgramListener programListener;
 
-    @Override
-    public void setProgramListener(ProgramListener listener) {
-        this.programListener = listener;
-    }
+	public Storage(ProgramInvoke programInvoke) {
+		this.address = programInvoke.getOwnerAddress();
+		this.repository = programInvoke.getRepository();
+	}
+
+	@Override
+	public void setProgramListener(ProgramListener listener) {
+		this.programListener = listener;
+	}
 
 	@Override
 	public Account CreateAccount(byte[] arg0, byte[] arg1, long arg2, long arg3, int arg4, List<ByteString> arg5,
 			byte[] arg6, byte[] arg7) {
 		// TODO Auto-generated method stub
-		return repository.CreateAccount(arg0,arg1,arg2,arg3,arg4,arg5,arg6,arg7);
+		return repository.CreateAccount(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 	}
 
 	@Override
@@ -131,8 +136,7 @@ public class Storage implements EvmApi, ProgramListenerAware {
 	}
 
 	@Override
-	public long addCryptoBalance(byte[] arg0, String arg1,
-			AccountCryptoToken.Builder arg2) {
+	public long addCryptoBalance(byte[] arg0, String arg1, AccountCryptoToken.Builder arg2) {
 		// TODO Auto-generated method stub
 		return repository.addCryptoBalance(arg0, arg1, arg2);
 	}
@@ -228,8 +232,7 @@ public class Storage implements EvmApi, ProgramListenerAware {
 	}
 
 	@Override
-	public long newCryptoBalances(byte[] arg0, String arg1,
-			ArrayList<AccountCryptoToken.Builder> arg2) {
+	public long newCryptoBalances(byte[] arg0, String arg1, ArrayList<AccountCryptoToken.Builder> arg2) {
 		// TODO Auto-generated method stub
 		return repository.newCryptoBalances(arg0, arg1, arg2);
 	}
@@ -281,7 +284,5 @@ public class Storage implements EvmApi, ProgramListenerAware {
 		// TODO Auto-generated method stub
 		repository.verifySignature(arg0, arg1, arg2);
 	}
-    
-    
 
 }

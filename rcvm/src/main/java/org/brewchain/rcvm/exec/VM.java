@@ -148,6 +148,7 @@ public class VM {
             }*/
 
             // Calculate fees and spend gas
+            log.debug("op::" + op.name());
             switch (op) {
                 case STOP:
 //                    gasCost = gasCosts.getSTOP();
@@ -312,6 +313,7 @@ public class VM {
                 vmHook.step(program, op);
             }
 
+            log.debug("exec op::" + op.name());
             // Execute operation
             switch (op) {
                 /**
@@ -1111,7 +1113,7 @@ public class VM {
                                 0,
                                 program.getCallDeep(), hint);
 
-//                    program.createContract(value, inOffset, inSize);
+                    program.createContract(value, inOffset, inSize);
 
                     program.step();
                 }

@@ -99,7 +99,7 @@ public class MTransactionHelper {
         bca.setArguments(args);
         
         // TODO
-        MultiTransaction.Builder tx = null;
+        MultiTransaction tx = null;
 //        MultiTransaction tx = CallTransaction.createRawTransaction(0,
 //                bca.gasPrice,
 //                bca.gasLimit,
