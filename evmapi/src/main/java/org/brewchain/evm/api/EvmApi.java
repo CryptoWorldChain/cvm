@@ -3,6 +3,7 @@ package org.brewchain.evm.api;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.brewchain.evmapi.gens.Act.Account;
 import org.brewchain.evmapi.gens.Act.AccountCryptoToken;
@@ -321,4 +322,7 @@ public interface EvmApi {
 
 	public byte[] getContractAddressByTransaction(MultiTransaction oMultiTransaction);
 
+	public void saveStorage(byte[] address, byte[] key, byte[] value);
+	public Map<String, byte[]> getStorage(byte[] address, List<byte[]> keys);
+	public byte[] getStorage(byte[] address, byte[] key) ;
 }

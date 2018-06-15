@@ -125,8 +125,9 @@ public class Program {
 		this.transaction = transaction;
 
 		this.codeHash = codeHash;
-//		== null || FastByteComparisons.equal(HashUtil.EMPTY_DATA_HASH, codeHash) ? null
-//				: codeHash;
+		// == null || FastByteComparisons.equal(HashUtil.EMPTY_DATA_HASH, codeHash) ?
+		// null
+		// : codeHash;
 		this.ops = nullToEmpty(ops);
 		this.senderAddress = transaction.getTxBody().getInputs(0).getAddress().toByteArray();
 		traceListener = new ProgramTraceListener(true);
@@ -513,8 +514,8 @@ public class Program {
 		byte[] data = memoryChunk(msg.getInDataOffs().intValue(), msg.getInDataSize().intValue());
 
 		// FETCH THE SAVED STORAGE
-		byte[] codeAddress = msg.getCodeAddress().getLast20Bytes();
-		byte[] senderAddress = getOwnerAddress().getLast20Bytes();
+		byte[] codeAddress = msg.getCodeAddress().getNoLeadZeroesData(); //.getLast20Bytes();
+		byte[] senderAddress = getOwnerAddress().getNoLeadZeroesData(); //.getLast20Bytes();
 		byte[] contextAddress = msg.getType().callIsStateless() ? senderAddress : codeAddress;
 
 		log.info(msg.getType().name() + " for existing contract: address: [{}], outDataOffs: [{}], outDataSize: [{}]  ",
@@ -618,10 +619,7 @@ public class Program {
 	}
 
 	public void storageSave(byte[] key, byte[] val) {
-		DataWord keyWord = new DataWord(key);
-		DataWord valWord = new DataWord(val);
-		// getStorage().addStorageRow(getOwnerAddress().getLast20Bytes(), keyWord,
-		// valWord);
+		getStorage().saveStorage(getOwnerAddress().getNoLeadZeroesData(), key, val);
 	}
 
 	public byte[] getCode() {
@@ -629,7 +627,7 @@ public class Program {
 	}
 
 	public byte[] getCodeAt(DataWord address) {
-		byte[] code = null;// invoke.getRepository().getCode(address.getLast20Bytes());
+		byte[] code = getStorage().GetAccount(address.getLast20Bytes()).getValue().getCode().toByteArray();// invoke.getRepository().getCode(address.getLast20Bytes());
 		return nullToEmpty(code);
 	}
 
@@ -646,7 +644,7 @@ public class Program {
 	// }
 
 	public DataWord getBalance(DataWord address) {
-		BigInteger balance = BigInteger.valueOf(getStorage().getBalance(address.getLast20Bytes()));
+		BigInteger balance = BigInteger.valueOf(getStorage().getBalance(address.getNoLeadZeroesData()));
 		return new DataWord(balance.toByteArray());
 	}
 
@@ -690,8 +688,7 @@ public class Program {
 	}
 
 	public DataWord storageLoad(DataWord key) {
-		DataWord ret = null;// getStorage().getStorageValue(getOwnerAddress().getLast20Bytes(),
-							// key.clone());
+		DataWord ret = new DataWord(getStorage().getStorage(getOwnerAddress().getNoLeadZeroesData(), key.getData()));
 		return ret == null ? null : ret.clone();
 	}
 

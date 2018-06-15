@@ -3,6 +3,7 @@ package org.brewchain.rcvm.program;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.brewchain.evm.api.EvmApi;
 import org.brewchain.evmapi.gens.Act.Account;
@@ -283,6 +284,21 @@ public class Storage implements EvmApi, ProgramListenerAware {
 	public void verifySignature(String arg0, String arg1, byte[] arg2) {
 		// TODO Auto-generated method stub
 		repository.verifySignature(arg0, arg1, arg2);
+	}
+
+	@Override
+	public Map<String, byte[]> getStorage(byte[] arg0, List<byte[]> arg1) {
+		return repository.getStorage(arg0, arg1);
+	}
+
+	@Override
+	public byte[] getStorage(byte[] arg0, byte[] arg1) {
+		return repository.getStorage(arg0, arg1);
+	}
+
+	@Override
+	public void saveStorage(byte[] arg0, byte[] arg1, byte[] arg2) {
+		repository.saveStorage(arg0, arg1, arg2);
 	}
 
 }
