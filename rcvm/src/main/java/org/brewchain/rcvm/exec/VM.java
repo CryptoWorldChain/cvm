@@ -5,22 +5,27 @@ import org.brewchain.rcvm.base.DataWord;
 import org.brewchain.rcvm.base.LogInfo;
 import org.brewchain.rcvm.program.Program;
 import org.brewchain.rcvm.program.Stack;
+import org.fc.brewchain.bcapi.EncAPI;
 import org.spongycastle.util.encoders.Hex;
 //import org.springframework.beans.factory.annotation.Autowired;
 
 import lombok.extern.slf4j.Slf4j;
+import onight.tfw.ntrans.api.annotation.ActorRequire;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.brewchain.rcvm.utils.HashUtil.sha3;
+//import static org.brewchain.rcvm.utils.HashUtil.sha3;
 import static org.brewchain.rcvm.utils.ByteUtil.EMPTY_BYTE_ARRAY;
 import static org.brewchain.rcvm.exec.OpCode.*;
 
 @Slf4j
 public class VM {
 
+	
+	@ActorRequire(name = "bc_encoder", scope = "global")
+	EncAPI encApi;
 //	private static final Logger logger = LoggerFactory.getLogger("VM");
 //    private static final Logger dumplog = logFactory.getlog("dump");
     private static BigInteger _32_ = BigInteger.valueOf(32);
@@ -637,7 +642,7 @@ public class VM {
                     DataWord lengthData = program.stackPop();
                     byte[] buffer = program.memoryChunk(memOffsetData.intValueSafe(), lengthData.intValueSafe());
 
-                    byte[] encoded = sha3(buffer);
+                    byte[] encoded = encApi.sha256Encode(buffer);
                     DataWord word = new DataWord(encoded);
 
                     if (log.isInfoEnabled())

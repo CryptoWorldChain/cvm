@@ -4,13 +4,18 @@ package org.brewchain.rcvm.exec.invoke;
 import org.brewchain.core.crypto.ECKey;
 import org.brewchain.evm.api.EvmApi;
 import org.brewchain.rcvm.base.DataWord;
-import org.brewchain.rcvm.utils.HashUtil;
+import org.fc.brewchain.bcapi.EncAPI;
+//import org.brewchain.rcvm.utils.HashUtil;
 import org.spongycastle.util.encoders.Hex;
+
+import onight.tfw.ntrans.api.annotation.ActorRequire;
 
 
 
 public class ProgramInvokeMockImpl implements ProgramInvoke {
 
+	@ActorRequire(name = "bc_encoder", scope = "global")
+	EncAPI encApi;
     private byte[] msgData;
 
     private EvmApi repository;
@@ -59,7 +64,7 @@ public class ProgramInvokeMockImpl implements ProgramInvoke {
     /*           ORIGIN op         */
     public DataWord getOriginAddress() {
 
-        byte[] cowPrivKey = HashUtil.sha3("horse".getBytes());
+        byte[] cowPrivKey = encApi.sha3Encode("horse".getBytes());
         byte[] addr = ECKey.fromPrivate(cowPrivKey).getAddress();
 
         return new DataWord(addr);
@@ -68,7 +73,7 @@ public class ProgramInvokeMockImpl implements ProgramInvoke {
     /*           CALLER op         */
     public DataWord getCallerAddress() {
 
-        byte[] cowPrivKey = HashUtil.sha3("monkey".getBytes());
+        byte[] cowPrivKey = encApi.sha3Encode("monkey".getBytes());
         byte[] addr = ECKey.fromPrivate(cowPrivKey).getAddress();
 
         return new DataWord(addr);
