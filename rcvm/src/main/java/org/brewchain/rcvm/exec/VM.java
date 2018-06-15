@@ -5,10 +5,12 @@ import org.brewchain.rcvm.base.DataWord;
 import org.brewchain.rcvm.base.LogInfo;
 import org.brewchain.rcvm.program.Program;
 import org.brewchain.rcvm.program.Stack;
+import org.fc.brewchain.bcapi.EncAPI;
 import org.spongycastle.util.encoders.Hex;
 //import org.springframework.beans.factory.annotation.Autowired;
 
 import lombok.extern.slf4j.Slf4j;
+import onight.tfw.ntrans.api.annotation.ActorRequire;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

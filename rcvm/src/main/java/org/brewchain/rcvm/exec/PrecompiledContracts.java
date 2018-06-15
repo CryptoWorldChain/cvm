@@ -13,18 +13,20 @@ import org.brewchain.rcvm.exec.zksnark.BN128G2;
 import org.brewchain.rcvm.exec.zksnark.Fp;
 import org.brewchain.rcvm.exec.zksnark.PairingCheck;
 import org.brewchain.rcvm.utils.BIUtil;
-import org.brewchain.rcvm.utils.HashUtil;
+//import org.brewchain.rcvm.utils.HashUtil;
 import org.fc.brewchain.bcapi.EncAPI;
 
 import onight.tfw.ntrans.api.annotation.ActorRequire;
+import org.spongycastle.crypto.Digest;
+import org.spongycastle.crypto.digests.RIPEMD160Digest;
 
-import static org.brewchain.rcvm.utils.HashUtil.*;
+//import static org.brewchain.rcvm.utils.HashUtil.*;
 import static org.brewchain.rcvm.utils.ByteUtil.*;
 import static org.brewchain.rcvm.utils.BIUtil.*;
 public class PrecompiledContracts {
 
-	@ActorRequire(name = "bc_encoder",scope = "global")
-	EncAPI encAPI;
+	@ActorRequire(name = "bc_encoder", scope = "global")
+	static EncAPI encApi;
     private static final ECRecover ecRecover = new ECRecover();
     private static final Sha256 sha256 = new Sha256();
     private static final Ripempd160 ripempd160 = new Ripempd160();
@@ -113,16 +115,25 @@ public class PrecompiledContracts {
 
         @Override
         public Pair<Boolean, byte[]> execute(byte[] data) {
-
-            if (data == null) return Pair.of(true, HashUtil.sha256(EMPTY_BYTE_ARRAY));
-            return Pair.of(true, HashUtil.sha256(data));
+        	
+            if (data == null) return Pair.of(true, encApi.sha256Encode(EMPTY_BYTE_ARRAY));
+            return Pair.of(true, encApi.sha256Encode(data));
         }
     }
 
 
     public static class Ripempd160 extends PrecompiledContract {
 
-
+	    	public byte[] ripemd160(byte[] data) {
+	    	      Digest digest = new RIPEMD160Digest();
+	    	      if (data != null) {
+	    	          byte[] resBuf = new byte[digest.getDigestSize()];
+	    	          digest.update(data, 0, data.length);
+	    	          digest.doFinal(resBuf, 0);
+	    	          return resBuf;
+	    	      }
+	    	      throw new NullPointerException("Can't hash a NULL value");
+	    	  }
         @Override
         public long getGasForData(byte[] data) {
 
@@ -137,8 +148,8 @@ public class PrecompiledContracts {
         public Pair<Boolean, byte[]> execute(byte[] data) {
 
             byte[] result = null;
-            if (data == null) result = HashUtil.ripemd160(EMPTY_BYTE_ARRAY);
-            else result = HashUtil.ripemd160(data);
+            if (data == null) result =  ripemd160(EMPTY_BYTE_ARRAY);
+            else result = ripemd160(data);
 
             return Pair.of(true, new DataWord(result).getData());
         }
@@ -475,4 +486,6 @@ public class PrecompiledContracts {
             return Pair.of(p1, p2);
         }
     }
+    
+    
 }

@@ -18,10 +18,11 @@ import org.brewchain.evmapi.gens.Tx.MultiTransactionOutput;
 import org.brewchain.evmapi.gens.Tx.MultiTransactionSignature;
 import org.brewchain.rcvm.utils.ByteUtil;
 import org.brewchain.rcvm.utils.FastByteComparisons;
+import org.fc.brewchain.bcapi.EncAPI;
 import org.brewchain.rcvm.base.LogInfo;
 import org.brewchain.rcvm.solidity.SolidityType;
 import org.brewchain.rcvm.solidity.SolidityType.IntType;
-import org.brewchain.rcvm.utils.HashUtil;
+//import org.brewchain.rcvm.utils.HashUtil;
 import org.spongycastle.util.encoders.Hex;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
@@ -30,9 +31,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.protobuf.ByteString;
 
+import onight.tfw.ntrans.api.annotation.ActorRequire;
+
 public class CallTransaction {
 
-	
+	@ActorRequire(name = "bc_encoder", scope = "global")
+	static EncAPI encApi;
 //	public EvmApi transactionHelper;
 	
     private final static ObjectMapper DEFAULT_MAPPER = new ObjectMapper()
@@ -203,7 +207,7 @@ public class CallTransaction {
 
         public byte[] encodeSignatureLong() {
             String signature = formatSignature();
-            byte[] sha3Fingerprint = HashUtil.sha3(signature.getBytes());
+            byte[] sha3Fingerprint = encApi.sha3Encode(signature.getBytes());
             return sha3Fingerprint;
         }
 
