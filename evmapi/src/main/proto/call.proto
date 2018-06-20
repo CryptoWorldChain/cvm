@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package org.brewchain.evmapi.gens;
+
+message InternalCallArguments {
+    string method = 1;
+    repeated string params = 2;
+}

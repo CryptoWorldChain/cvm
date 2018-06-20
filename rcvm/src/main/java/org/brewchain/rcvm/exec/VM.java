@@ -5,18 +5,14 @@ import org.brewchain.rcvm.base.DataWord;
 import org.brewchain.rcvm.base.LogInfo;
 import org.brewchain.rcvm.program.Program;
 import org.brewchain.rcvm.program.Stack;
-import org.fc.brewchain.bcapi.EncAPI;
 import org.spongycastle.util.encoders.Hex;
 //import org.springframework.beans.factory.annotation.Autowired;
 
 import lombok.extern.slf4j.Slf4j;
-import onight.tfw.ntrans.api.annotation.ActorRequire;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.brewchain.rcvm.utils.HashUtil.sha3;
 import static org.brewchain.rcvm.utils.ByteUtil.EMPTY_BYTE_ARRAY;
 import static org.brewchain.rcvm.exec.OpCode.*;
 
@@ -82,7 +78,8 @@ public class VM {
 	// }
 
 	private boolean isDeadAccount(Program program, byte[] addr) {
-		return !program.getStorage().isExist(addr) || program.getStorage().GetAccount(addr).getValue() == null;
+		String addrStr = Hex.toHexString(addr);
+		return !program.getStorage().isExist(addrStr) || program.getStorage().GetAccount(addrStr).getValue() == null;
 	}
 
 	public void step(Program program) {
@@ -276,8 +273,7 @@ public class VM {
 				// gasCost += adjustedCallGas.longValueSafe();
 				break;
 			case CREATE:
-				// gasCost = gasCosts.getCREATE() + calcMemGas(gasCosts, oldMemSize,
-				// memNeeded(stack.get(stack.size() - 2), stack.get(stack.size() - 3)), 0);
+				// gasCost = gasCosts.getCREATE() + calcMemGas(gasCosts, oldMemSize, memNeeded(stack.get(stack.size() - 2), stack.get(stack.size() - 3)), 0);
 				break;
 			case LOG0:
 			case LOG1:
@@ -644,7 +640,7 @@ public class VM {
 				DataWord lengthData = program.stackPop();
 				byte[] buffer = program.memoryChunk(memOffsetData.intValueSafe(), lengthData.intValueSafe());
 
-				byte[] encoded = sha3(buffer);
+				byte[] encoded = program.getStorage().getEncApi().sha3Encode(buffer);
 				DataWord word = new DataWord(encoded);
 
 				if (log.isInfoEnabled())
@@ -1133,20 +1129,20 @@ public class VM {
 			}
 				break;
 			case CREATE: {
-				if (program.isStaticCall())
-					throw new Program.StaticCallModificationException();
-
-				DataWord value = program.stackPop();
-				DataWord inOffset = program.stackPop();
-				DataWord inSize = program.stackPop();
-
-				if (log.isInfoEnabled())
-					log.info(logString, String.format("%5s", "[" + program.getPC() + "]"),
-							String.format("%-12s", op.name()), 0, program.getCallDeep(), hint);
-
-				program.createContract(value, inOffset, inSize);
-
-				program.step();
+//				if (program.isStaticCall())
+//					throw new Program.StaticCallModificationException();
+//
+//				DataWord value = program.stackPop();
+//				DataWord inOffset = program.stackPop();
+//				DataWord inSize = program.stackPop();
+//
+//				if (log.isInfoEnabled())
+//					log.info(logString, String.format("%5s", "[" + program.getPC() + "]"),
+//							String.format("%-12s", op.name()), 0, program.getCallDeep(), hint);
+//
+//				program.createContract(value, inOffset, inSize);
+//
+//				program.step();
 			}
 				break;
 			case CALL:

@@ -62,7 +62,7 @@ public class CallTransaction {
 		MultiTransactionBody.Builder oMultiTransactionBody = MultiTransactionBody.newBuilder();
 		MultiTransactionInput.Builder oMultiTransactionInput1 = MultiTransactionInput.newBuilder();
 		
-		oMultiTransactionInput1.setAddress(ByteString.copyFrom(Hex.decode(fromAddress)));
+		oMultiTransactionInput1.setAddress(fromAddress);
 		oMultiTransactionInput1.setAmount(value);
 		oMultiTransactionInput1.setFee((int)gasPrice);
 		oMultiTransactionInput1.setFeeLimit(0);
@@ -70,13 +70,13 @@ public class CallTransaction {
 		oMultiTransactionBody.addInputs(oMultiTransactionInput1);
 		
 		MultiTransactionOutput.Builder oMultiTransactionOutput1 = MultiTransactionOutput.newBuilder();
-		oMultiTransactionOutput1.setAddress(ByteString.copyFrom(Hex.decode(toAddress)));
+		oMultiTransactionOutput1.setAddress(toAddress);
 		oMultiTransactionOutput1.setAmount(value);
 		oMultiTransactionBody.addOutputs(oMultiTransactionOutput1);
 	
-		oMultiTransactionBody.setData(ByteString.copyFrom(callData));
+		oMultiTransactionBody.setData(Hex.toHexString(callData));
 	//	oMultiTransactionBody.setExdata(oAccount.toByteString());
-		oMultiTransaction.setTxHash(ByteString.EMPTY);
+		oMultiTransaction.clearTxHash();
 		oMultiTransactionBody.clearSignatures();
 	
 		// 签名

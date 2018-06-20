@@ -129,7 +129,7 @@ public class Program {
 		// null
 		// : codeHash;
 		this.ops = nullToEmpty(ops);
-		this.senderAddress = transaction.getTxBody().getInputs(0).getAddress().toByteArray();
+		this.senderAddress = Hex.decode(transaction.getTxBody().getInputs(0).getAddress());
 		traceListener = new ProgramTraceListener(true);
 		this.memory = setupProgramListener(new Memory());
 		this.stack = setupProgramListener(new Stack());
@@ -384,8 +384,9 @@ public class Program {
 	public void suicide(DataWord obtainerAddress) {
 
 		byte[] owner = getOwnerAddress().getLast20Bytes();
+		String ownerStr = Hex.toHexString(owner);
 		byte[] obtainer = obtainerAddress.getLast20Bytes();
-		BigInteger balance = BigInteger.valueOf(getStorage().getBalance(owner));
+		BigInteger balance = BigInteger.valueOf(getStorage().getBalance(ownerStr));
 
 		log.info("Transfer to: [{}] heritage: [{}]", Hex.toHexString(obtainer), balance);
 
@@ -393,7 +394,7 @@ public class Program {
 
 		if (FastByteComparisons.compareTo(owner, 0, 20, obtainer, 0, 20) == 0) {
 			// if owner == obtainer just zeroing account according to Yellow Paper
-			getStorage().addBalance(owner, balance.negate().longValue());
+			getStorage().addBalance(ownerStr, balance.negate().longValue());
 		} else {
 			transfer(getStorage(), owner, obtainer, balance);
 		}
@@ -404,94 +405,104 @@ public class Program {
 	public EvmApi getStorage() {
 		return this.storage;
 	}
-
-	@SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-	public void createContract(DataWord value, DataWord memStart, DataWord memSize) {
-		returnDataBuffer = null; // reset return buffer right before the call
-
-		if (getCallDeep() == MAX_DEPTH) {
-			stackPushZero();
-			return;
-		}
-
-		// [1] FETCH THE CODE FROM THE MEMORY
-		byte[] programCode = memoryChunk(memStart.intValue(), memSize.intValue());
-		BigInteger endowment = value.value();
-
-		log.info("creating a new contract inside contract run: [{}]", Hex.toHexString(senderAddress));
-
-		// [2] CREATE THE CONTRACT ADDRESS
-		byte[] nonce = ByteUtil.intToBytes(this.storage.getNonce(this.senderAddress));
-		byte[] newAddress = this.storage.getContractAddressByTransaction(this.transaction);
-
-		Account existingAddr = getStorage().GetAccount(newAddress);
-		boolean contractAlreadyExists = existingAddr != null;
-
-		// [3] UPDATE THE NONCE
-		// (THIS STAGE IS NOT REVERTED BY ANY EXCEPTION)
-		if (!byTestingSuite()) {
-			getStorage().IncreaseNonce(senderAddress);
-		}
-
-		// In case of hashing collisions, check for any balance before createAccount()
-		// BigInteger oldBalance = getStorage().get.getBalance(newAddress);
-		// track.createAccount(newAddress);
-		// if (blockchainConfig.eip161()) {
-		// track.increaseNonce(newAddress);
-		// }
-		// track.addBalance(newAddress, oldBalance);
-		//
-		// // [4] TRANSFER THE BALANCE
-		BigInteger newBalance = ZERO;
-		// if (!byTestingSuite()) {
-		// track.addBalance(senderAddress, endowment.negate());
-		// newBalance = track.addBalance(newAddress, endowment);
-		// }
-
-		// [5] COOK THE INVOKE AND EXECUTE
-		// InternalTransaction internalTx = addInternalTx(nonce, getGasLimit(),
-		// senderAddress, null, endowment, programCode, "create");
-		ProgramInvoke programInvoke = programInvokeFactory.createProgramInvoke(this, new DataWord(newAddress),
-				getOwnerAddress(), value, newBalance, null, this.storage, true, false);
-
-		ProgramResult result = ProgramResult.createEmpty();
-		MultiTransaction.Builder internalTx = MultiTransaction.newBuilder();
-
-		if (contractAlreadyExists) {
-			result.setException(new BytecodeExecutionException(
-					"Trying to create a contract with existing contract address: 0x" + Hex.toHexString(newAddress)));
-		} else if (isNotEmpty(programCode)) {
-			VM vm = new VM();
-			Program program = new Program(programCode, programInvoke, internalTx.build());
-			vm.play(program);
-			result = program.getResult();
-
-			getResult().merge(result);
-		}
-
-		// 4. CREATE THE CONTRACT OUT OF RETURN
-		byte[] code = result.getHReturn();
-
-		getStorage().saveCode(newAddress, code);
-
-		if (result.getException() != null || result.isRevert()) {
-			log.debug("contract run halted by Exception: contract: [{}], exception: [{}]", Hex.toHexString(newAddress),
-					result.getException());
-
-			result.rejectInternalTransactions();
-
-			stackPushZero();
-
-			if (result.getException() != null) {
-				return;
-			} else {
-				returnDataBuffer = result.getHReturn();
-			}
-		} else {
-			// IN SUCCESS PUSH THE ADDRESS INTO THE STACK
-			stackPush(new DataWord(newAddress));
-		}
-	}
+	//
+	// @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
+	// public void createContract(DataWord value, DataWord memStart, DataWord
+	// memSize) {
+	// returnDataBuffer = null; // reset return buffer right before the call
+	//
+	// if (getCallDeep() == MAX_DEPTH) {
+	// stackPushZero();
+	// return;
+	// }
+	//
+	// // [1] FETCH THE CODE FROM THE MEMORY
+	// byte[] programCode = memoryChunk(memStart.intValue(), memSize.intValue());
+	// BigInteger endowment = value.value();
+	//
+	// log.info("creating a new contract inside contract run: [{}]",
+	// Hex.toHexString(senderAddress));
+	//
+	// // [2] CREATE THE CONTRACT ADDRESS
+	//
+	// byte[] nonce =
+	// ByteUtil.intToBytes(this.storage.getNonce(this.senderAddress));
+	// byte[] newAddress =
+	// this.storage.getContractAddressByTransaction(this.transaction);
+	//
+	// Account existingAddr = getStorage().GetAccount(newAddress);
+	// boolean contractAlreadyExists = existingAddr != null;
+	//
+	// // [3] UPDATE THE NONCE
+	// // (THIS STAGE IS NOT REVERTED BY ANY EXCEPTION)
+	// if (!byTestingSuite()) {
+	// getStorage().IncreaseNonce(senderAddress);
+	// }
+	//
+	// // In case of hashing collisions, check for any balance before
+	// createAccount()
+	// // BigInteger oldBalance = getStorage().get.getBalance(newAddress);
+	// // track.createAccount(newAddress);
+	// // if (blockchainConfig.eip161()) {
+	// // track.increaseNonce(newAddress);
+	// // }
+	// // track.addBalance(newAddress, oldBalance);
+	// //
+	// // // [4] TRANSFER THE BALANCE
+	// BigInteger newBalance = ZERO;
+	// // if (!byTestingSuite()) {
+	// // track.addBalance(senderAddress, endowment.negate());
+	// // newBalance = track.addBalance(newAddress, endowment);
+	// // }
+	//
+	// // [5] COOK THE INVOKE AND EXECUTE
+	// // InternalTransaction internalTx = addInternalTx(nonce, getGasLimit(),
+	// // senderAddress, null, endowment, programCode, "create");
+	// ProgramInvoke programInvoke = programInvokeFactory.createProgramInvoke(this,
+	// new DataWord(newAddress),
+	// getOwnerAddress(), value, newBalance, null, this.storage, true, false);
+	//
+	// ProgramResult result = ProgramResult.createEmpty();
+	// MultiTransaction.Builder internalTx = MultiTransaction.newBuilder();
+	//
+	// if (contractAlreadyExists) {
+	// result.setException(new BytecodeExecutionException(
+	// "Trying to create a contract with existing contract address: 0x" +
+	// Hex.toHexString(newAddress)));
+	// } else if (isNotEmpty(programCode)) {
+	// VM vm = new VM();
+	// Program program = new Program(programCode, programInvoke,
+	// internalTx.build());
+	// vm.play(program);
+	// result = program.getResult();
+	//
+	// getResult().merge(result);
+	// }
+	//
+	// // 4. CREATE THE CONTRACT OUT OF RETURN
+	// byte[] code = result.getHReturn();
+	//
+	// getStorage().saveCode(newAddress, code);
+	//
+	// if (result.getException() != null || result.isRevert()) {
+	// log.debug("contract run halted by Exception: contract: [{}], exception:
+	// [{}]", Hex.toHexString(newAddress),
+	// result.getException());
+	//
+	// result.rejectInternalTransactions();
+	//
+	// stackPushZero();
+	//
+	// if (result.getException() != null) {
+	// return;
+	// } else {
+	// returnDataBuffer = result.getHReturn();
+	// }
+	// } else {
+	// // IN SUCCESS PUSH THE ADDRESS INTO THE STACK
+	// stackPush(new DataWord(newAddress));
+	// }
+	// }
 
 	/**
 	 * That method is for internal code invocations
@@ -514,10 +525,13 @@ public class Program {
 		byte[] data = memoryChunk(msg.getInDataOffs().intValue(), msg.getInDataSize().intValue());
 
 		// FETCH THE SAVED STORAGE
-		byte[] codeAddress = msg.getCodeAddress().getNoLeadZeroesData(); //.getLast20Bytes();
-		byte[] senderAddress = getOwnerAddress().getNoLeadZeroesData(); //.getLast20Bytes();
+		byte[] codeAddress = msg.getCodeAddress().getNoLeadZeroesData(); // .getLast20Bytes();
+		String codeAddressStr = Hex.toHexString(codeAddress);
+		byte[] senderAddress = getOwnerAddress().getNoLeadZeroesData(); // .getLast20Bytes();
+		String senderAddressStr = Hex.toHexString(senderAddress);
 		byte[] contextAddress = msg.getType().callIsStateless() ? senderAddress : codeAddress;
-
+		String contextAddressStr = Hex.toHexString(contextAddress);
+		
 		log.info(msg.getType().name() + " for existing contract: address: [{}], outDataOffs: [{}], outDataSize: [{}]  ",
 				Hex.toHexString(contextAddress), msg.getOutDataOffs().longValue(), msg.getOutDataSize().longValue());
 
@@ -525,15 +539,16 @@ public class Program {
 
 		// 2.1 PERFORM THE VALUE (endowment) PART
 		BigInteger endowment = msg.getEndowment().value();
-		BigInteger senderBalance = BigInteger.valueOf(getStorage().getBalance(senderAddress));
+
+		BigInteger senderBalance = BigInteger.valueOf(getStorage().getBalance(senderAddressStr));
 		if (isNotCovers(senderBalance, endowment)) {
 			stackPushZero();
 			return;
 		}
 
 		// FETCH THE CODE
-		byte[] programCode = getStorage().isExist(codeAddress)
-				? getStorage().GetAccount(codeAddress).getValue().getCode().toByteArray()
+		byte[] programCode = getStorage().isExist(codeAddressStr)
+				? Hex.decode(getStorage().GetAccount(codeAddressStr).getValue().getCode())
 				: EMPTY_BYTE_ARRAY;
 
 		BigInteger contextBalance = ZERO;
@@ -541,8 +556,8 @@ public class Program {
 			// This keeps track of the calls created for a test
 			getResult().addCallCreate(data, contextAddress, msg.getEndowment().getNoLeadZeroesData());
 		} else {
-			getStorage().addBalance(senderAddress, endowment.negate().longValue());
-			contextBalance = BigInteger.valueOf(getStorage().addBalance(contextAddress, endowment.longValue()));
+			getStorage().addBalance(senderAddressStr, endowment.negate().longValue());
+			contextBalance = BigInteger.valueOf(getStorage().addBalance(contextAddressStr, endowment.longValue()));
 		}
 
 		// CREATE CALL INTERNAL TRANSACTION
@@ -557,8 +572,7 @@ public class Program {
 					getStorage(), msg.getType().callIsStatic() || isStaticCall(), byTestingSuite());
 
 			VM vm = new VM();
-			// MultiTransaction.Builder ???????
-			Program program = new Program(getStorage().GetAccount(codeAddress).getValue().getCodeHash().toByteArray(),
+			Program program = new Program(Hex.decode(getStorage().GetAccount(codeAddressStr).getValue().getCodeHash()),
 					programCode, programInvoke, null).withCommonConfig();
 			vm.play(program);
 			result = program.getResult();
@@ -619,7 +633,7 @@ public class Program {
 	}
 
 	public void storageSave(byte[] key, byte[] val) {
-		getStorage().saveStorage(getOwnerAddress().getNoLeadZeroesData(), key, val);
+		getStorage().saveStorage(Hex.toHexString(getOwnerAddress().getNoLeadZeroesData()), key, val);
 	}
 
 	public byte[] getCode() {
@@ -627,7 +641,7 @@ public class Program {
 	}
 
 	public byte[] getCodeAt(DataWord address) {
-		byte[] code = getStorage().GetAccount(address.getLast20Bytes()).getValue().getCode().toByteArray();// invoke.getRepository().getCode(address.getLast20Bytes());
+		byte[] code = Hex.decode(getStorage().GetAccount(Hex.toHexString(address.getLast20Bytes())).getValue().getCode());// invoke.getRepository().getCode(address.getLast20Bytes());
 		return nullToEmpty(code);
 	}
 
@@ -644,7 +658,7 @@ public class Program {
 	// }
 
 	public DataWord getBalance(DataWord address) {
-		BigInteger balance = BigInteger.valueOf(getStorage().getBalance(address.getNoLeadZeroesData()));
+		BigInteger balance = BigInteger.valueOf(getStorage().getBalance(Hex.toHexString(address.getNoLeadZeroesData())));
 		return new DataWord(balance.toByteArray());
 	}
 
@@ -688,7 +702,7 @@ public class Program {
 	}
 
 	public DataWord storageLoad(DataWord key) {
-		DataWord ret = new DataWord(getStorage().getStorage(getOwnerAddress().getNoLeadZeroesData(), key.getData()));
+		DataWord ret = new DataWord(getStorage().getStorage(Hex.toHexString(getOwnerAddress().getNoLeadZeroesData()), key.getData()));
 		return ret == null ? null : ret.clone();
 	}
 
@@ -1051,11 +1065,12 @@ public class Program {
 		// Repository track = getStorage()..startTracking();
 
 		byte[] senderAddress = this.getOwnerAddress().getLast20Bytes();
+		String senderAddressStr = Hex.toHexString(senderAddress);
 		byte[] codeAddress = msg.getCodeAddress().getLast20Bytes();
 		byte[] contextAddress = msg.getType().callIsStateless() ? senderAddress : codeAddress;
 
 		BigInteger endowment = msg.getEndowment().value();
-		BigInteger senderBalance = BigInteger.valueOf(getStorage().getBalance(senderAddress));
+		BigInteger senderBalance = BigInteger.valueOf(getStorage().getBalance(senderAddressStr));
 		if (senderBalance.compareTo(endowment) < 0) {
 			stackPushZero();
 			return;

@@ -9,21 +9,16 @@ message BlockEntity {
 }
 
 message BlockHeader {
-	bytes parentHash = 1;
-	// bytes coinbase = 2;
-	bytes stateRoot = 12;
-	bytes txTrieRoot = 3;
-	// bytes receiptTrieRoot;
-	int64 timestamp = 4;
-	int32 number = 5;
-	// bytes gasLimit;
-	// int32 gasUsed;
-	// bytes mixHash;
-	bytes reward = 6;
-	bytes extraData = 7;
-	bytes nonce = 8;
-	bytes blockHash = 9;
-	repeated bytes txHashs = 10;
+	string parentHash = 1;
+	string stateRoot = 2;
+	string txTrieRoot = 3;
+	string receiptTrieRoot = 4;
+	int64 timestamp = 5;
+	int32 number = 6;
+	int32 reward = 7;
+	string extraData = 8;
+	string blockHash = 9;
+	repeated string txHashs = 10;
 	int64 sliceId = 11;
 }
 

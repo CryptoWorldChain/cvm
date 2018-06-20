@@ -9,21 +9,23 @@ import org.brewchain.evmapi.gens.Act.Account;
 import org.brewchain.evmapi.gens.Act.AccountCryptoToken;
 import org.brewchain.evmapi.gens.Act.AccountValue;
 import org.brewchain.evmapi.gens.Tx.MultiTransaction;
+import org.fc.brewchain.bcapi.EncAPI;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 public interface EvmApi {
 
-	public void saveCode(byte[] code, byte[] address);
+	public void saveCode(String code, String address);
 
+	public EncAPI getEncApi();
 	/**
 	 * 获取用户账户
 	 * 
 	 * @param addr
 	 * @return
 	 */
-	public Account GetAccount(byte[] addr);
+	public Account GetAccount(String addr);
 
 	/**
 	 * 创建账户
@@ -32,7 +34,7 @@ public interface EvmApi {
 	 * @param pubKey
 	 * @return
 	 */
-	public Account CreateAccount(byte[] address, byte[] pubKey);
+	public Account CreateAccount(String address);
 
 	/**
 	 * 获取用户账户，如果用户不存在，则创建账户
@@ -40,7 +42,7 @@ public interface EvmApi {
 	 * @param addr
 	 * @return
 	 */
-	public Account GetAccountOrCreate(byte[] addr);
+	public Account GetAccountOrCreate(String addr);
 
 	/**
 	 * 创建合约账户
@@ -51,23 +53,7 @@ public interface EvmApi {
 	 * @param exdata
 	 * @return
 	 */
-	public Account CreateContract(byte[] address, byte[] pubKey, byte[] code, byte[] exdata);
-
-	/**
-	 * 创建账户
-	 * 
-	 * @param address
-	 * @param pubKey
-	 * @param max
-	 * @param acceptMax
-	 * @param acceptLimit
-	 * @param addresses
-	 * @param code
-	 * @param exdata
-	 * @return
-	 */
-	public Account CreateAccount(byte[] address, byte[] pubKey, long max, long acceptMax, int acceptLimit,
-			List<ByteString> addresses, byte[] code, byte[] exdata);
+	public Account CreateContract(String address, byte[] code, byte[] exdata);
 
 	/**
 	 * 创建联合账户
@@ -78,20 +64,13 @@ public interface EvmApi {
 	public Account CreateUnionAccount(Account oAccount);
 
 	/**
-	 * 移除账户。删除后不可恢复。
-	 * 
-	 * @param address
-	 */
-	public void DeleteAccount(byte[] address);
-
-	/**
 	 * 账户是否存在
 	 * 
 	 * @param addr
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean isExist(byte[] addr);
+	public boolean isExist(String addr);
 
 	/**
 	 * Nonce自增1
@@ -100,7 +79,7 @@ public interface EvmApi {
 	 * @return
 	 * @throws Exception
 	 */
-	public int IncreaseNonce(byte[] addr);
+	public int IncreaseNonce(String addr);
 
 	/**
 	 * 增加用户账户余额
@@ -110,7 +89,7 @@ public interface EvmApi {
 	 * @return
 	 * @throws Exception
 	 */
-	public long addBalance(byte[] addr, long balance);
+	public long addBalance(String addr, long balance);
 
 	/**
 	 * 获取账户余额
@@ -118,7 +97,7 @@ public interface EvmApi {
 	 * @param addr
 	 * @return
 	 */
-	public long getBalance(byte[] addr);
+	public long getBalance(String addr);
 
 	/**
 	 * 增加用户代币账户余额
@@ -128,9 +107,9 @@ public interface EvmApi {
 	 * @return
 	 * @throws Exception
 	 */
-	public long addTokenBalance(byte[] addr, String token, long balance);
+	public long addTokenBalance(String addr, String token, long balance);
 
-	public long addTokenLockBalance(byte[] addr, String token, long balance);
+	public long addTokenLockBalance(String addr, String token, long balance);
 
 	/**
 	 * 增加加密Token账户余额
@@ -141,9 +120,9 @@ public interface EvmApi {
 	 * @return
 	 * @throws Exception
 	 */
-	public long addCryptoBalance(byte[] addr, String symbol, AccountCryptoToken.Builder token);
+	public long addCryptoBalance(String addr, String symbol, AccountCryptoToken.Builder token);
 
-	public long newCryptoBalances(byte[] addr, String symbol, ArrayList<AccountCryptoToken.Builder> tokens);
+	public long newCryptoBalances(String addr, String symbol, ArrayList<AccountCryptoToken.Builder> tokens);
 
 	/**
 	 * 移除加密Token
@@ -153,7 +132,7 @@ public interface EvmApi {
 	 * @param hash
 	 * @return
 	 */
-	public long removeCryptoBalance(byte[] addr, String symbol, byte[] hash);
+	public long removeCryptoBalance(String addr, String symbol, byte[] hash);
 
 	/**
 	 * 设置用户账户Nonce
@@ -163,7 +142,7 @@ public interface EvmApi {
 	 * @return
 	 * @throws Exception
 	 */
-	public int setNonce(byte[] addr, int nonce);
+	public int setNonce(String addr, int nonce);
 
 	/**
 	 * 是否是合约账户
@@ -171,7 +150,7 @@ public interface EvmApi {
 	 * @param addr
 	 * @return
 	 */
-	public boolean isContract(byte[] addr);
+	public boolean isContract(String addr);
 
 	/**
 	 * 获取用户账户Nonce
@@ -180,7 +159,7 @@ public interface EvmApi {
 	 * @return
 	 * @throws Exception
 	 */
-	public int getNonce(byte[] addr);
+	public int getNonce(String addr);
 
 	/**
 	 * 获取用户Token账户的Balance
@@ -189,9 +168,9 @@ public interface EvmApi {
 	 * @return
 	 * @throws Exception
 	 */
-	public long getTokenBalance(byte[] addr, String token);
+	public long getTokenBalance(String addr, String token);
 
-	public long getTokenLockedBalance(byte[] addr, String token);
+	public long getTokenLockedBalance(String addr, String token);
 
 	/**
 	 * 获取加密Token账户的余额
@@ -201,7 +180,7 @@ public interface EvmApi {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<AccountCryptoToken> getCryptoTokenBalance(byte[] addr, String symbol);
+	public List<AccountCryptoToken> getCryptoTokenBalance(String addr, String symbol);
 
 	/**
 	 * 生成加密Token方法。 调用时必须确保symbol不重复。
@@ -212,9 +191,9 @@ public interface EvmApi {
 	 * @param code
 	 * @throws Exception
 	 */
-	public void generateCryptoToken(byte[] addr, String symbol, String[] name, String[] code);
+	public void generateCryptoToken(String addr, String symbol, String[] name, String[] code);
 
-	public void ICO(byte[] addr, String token);
+	public void ICO(String addr, String token);
 
 	/**
 	 * 判断token是否已经发行
@@ -225,54 +204,6 @@ public interface EvmApi {
 	 */
 	public boolean isExistsToken(String token);
 
-	public void putAccountValue(byte[] addr, AccountValue oAccountValue);
-
-	/**
-	 * 保存交易方法。 交易不会立即执行，而是等待被广播和打包。只有在Block中的交易，才会被执行。 交易签名规则 1. 清除signatures 2.
-	 * txHash=ByteString.EMPTY 3. 签名内容=oMultiTransaction.toByteArray()
-	 * 
-	 * @param oMultiTransaction
-	 * @throws Exception
-	 */
-	public ByteString CreateMultiTransaction(MultiTransaction.Builder oMultiTransaction);
-
-	public ByteString CreateGenesisMultiTransaction(MultiTransaction.Builder oMultiTransaction);
-
-	/**
-	 * 广播交易方法。 交易广播后，节点收到的交易会保存在本地db中。交易不会立即执行，而且不被广播。只有在Block中的交易，才会被执行。
-	 * 
-	 * @param oTransaction
-	 * @throws Exception
-	 */
-	public void SyncTransaction(MultiTransaction.Builder oMultiTransaction);
-
-	/**
-	 * 交易执行。交易只在接收到Block后才会被执行
-	 * 
-	 * @param oTransaction
-	 */
-	public void ExecuteTransaction(LinkedList<MultiTransaction> oMultiTransactions);
-
-	/**
-	 * 从待广播交易列表中，查询出交易进行广播。广播后，不论是否各节点接收成功，均放入待打包列表
-	 * 
-	 * @param count
-	 * @return
-	 * @throws InvalidProtocolBufferException
-	 */
-	public List<MultiTransaction> getWaitSendTx(int count);
-
-	/**
-	 * 从待打包交易列表中，查询出等待打包的交易。
-	 * 
-	 * @param count
-	 * @return
-	 * @throws InvalidProtocolBufferException
-	 */
-	public LinkedList<MultiTransaction> getWaitBlockTx(int count);
-
-	public void removeWaitBlockTx(byte[] txHash);
-
 	/**
 	 * 根据交易Hash，返回交易实体。
 	 * 
@@ -280,49 +211,11 @@ public interface EvmApi {
 	 * @return
 	 * @throws Exception
 	 */
-	public MultiTransaction GetTransaction(byte[] txHash);
-
-	/**
-	 * 交易签名方法。该方法未实现
-	 * 
-	 * @param privKey
-	 * @param oTransaction
-	 * @throws Exception
-	 */
-	public void Signature(List<String> privKeys, MultiTransaction.Builder oTransaction);
-
-	/**
-	 * 获取交易签名后的Hash
-	 * 
-	 * @param oTransaction
-	 * @throws Exception
-	 */
-	public void getTransactionHash(MultiTransaction.Builder oTransaction);
-
-	/**
-	 * 校验并保存交易。该方法不会执行交易，用户的账户余额不会发生变化。
-	 * 
-	 * @param oMultiTransaction
-	 * @throws Exception
-	 */
-	public MultiTransaction verifyAndSaveMultiTransaction(MultiTransaction.Builder oMultiTransaction);
-
-	/**
-	 * 验证签名
-	 * 
-	 * @param pubKey
-	 * @param signature
-	 * @param tx
-	 */
-	public void verifySignature(String pubKey, String signature, byte[] tx);
-
-	public void setTransactionDone(byte[] txHash);
-
-	public void setTransactionError(byte[] txHash);
+	public MultiTransaction GetTransaction(String txHash);
 
 	public byte[] getContractAddressByTransaction(MultiTransaction oMultiTransaction);
 
-	public void saveStorage(byte[] address, byte[] key, byte[] value);
-	public Map<String, byte[]> getStorage(byte[] address, List<byte[]> keys);
-	public byte[] getStorage(byte[] address, byte[] key) ;
+	public void saveStorage(String address, byte[] key, byte[] value);
+	public Map<String, byte[]> getStorage(String address, List<byte[]> keys);
+	public byte[] getStorage(String address, byte[] key) ;
 }

@@ -3,24 +3,24 @@ syntax = "proto3";
 package org.brewchain.evmapi.gens;
 
 message SingleTransaction {
-	bytes txHash = 1;
+	string txHash = 1;
 	int32 nonce = 2;
 	int32 fee = 3;
 	int32 feeLimit = 4;
-	bytes receiveAddress= 5;
-	bytes senderAddress = 6;
+	string receiveAddress= 5;
+	string senderAddress = 6;
 	int64 amount= 7;
-	bytes data= 8;
+	string data= 8;
 	int64 timestamp = 9;
-	bytes exdata = 10;
+	string exdata = 10;
 	string signature = 11;
 	string pubKey = 12;
-	repeated bytes delegate = 13;
+	repeated string delegate = 13;
 	string token = 14;
 }
 
 message MultiTransaction {
-	bytes txHash = 1;
+	string txHash = 1;
 	MultiTransactionBody txBody = 2;
 	string status = 3;
 	MultiTransactionNode txNode = 4;
@@ -29,10 +29,10 @@ message MultiTransaction {
 message MultiTransactionBody {
 	repeated MultiTransactionInput inputs = 1;
 	repeated MultiTransactionOutput outputs = 2;
-	bytes exdata = 3;
+	string exdata = 3;
 	repeated MultiTransactionSignature signatures = 4;
-	repeated bytes delegate = 5;
-	bytes data = 6;
+	repeated string delegate = 5;
+	string data = 6;
 	int64 timestamp = 7;
 	int32 type = 8;
 }
@@ -41,19 +41,19 @@ message MultiTransactionInput {
 	int32 nonce = 1;
 	int32 fee = 2;
 	int32 feeLimit = 3;
-	bytes address = 4;
+	string address = 4;
 	int64 amount= 5;
 	string pubKey = 6;
 	string token = 7;
 	string symbol = 8;
-	bytes cryptoToken = 9;
+	string cryptoToken = 9;
 }
 
 message MultiTransactionOutput {
-	bytes address= 1;
+	string address= 1;
 	int64 amount= 2;
 	string symbol = 3;
-	bytes cryptoToken = 4;
+	string cryptoToken = 4;
 }
 
 message MultiTransactionSignature {

@@ -12,7 +12,6 @@ import org.brewchain.cvm.pbgens.Cvm.PModule;
 import org.brewchain.cvm.pbgens.Cvm.PRetBuild;
 import org.brewchain.cvm.pbgens.Cvm.PSBuildCode;
 import org.brewchain.evm.api.EvmApi;
-import org.brewchain.rcvm.base.MTransaction;
 import org.brewchain.rcvm.call.CallTransaction;
 import org.brewchain.rcvm.exec.TransactionExecutor;
 import org.brewchain.rcvm.jsonrpc.TransactionReceipt;
@@ -152,45 +151,45 @@ public class BuildService extends SessionModules<PSBuildCode> {
 									+ ",'cfuncode':"+functionCallBytes == null?"":functionCallBytes+"'"
 								+ "}";
 						
-						MTransaction mtx = new MTransaction(evmapi);
-						mtx.addTXInput(pbo.getAddr(), pbo.getPubKey(), pbo.getSign(), 0L, fee, feeLimit);
-						mtx.addTXOutput(null, 0L);
+//						MTransaction mtx = new MTransaction(evmapi);
+//						mtx.addTXInput(pbo.getAddr(), pbo.getPubKey(), pbo.getSign(), 0L, fee, feeLimit);
+//						mtx.addTXOutput(null, 0L);
 						
-						mtx.setTXBodyData(c.getAbi().getBytes(), exDataStr.getBytes());
-//						if(functionCallBytes == null) {
-//							mtx.setTXBodyData(Hex.decode(c.getBin().getBytes()), exDataStr.getBytes());
-//						}else {
-//							mtx.setTXBodyData(ByteUtil.merge(Hex.decode(cm.bin), functionCallBytes), exDataStr.getBytes());
+//						mtx.setTXBodyData(c.getAbi().getBytes(), exDataStr.getBytes());
+////						if(functionCallBytes == null) {
+////							mtx.setTXBodyData(Hex.decode(c.getBin().getBytes()), exDataStr.getBytes());
+////						}else {
+////							mtx.setTXBodyData(ByteUtil.merge(Hex.decode(cm.bin), functionCallBytes), exDataStr.getBytes());
+////						}
+//						mtx.setSign(pbo.getPubKey(), pbo.getSign());
+////						mtx.txSign(encAPI, pbo.getPubKey(), "3d6b03d3fa3ab3959abf2ffca1aa2c5fd14c90256234fb97b2f6b2e6e2549feb");
+//						mtx.sendTX(evmapi);
+//						
+//						if(functionCallBytes != null) {
+//							TransactionExecutor executor = new TransactionExecutor().withCommonConfig().setLocalCall(true);
+//							executor.init(null,functionCallBytes);
+//				            executor.execute();
+//				            executor.go();
+////				            executor.finalization();
+//				            TransactionReceipt rest = executor.getReceipt();
 //						}
-						mtx.setSign(pbo.getPubKey(), pbo.getSign());
-//						mtx.txSign(encAPI, pbo.getPubKey(), "3d6b03d3fa3ab3959abf2ffca1aa2c5fd14c90256234fb97b2f6b2e6e2549feb");
-						mtx.sendTX(evmapi);
-						
-						if(functionCallBytes != null) {
-							TransactionExecutor executor = new TransactionExecutor().withCommonConfig().setLocalCall(true);
-							executor.init(null,functionCallBytes);
-				            executor.execute();
-				            executor.go();
-//				            executor.finalization();
-				            TransactionReceipt rest = executor.getReceipt();
-						}
-						
-						// TODO 创建合约交易
-						// Abi abi = Abi.fromJson(cm.abi);
-						// Entry onlyFunc = abi.get(0);
-						// System.out.println();
-						// if(onlyFunc.type == Type.function){
-						// onlyFunc.inputs.size();
-						// onlyFunc.outputs.size();
-						// onlyFunc.constant;
-						// }
-						
-						ret.setCAddr(
-								encAPI.genKeys(
-										pbo.getAddr()
-										+evmapi.getNonce(encAPI.hexDec(pbo.getAddr())))
-								.getAddress());
-						ret.addInfo(c);
+//						
+//						// TODO 创建合约交易
+//						// Abi abi = Abi.fromJson(cm.abi);
+//						// Entry onlyFunc = abi.get(0);
+//						// System.out.println();
+//						// if(onlyFunc.type == Type.function){
+//						// onlyFunc.inputs.size();
+//						// onlyFunc.outputs.size();
+//						// onlyFunc.constant;
+//						// }
+//						
+//						ret.setCAddr(
+//								encAPI.genKeys(
+//										pbo.getAddr()
+//										+evmapi.getNonce(encAPI.hexDec(pbo.getAddr())))
+//								.getAddress());
+//						ret.addInfo(c);
 					}
 				} else {
 					ret.setRetCode(0);

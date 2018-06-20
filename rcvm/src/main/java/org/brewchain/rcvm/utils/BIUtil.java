@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 
+import org.bouncycastle.util.encoders.Hex;
 import org.brewchain.evm.api.EvmApi;
 
 public class BIUtil {
@@ -95,8 +96,8 @@ public class BIUtil {
 
 
     public static void transfer(EvmApi repository, byte[] fromAddr, byte[] toAddr, BigInteger value){
-        repository.addBalance(fromAddr, value.negate().longValue());
-        repository.addBalance(toAddr, value.longValue());
+        repository.addBalance(Hex.toHexString(fromAddr), value.negate().longValue());
+        repository.addBalance(Hex.toHexString(toAddr), value.longValue());
     }
 
     public static boolean exitLong(BigInteger value){
