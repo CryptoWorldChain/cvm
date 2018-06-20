@@ -95,7 +95,7 @@ public class TransactionExecutor {
     private void call() {
         if (!readyToExecute) return;
    
-        this.vm = new VM(encApi);
+       // this.vm = new VM();
         
 //        byte[] address = tx.getTxBody().getInputs(0).getAddress().toByteArray();
 //        ProgramInvoke programInvoke = new ProgramInvokeImpl();
@@ -105,7 +105,7 @@ public class TransactionExecutor {
 //        byte[] codeHash = null;//= track.getCodeHash(targetAddress);
 //        byte[] code = null;//= track.getCode(targetAddress);
         
-        this.program = new Program(codeHash, code, null,encApi, tx).withCommonConfig();
+        //this.program = new Program(codeHash, code, null,encApi, tx).withCommonConfig();
 //        BigInteger endowment = toBI(tx.getValue());
 
 ////      byte[] targetAddress = tx.getReceiveAddress();
