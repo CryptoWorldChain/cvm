@@ -51,6 +51,7 @@ import org.brewchain.rcvm.exec.trace.ProgramTraceListener;
 import org.brewchain.rcvm.utils.ByteArraySet;
 //import org.brewchain.rcvm.utils.HashUtil;
 import org.brewchain.rcvm.utils.Utils;
+import org.fc.brewchain.bcapi.EncAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
@@ -94,15 +95,15 @@ public class Program {
 	private ByteArraySet touchedAccounts = new ByteArraySet();
 
 	private ProgramPrecompile programPrecompile;
-
+	private EncAPI encApi;
 	// CommonConfig commonConfig = CommonConfig.getDefault();
 	//
 	// private final SystemProperties config;
 	//
 	// private final BlockchainConfig blockchainConfig;
 
-	public Program(byte[] ops, ProgramInvoke programInvoke) {
-		this(ops, programInvoke, null);
+	public Program(byte[] ops, ProgramInvoke programInvoke,EncAPI encApi) {
+		this(ops, programInvoke,encApi, null);
 	}
 
 	// public Program(byte[] ops, ProgramInvoke programInvoke, EvmApi transaction) {
@@ -112,17 +113,18 @@ public class Program {
 
 	// public Program(byte[] ops, ProgramInvoke programInvoke, EvmApi transaction,
 	// SystemProperties config) {
-	public Program(byte[] ops, ProgramInvoke programInvoke, MultiTransaction transaction) {
+	public Program(byte[] ops, ProgramInvoke programInvoke,EncAPI encApi, MultiTransaction transaction) {
 		// this(null, ops, programInvoke, transaction, config);
-		this(null, ops, programInvoke, transaction);
+		this(null, ops, programInvoke, encApi,transaction);
 	}
 
 	// public Program(byte[] codeHash, byte[] ops, ProgramInvoke programInvoke,
 	// EvmApi transaction, SystemProperties config) {
-	public Program(byte[] codeHash, byte[] ops, ProgramInvoke programInvoke, MultiTransaction transaction) {
+	public Program(byte[] codeHash, byte[] ops, ProgramInvoke programInvoke,EncAPI encApi, MultiTransaction transaction) {
 		// this.config = config;
 		this.invoke = programInvoke;
 		this.transaction = transaction;
+		this.encApi = encApi;
 
 		this.codeHash = codeHash;
 		// == null || FastByteComparisons.equal(HashUtil.EMPTY_DATA_HASH, codeHash) ?
@@ -461,8 +463,8 @@ public class Program {
 			result.setException(new BytecodeExecutionException(
 					"Trying to create a contract with existing contract address: 0x" + Hex.toHexString(newAddress)));
 		} else if (isNotEmpty(programCode)) {
-			VM vm = new VM();
-			Program program = new Program(programCode, programInvoke, internalTx.build());
+			VM vm = new VM(encApi);
+			Program program = new Program(programCode, programInvoke,encApi, internalTx.build());
 			vm.play(program);
 			result = program.getResult();
 
@@ -556,10 +558,10 @@ public class Program {
 					msg.getType().callIsDelegate() ? getCallValue() : msg.getEndowment(), contextBalance, data,
 					getStorage(), msg.getType().callIsStatic() || isStaticCall(), byTestingSuite());
 
-			VM vm = new VM();
+			VM vm = new VM(encApi);
 			// MultiTransaction.Builder ???????
 			Program program = new Program(getStorage().GetAccount(codeAddress).getValue().getCodeHash().toByteArray(),
-					programCode, programInvoke, null).withCommonConfig();
+					programCode, programInvoke,encApi, null).withCommonConfig();
 			vm.play(program);
 			result = program.getResult();
 

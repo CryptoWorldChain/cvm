@@ -12,6 +12,7 @@ import org.brewchain.rcvm.base.LogInfo;
 import org.brewchain.rcvm.jsonrpc.TransactionReceipt;
 import org.brewchain.rcvm.program.Program;
 import org.brewchain.rcvm.program.ProgramResult;
+import org.fc.brewchain.bcapi.EncAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +28,7 @@ public class TransactionExecutor {
 //    BlockchainConfig blockchainConfig;
 //
     private MultiTransaction tx;
+    private EncAPI encApi;
 //    private EvmApi tx;
 //    private Repository track;
 //    private Repository cacheTrack;
@@ -55,9 +57,10 @@ public class TransactionExecutor {
 
     boolean localCall = false;
 
-    public TransactionExecutor(MultiTransaction tx) {
+    public TransactionExecutor(MultiTransaction tx, EncAPI encApi) {
 //    	public TransactionExecutor(EvmApi tx) {
         this.tx = tx;
+        this.encApi = encApi;
     }
     public TransactionExecutor() {
         
@@ -92,7 +95,7 @@ public class TransactionExecutor {
     private void call() {
         if (!readyToExecute) return;
    
-        this.vm = new VM();
+        this.vm = new VM(encApi);
         
 //        byte[] address = tx.getTxBody().getInputs(0).getAddress().toByteArray();
 //        ProgramInvoke programInvoke = new ProgramInvokeImpl();
@@ -102,7 +105,7 @@ public class TransactionExecutor {
 //        byte[] codeHash = null;//= track.getCodeHash(targetAddress);
 //        byte[] code = null;//= track.getCode(targetAddress);
         
-        this.program = new Program(codeHash, code, null, tx).withCommonConfig();
+        this.program = new Program(codeHash, code, null,encApi, tx).withCommonConfig();
 //        BigInteger endowment = toBI(tx.getValue());
 
 ////      byte[] targetAddress = tx.getReceiveAddress();

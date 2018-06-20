@@ -22,6 +22,8 @@ import static org.brewchain.rcvm.exec.OpCode.*;
 
 @Slf4j
 public class VM {
+	
+	EncAPI encApi;
 
 	// private static final Logger logger = LoggerFactory.getLogger("VM");
 	// private static final Logger dumplog = logFactory.getlog("dump");
@@ -41,7 +43,8 @@ public class VM {
 
 	// private final SystemProperties config;
 
-	public VM() {
+	public VM(EncAPI encApi) {
+		this.encApi = encApi;
 		// this(SystemProperties.getDefault());
 	}
 
@@ -644,7 +647,7 @@ public class VM {
 				DataWord lengthData = program.stackPop();
 				byte[] buffer = program.memoryChunk(memOffsetData.intValueSafe(), lengthData.intValueSafe());
 
-				byte[] encoded = sha3(buffer);
+				byte[] encoded = encApi.sha3Encode(buffer);
 				DataWord word = new DataWord(encoded);
 
 				if (log.isInfoEnabled())

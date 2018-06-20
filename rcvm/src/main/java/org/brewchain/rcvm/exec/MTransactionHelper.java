@@ -25,6 +25,7 @@ import org.brewchain.rcvm.jsonrpc.TypeConverter;
 //import org.brewchain.rcvm.jsonrpc.JsonRpcImpl.BinaryCallArguments;
 import org.brewchain.rcvm.solidity.compiler.SolidityCompiler;
 import org.brewchain.rcvm.utils.ByteArrayWrapper;
+import org.fc.brewchain.bcapi.EncAPI;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +41,7 @@ public class MTransactionHelper {
 //	AccountHelper accountHelper;
 	
 //	EvmApi accountHelper;
+	private EncAPI encApi;
 	
 	SolidityCompiler solidityCompiler;
 	
@@ -118,7 +120,7 @@ public class MTransactionHelper {
 //                            programInvokeFactory, block, new EthereumListenerAdapter(), 0)
 //                    .withCommonConfig(commonConfig)
 //                    .setLocalCall(true);
-        	TransactionExecutor executor = new TransactionExecutor(tx).withCommonConfig().setLocalCall(true);
+        	TransactionExecutor executor = new TransactionExecutor(tx, encApi).withCommonConfig().setLocalCall(true);
 
             executor.init(null,null);
             executor.execute();
