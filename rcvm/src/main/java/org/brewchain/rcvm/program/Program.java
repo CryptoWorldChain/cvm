@@ -51,6 +51,7 @@ import org.brewchain.rcvm.exec.trace.ProgramTraceListener;
 import org.brewchain.rcvm.utils.ByteArraySet;
 //import org.brewchain.rcvm.utils.HashUtil;
 import org.brewchain.rcvm.utils.Utils;
+import org.fc.brewchain.bcapi.EncAPI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
@@ -94,7 +95,7 @@ public class Program {
 	private ByteArraySet touchedAccounts = new ByteArraySet();
 
 	private ProgramPrecompile programPrecompile;
-
+	private EncAPI encApi;
 	// CommonConfig commonConfig = CommonConfig.getDefault();
 	//
 	// private final SystemProperties config;
@@ -112,9 +113,9 @@ public class Program {
 
 	// public Program(byte[] ops, ProgramInvoke programInvoke, EvmApi transaction,
 	// SystemProperties config) {
-	public Program(byte[] ops, ProgramInvoke programInvoke, MultiTransaction transaction) {
+	public Program(byte[] ops, ProgramInvoke programInvoke,MultiTransaction transaction) {
 		// this(null, ops, programInvoke, transaction, config);
-		this(null, ops, programInvoke, transaction);
+		this(null, ops, programInvoke,transaction);
 	}
 
 	// public Program(byte[] codeHash, byte[] ops, ProgramInvoke programInvoke,
@@ -574,6 +575,7 @@ public class Program {
 			VM vm = new VM();
 			Program program = new Program(Hex.decode(getStorage().GetAccount(codeAddressStr).getValue().getCodeHash()),
 					programCode, programInvoke, null).withCommonConfig();
+
 			vm.play(program);
 			result = program.getResult();
 

@@ -67,52 +67,52 @@ public class MTransactionHelper {
 	//    };
 	}
 	
-	public String call(CallArguments args) throws Exception {
-
-        String s = null;
-        try {
-            TransactionReceipt res = createCallTxAndExecute(args);
-            return s = TypeConverter.toJsonHex(res.getExecutionResult());
-        } finally {
-            if (log.isDebugEnabled()) log.debug("eth_call(" + args + "): " + s);
-        }
-    }
-	private TransactionReceipt createCallTxAndExecute(CallArguments args) throws Exception {
-        BinaryCallArguments bca = new BinaryCallArguments();
-        bca.setArguments(args);
-        
-        // TODO
-        MultiTransaction tx = null;
-//        MultiTransaction tx = CallTransaction.createRawTransaction(0,
-//                bca.gasPrice,
-//                bca.gasLimit,
-//                bca.toAddress,
-//                bca.value,
-//                bca.data);
-
-        // put mock signature if not present
-//        if (tx.getSignature() == null) {
-//            tx.sign(ECKey.fromPrivate(new byte[32]));
+//	public String call(CallArguments args) throws Exception {
+//
+//        String s = null;
+//        try {
+//            TransactionReceipt res = createCallTxAndExecute(args);
+//            return s = TypeConverter.toJsonHex(res.getExecutionResult());
+//        } finally {
+//            if (log.isDebugEnabled()) log.debug("eth_call(" + args + "): " + s);
 //        }
-
-        try {
-//            TransactionExecutor executor = new TransactionExecutor
-//                    (tx, block.getCoinbase(), repository, blockStore,
-//                            programInvokeFactory, block, new EthereumListenerAdapter(), 0)
-//                    .withCommonConfig(commonConfig)
-//                    .setLocalCall(true);
-        	TransactionExecutor executor = new TransactionExecutor(tx).withCommonConfig().setLocalCall(true);
-
-            executor.init(null,null);
-            executor.execute();
-            executor.go();
-//            executor.finalization();
-            return executor.getReceipt();
-        } finally {
-//            repository.rollback();
-        }
-    }
-    
+//    }
+//	private TransactionReceipt createCallTxAndExecute(CallArguments args) throws Exception {
+//        BinaryCallArguments bca = new BinaryCallArguments();
+//        bca.setArguments(args);
+//        
+//        // TODO
+//        MultiTransaction tx = null;
+////        MultiTransaction tx = CallTransaction.createRawTransaction(0,
+////                bca.gasPrice,
+////                bca.gasLimit,
+////                bca.toAddress,
+////                bca.value,
+////                bca.data);
+//
+//        // put mock signature if not present
+////        if (tx.getSignature() == null) {
+////            tx.sign(ECKey.fromPrivate(new byte[32]));
+////        }
+//
+//        try {
+////            TransactionExecutor executor = new TransactionExecutor
+////                    (tx, block.getCoinbase(), repository, blockStore,
+////                            programInvokeFactory, block, new EthereumListenerAdapter(), 0)
+////                    .withCommonConfig(commonConfig)
+////                    .setLocalCall(true);
+//        	TransactionExecutor executor = new TransactionExecutor(tx, encApi).withCommonConfig().setLocalCall(true);
+//
+//            executor.init(null,null);
+//            executor.execute();
+//            executor.go();
+////            executor.finalization();
+//            return executor.getReceipt();
+//        } finally {
+////            repository.rollback();
+//        }
+//    }
+//    
 	
 //    public CompilationResult compileSolidity(String contract) throws Exception {
 //        CompilationResult s = null;

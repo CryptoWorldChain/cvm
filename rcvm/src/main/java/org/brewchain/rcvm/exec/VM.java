@@ -18,7 +18,7 @@ import static org.brewchain.rcvm.exec.OpCode.*;
 
 @Slf4j
 public class VM {
-
+	
 	// private static final Logger logger = LoggerFactory.getLogger("VM");
 	// private static final Logger dumplog = logFactory.getlog("dump");
 	private static BigInteger _32_ = BigInteger.valueOf(32);
@@ -38,6 +38,7 @@ public class VM {
 	// private final SystemProperties config;
 
 	public VM() {
+		//this.encApi = encApi;
 		// this(SystemProperties.getDefault());
 	}
 
@@ -641,6 +642,7 @@ public class VM {
 				byte[] buffer = program.memoryChunk(memOffsetData.intValueSafe(), lengthData.intValueSafe());
 
 				byte[] encoded = program.getStorage().getEncApi().sha3Encode(buffer);
+
 				DataWord word = new DataWord(encoded);
 
 				if (log.isInfoEnabled())
