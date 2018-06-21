@@ -8,10 +8,10 @@ import static org.brewchain.rcvm.solidity.compiler.SolidityCompiler.Options.META
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.brewchain.rcvm.call.CallTransaction;
 import org.brewchain.rcvm.solidity.compiler.CompilationResult;
 import org.brewchain.rcvm.solidity.compiler.SolidityCompiler;
-import org.codehaus.plexus.util.StringUtils;
 //import org.spongycastle.util.encoders.Hex;
 
 public class Test {

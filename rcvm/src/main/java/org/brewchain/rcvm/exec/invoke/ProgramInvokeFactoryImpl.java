@@ -8,7 +8,7 @@ import org.brewchain.evmapi.gens.Block;
 import org.brewchain.evmapi.gens.Block.BlockEntity;
 import org.brewchain.evmapi.gens.Block.BlockHeader;
 import org.brewchain.evmapi.gens.Tx.MultiTransaction;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.brewchain.evm.api.EvmApi;
 import org.brewchain.rcvm.base.DataWord;
 import org.brewchain.rcvm.program.Program;
