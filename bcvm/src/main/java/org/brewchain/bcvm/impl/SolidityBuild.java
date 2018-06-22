@@ -97,9 +97,9 @@ public class SolidityBuild implements CodeBuild.Build {
 ////						ret.error = "未找到构造方法";
 //						exdata += ",\"funs\":[]";
 //					}
-					String exdata = "{\"bin\":\"" + cm.bin + argsBytes + "\"" 
+					ret.exdata = "{\"bin\":\"" + cm.bin + argsBytes + "\"" 
 							+ ",\"code\":\"" + code + "\",\"funs\":[" + fun+"]}";
-					ret.exdata = exdata;
+//					ret.exdata = exdata;
 				}
 			}else {
 				ret.error = "未找到合约";
