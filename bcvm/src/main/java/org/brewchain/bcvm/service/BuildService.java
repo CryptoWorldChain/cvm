@@ -106,12 +106,17 @@ public class BuildService extends SessionModules<PSBuildCode> {
 							if (StringUtils.isNotBlank(pbo.getData())) {
 								constructor.setData(pbo.getData());
 				                Object[] dataArray = pbo.getData().split(",");
+				                //参数bin
 				                functionCallBytes = cfun.encodeArguments(dataArray);
-				            }else {
-				            		functionCallBytes = cfun.encodeArguments();
+				                
+								constructor.setBin(encAPI.base64Enc(functionCallBytes));
+								//参数 合约bin+参数bin
+								exdata.setBin(exdata.getBin()+constructor.getBin());
+								exdata.setConstructor(constructor);
 				            }
-							constructor.setBin(encAPI.base64Enc(functionCallBytes));
-							exdata.setConstructor(constructor);
+//							else {
+//				            		functionCallBytes = cfun.encodeArguments();
+//				            }
 						}
 						c.setExdata(exdata);
 						ret.setBuild(c);

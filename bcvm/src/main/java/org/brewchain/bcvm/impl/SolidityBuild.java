@@ -43,8 +43,8 @@ public class SolidityBuild implements CodeBuild.Build {
 					CompilationResult.ContractMetadata cm = result.contracts.get(name);
 					ret.data = cm.abi;
 
-					String exdata = "{\"bin\":\"" + cm.bin + "\"" 
-										+ ",\"code\":\"" + code + "\"";
+//					String exdata = "{\"bin\":\"" + cm.bin + "\"" 
+//										+ ",\"code\":\"" + code + "\"";
 
 					// Abi abi = Abi.fromJson(cm.abi);
 					// Entry onlyFunc = abi.get(0);
@@ -65,34 +65,41 @@ public class SolidityBuild implements CodeBuild.Build {
 
 					// 合约构造函数
 					CallTransaction.Function cfun = contract.getConstructor();
+					String fun = "";
+					String argsBytes = "";
 					if (cfun != null) {
 						byte[] functionCallBytes = null;
-						String fun = "{";
 						if (args != null && args.length > 0) {
 							String str = "";
 							for(Object o:args) {
 								str += String.valueOf(o) + ",";
 							}
 							str = str.substring(0, str.length()-1);
-							fun += "\"name\":\"\"";
+							fun += "{\"name\":\"\"";
 							fun += ",\"args\":\"" + str + "\"";
+							argsBytes = Hex.toHexString(cfun.encodeArguments(args));
 							fun += ",\"argsBytes\":\""+Base64.encodeBase64String(cfun.encodeArguments(args))+"\"";
-							functionCallBytes = cfun.encode(args);
-							//functionCallBytes = cfun.encode(args);
-						} else {
-							fun += "\"name\":\"\"";
-							fun += ",\"args\":\"\"";
-							fun += ",\"argsBytes\":\"\"";
-							functionCallBytes = cfun.encode();
-							//functionCallBytes = cfun.encode();
+							fun += ",\"bin\":\"" + Base64.encodeBase64String(cfun.encode(args)) + "\"}";
+//							functionCallBytes = cfun.encode(args);
+							functionCallBytes = cfun.encodeArguments(args);
 						}
-						fun += ",\"bin\":\"" + Base64.encodeBase64String(functionCallBytes) + "\"}";
-						exdata += ",\"funs\":[" + fun+"]";
-					}else {
-//						ret.error = "未找到构造方法";
-						exdata += ",\"funs\":[]";
+//						else {
+//							fun += "\"name\":\"\"";
+//							fun += ",\"args\":\"\"";
+//							fun += ",\"argsBytes\":\"\"";
+//							functionCallBytes = cfun.encode();
+//							//functionCallBytes = cfun.encode();
+//						}
+//						fun += ",\"bin\":\"" + Base64.encodeBase64String(functionCallBytes) + "\"}";
+//						exdata += ",\"funs\":[" + fun+"]";
 					}
-					ret.exdata = exdata + "}";
+//					else {
+////						ret.error = "未找到构造方法";
+//						exdata += ",\"funs\":[]";
+//					}
+					String exdata = "{\"bin\":\"" + cm.bin + argsBytes + "\"" 
+							+ ",\"code\":\"" + code + "\",\"funs\":[" + fun+"]}";
+					ret.exdata = exdata;
 				}
 			}else {
 				ret.error = "未找到合约";
