@@ -8,6 +8,8 @@ import org.brewchain.rcvm.program.Stack;
 import org.spongycastle.util.encoders.Hex;
 //import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.protobuf.ByteString;
+
 import lombok.extern.slf4j.Slf4j;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -79,8 +81,8 @@ public class VM {
 	// }
 
 	private boolean isDeadAccount(Program program, byte[] addr) {
-		String addrStr = Hex.toHexString(addr);
-		return !program.getStorage().isExist(addrStr) || program.getStorage().GetAccount(addrStr).getValue() == null;
+		ByteString addrBS = ByteString.copyFrom(addr);
+		return !program.getStorage().isExist(addrBS) || program.getStorage().GetAccount(addrBS).getValue() == null;
 	}
 
 	public void step(Program program) {

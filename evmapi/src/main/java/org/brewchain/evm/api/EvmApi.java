@@ -16,7 +16,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 public interface EvmApi {
 
-	public void saveCode(String code, String address);
+	public void saveCode(ByteString code, ByteString address);
 
 	public EncAPI getEncApi();
 	/**
@@ -25,7 +25,7 @@ public interface EvmApi {
 	 * @param addr
 	 * @return
 	 */
-	public Account GetAccount(String addr);
+	public Account GetAccount(ByteString addr);
 
 	/**
 	 * 创建账户
@@ -34,7 +34,7 @@ public interface EvmApi {
 	 * @param pubKey
 	 * @return
 	 */
-	public Account CreateAccount(String address);
+	public Account CreateAccount(ByteString address);
 
 	/**
 	 * 获取用户账户，如果用户不存在，则创建账户
@@ -42,26 +42,7 @@ public interface EvmApi {
 	 * @param addr
 	 * @return
 	 */
-	public Account GetAccountOrCreate(String addr);
-
-	/**
-	 * 创建合约账户
-	 * 
-	 * @param address
-	 * @param pubKey
-	 * @param code
-	 * @param exdata
-	 * @return
-	 */
-	public Account CreateContract(String address, byte[] code, byte[] exdata);
-
-	/**
-	 * 创建联合账户
-	 * 
-	 * @param oAccount
-	 * @return
-	 */
-	public Account CreateUnionAccount(Account oAccount);
+	public Account GetAccountOrCreate(ByteString addr);
 
 	/**
 	 * 账户是否存在
@@ -70,7 +51,7 @@ public interface EvmApi {
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean isExist(String addr);
+	public boolean isExist(ByteString addr);
 
 	/**
 	 * Nonce自增1
@@ -79,7 +60,7 @@ public interface EvmApi {
 	 * @return
 	 * @throws Exception
 	 */
-	public int IncreaseNonce(String addr);
+	public int IncreaseNonce(ByteString addr);
 
 	/**
 	 * 增加用户账户余额
@@ -89,7 +70,7 @@ public interface EvmApi {
 	 * @return
 	 * @throws Exception
 	 */
-	public long addBalance(String addr, long balance);
+	public long addBalance(ByteString addr, long balance);
 
 	/**
 	 * 获取账户余额
@@ -97,7 +78,7 @@ public interface EvmApi {
 	 * @param addr
 	 * @return
 	 */
-	public long getBalance(String addr);
+	public long getBalance(ByteString addr);
 
 	/**
 	 * 增加用户代币账户余额
@@ -107,9 +88,9 @@ public interface EvmApi {
 	 * @return
 	 * @throws Exception
 	 */
-	public long addTokenBalance(String addr, String token, long balance);
+	public long addTokenBalance(ByteString addr, String token, long balance);
 
-	public long addTokenLockBalance(String addr, String token, long balance);
+	public long addTokenLockBalance(ByteString addr, String token, long balance);
 
 	/**
 	 * 增加加密Token账户余额
@@ -120,19 +101,7 @@ public interface EvmApi {
 	 * @return
 	 * @throws Exception
 	 */
-	public long addCryptoBalance(String addr, String symbol, AccountCryptoToken.Builder token);
-
-	public long newCryptoBalances(String addr, String symbol, ArrayList<AccountCryptoToken.Builder> tokens);
-
-	/**
-	 * 移除加密Token
-	 * 
-	 * @param addr
-	 * @param symbol
-	 * @param hash
-	 * @return
-	 */
-	public long removeCryptoBalance(String addr, String symbol, byte[] hash);
+	public long addCryptoBalance(ByteString addr, String symbol, AccountCryptoToken.Builder token);
 
 	/**
 	 * 设置用户账户Nonce
@@ -142,7 +111,7 @@ public interface EvmApi {
 	 * @return
 	 * @throws Exception
 	 */
-	public int setNonce(String addr, int nonce);
+	public int setNonce(ByteString addr, int nonce);
 
 	/**
 	 * 是否是合约账户
@@ -150,7 +119,7 @@ public interface EvmApi {
 	 * @param addr
 	 * @return
 	 */
-	public boolean isContract(String addr);
+	public boolean isContract(ByteString addr);
 
 	/**
 	 * 获取用户账户Nonce
@@ -159,7 +128,7 @@ public interface EvmApi {
 	 * @return
 	 * @throws Exception
 	 */
-	public int getNonce(String addr);
+	public int getNonce(ByteString addr);
 
 	/**
 	 * 获取用户Token账户的Balance
@@ -168,9 +137,9 @@ public interface EvmApi {
 	 * @return
 	 * @throws Exception
 	 */
-	public long getTokenBalance(String addr, String token);
+	public long getTokenBalance(ByteString addr, ByteString token);
 
-	public long getTokenLockedBalance(String addr, String token);
+	public long getTokenLockedBalance(ByteString addr, ByteString token);
 
 	/**
 	 * 获取加密Token账户的余额
@@ -180,20 +149,9 @@ public interface EvmApi {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<AccountCryptoToken> getCryptoTokenBalance(String addr, String symbol);
+	public List<AccountCryptoToken> getCryptoTokenBalance(ByteString addr, ByteString symbol);
 
-	/**
-	 * 生成加密Token方法。 调用时必须确保symbol不重复。
-	 * 
-	 * @param addr
-	 * @param symbol
-	 * @param name
-	 * @param code
-	 * @throws Exception
-	 */
-	public void generateCryptoToken(String addr, String symbol, String[] name, String[] code);
-
-	public void ICO(String addr, String token);
+	public void ICO(ByteString addr, String token);
 
 	/**
 	 * 判断token是否已经发行
@@ -215,7 +173,7 @@ public interface EvmApi {
 
 	public byte[] getContractAddressByTransaction(MultiTransaction oMultiTransaction);
 
-	public void saveStorage(String address, byte[] key, byte[] value);
-	public Map<String, byte[]> getStorage(String address, List<byte[]> keys);
-	public byte[] getStorage(String address, byte[] key) ;
+	public void saveStorage(ByteString address, byte[] key, byte[] value);
+	public Map<String, byte[]> getStorage(ByteString address, List<byte[]> keys);
+	public byte[] getStorage(ByteString address, byte[] key) ;
 }

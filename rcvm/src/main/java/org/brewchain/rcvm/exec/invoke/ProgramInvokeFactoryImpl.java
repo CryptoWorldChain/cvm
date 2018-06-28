@@ -28,16 +28,16 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
 
 		/*** ADDRESS op ***/
 		// YP: Get address of currently executing account.
-		byte[] address = Hex.decode(tx.getTxBody().getOutputs(0).getAddress());
+		byte[] address = Hex.decode(tx.getTxBody().getOutputs(0).getAddress().toByteArray());
 
 		/*** ORIGIN op ***/
 		// YP: This is the sender of original transaction; it is never a contract.
-		byte[] origin = Hex.decode(tx.getTxBody().getInputs(0).getAddress());
+		byte[] origin = Hex.decode(tx.getTxBody().getInputs(0).getAddress().toByteArray());
 
 		/*** CALLER op ***/
 		// YP: This is the address of the account that is directly responsible for this
 		// execution.
-		byte[] caller = Hex.decode(tx.getTxBody().getInputs(0).getAddress());
+		byte[] caller = Hex.decode(tx.getTxBody().getInputs(0).getAddress().toByteArray());
 
 		/*** BALANCE op ***/
 		byte[] balance = ByteUtil.longToBytes(repository.getBalance(tx.getTxBody().getInputs(0).getAddress()));
@@ -49,13 +49,14 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
 		byte[] gas = ByteUtil.ZERO_BYTE_ARRAY;
 
 		/*** CALLVALUE op ***/
-		byte[] callValue = StringUtils.isBlank(tx.getTxBody().getExdata()) ? ByteUtil.EMPTY_BYTE_ARRAY
-				: Hex.decode(tx.getTxBody().getExdata());
+		byte[] callValue = ByteUtil.longToBytes(tx.getTxBody().getInputs(0).getAmount());
+		// StringUtils.isBlank(tx.getTxBody().getExdata()) ? ByteUtil.EMPTY_BYTE_ARRAY
+		// : Hex.decode(tx.getTxBody().getExdata().toByteArray());
 
 		/*** CALLDATALOAD op ***/
 		/*** CALLDATACOPY op ***/
 		/*** CALLDATASIZE op ***/
-		byte[] data = Hex.decode(tx.getTxBody().getData());
+		byte[] data = Hex.decode(tx.getTxBody().getData().toByteArray());
 
 		/*** PREVHASH op ***/
 		byte[] lastHash = Hex.decode(block.getHeader().getParentHash());

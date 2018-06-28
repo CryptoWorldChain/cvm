@@ -62,7 +62,7 @@ public class CallTransaction {
 		MultiTransactionBody.Builder oMultiTransactionBody = MultiTransactionBody.newBuilder();
 		MultiTransactionInput.Builder oMultiTransactionInput1 = MultiTransactionInput.newBuilder();
 		
-		oMultiTransactionInput1.setAddress(fromAddress);
+		oMultiTransactionInput1.setAddress(ByteString.copyFrom(Hex.decode(fromAddress)));
 		oMultiTransactionInput1.setAmount(value);
 		oMultiTransactionInput1.setFee((int)gasPrice);
 		oMultiTransactionInput1.setFeeLimit(0);
@@ -70,19 +70,19 @@ public class CallTransaction {
 		oMultiTransactionBody.addInputs(oMultiTransactionInput1);
 		
 		MultiTransactionOutput.Builder oMultiTransactionOutput1 = MultiTransactionOutput.newBuilder();
-		oMultiTransactionOutput1.setAddress(toAddress);
+		oMultiTransactionOutput1.setAddress(ByteString.copyFrom(Hex.decode(toAddress)));
 		oMultiTransactionOutput1.setAmount(value);
 		oMultiTransactionBody.addOutputs(oMultiTransactionOutput1);
 	
-		oMultiTransactionBody.setData(Hex.toHexString(callData));
+		oMultiTransactionBody.setData(ByteString.copyFrom(Hex.decode(callData)));
 	//	oMultiTransactionBody.setExdata(oAccount.toByteString());
 		oMultiTransaction.clearTxHash();
 		oMultiTransactionBody.clearSignatures();
 	
 		// 签名
 		MultiTransactionSignature.Builder oMultiTransactionSignature1 = MultiTransactionSignature.newBuilder();
-		oMultiTransactionSignature1.setPubKey(pubkey);
-		oMultiTransactionSignature1.setSignature(sign);
+		oMultiTransactionSignature1.setPubKey(ByteString.copyFrom(Hex.decode(pubkey)));
+		oMultiTransactionSignature1.setSignature(ByteString.copyFrom(Hex.decode(sign)));
 		oMultiTransactionBody.addSignatures(oMultiTransactionSignature1);
 		
 		oMultiTransaction.setTxBody(oMultiTransactionBody);
