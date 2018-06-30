@@ -178,4 +178,9 @@ public class Storage implements EvmApi, ProgramListenerAware {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+
+	@Override
+	public byte[] getBlockHashByNumber(int arg0) {
+		return repository.getBlockHashByNumber(arg0);
+	}
 }
