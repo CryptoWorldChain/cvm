@@ -529,7 +529,7 @@ public class Program {
 		// FETCH THE SAVED STORAGE
 		byte[] codeAddress = msg.getCodeAddress().getNoLeadZeroesData(); // .getLast20Bytes();
 		ByteString codeAddressBS = ByteString.copyFrom(codeAddress);
-		byte[] senderAddress = getOwnerAddress().getNoLeadZeroesData(); // .getLast20Bytes();
+		byte[] senderAddress = getOriginAddress().getNoLeadZeroesData(); // .getLast20Bytes();
 		ByteString senderAddressBS = ByteString.copyFrom(senderAddress);
 		byte[] contextAddress = msg.getType().callIsStateless() ? senderAddress : codeAddress;
 		ByteString contextAddressBS = ByteString.copyFrom(contextAddress);
