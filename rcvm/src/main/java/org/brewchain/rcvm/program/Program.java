@@ -653,13 +653,12 @@ public class Program {
 		return invoke.getOwnerAddress().clone();
 	}
 
-	// public DataWord getBlockHash(int index) {
-	// return index < this.getNumber().longValue() && index >= Math.max(256,
-	// this.getNumber().intValue()) - 256 ?
-	// new DataWord(this.invoke.getBlockStore().getBlockHashByNumber(index,
-	// getPrevHash().getData())).clone() :
-	// DataWord.ZERO.clone();
-	// }
+//	 public DataWord getBlockHash(int index) {
+//		 return index < this.getNumber().longValue() && index >= Math.max(256,
+//		 this.getNumber().intValue()) - 256 ?
+//		 new DataWord(getStorage().getBlockHashByNumber(index)).clone() :
+//		 DataWord.ZERO.clone();
+//	 }
 
 	public DataWord getBalance(DataWord address) {
 		BigInteger balance = BigInteger.valueOf(getStorage().getBalance(ByteString.copyFrom(address.getNoLeadZeroesData())));

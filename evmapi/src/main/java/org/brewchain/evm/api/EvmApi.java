@@ -17,7 +17,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 public interface EvmApi {
 
 //	public byte[] getBlockHashByNumber(int blockNumber);
-//	
+	
 //	public void saveCode(ByteString code, ByteString address);
 //
 	public EncAPI getEncApi();
