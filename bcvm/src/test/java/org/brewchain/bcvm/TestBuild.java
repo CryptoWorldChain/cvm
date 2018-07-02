@@ -26,7 +26,7 @@ public class TestBuild {
 	        
 	        if(StringUtils.isBlank(ret.error)) {
 	        		System.out.println("data="+ret.data);
-	        		System.out.println("exdata="+ret.exdata);
+//	        		System.out.println("exdata="+ret.exdata);
 	        }else {
 	        		System.out.println("error="+ret.error);
 	        }

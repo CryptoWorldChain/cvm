@@ -41,27 +41,10 @@ public class SolidityBuild implements CodeBuild.Build {
 				for (String name : result.contracts.keySet()) {
 					
 					CompilationResult.ContractMetadata cm = result.contracts.get(name);
-					ret.data = cm.abi;
+					
 
-//					String exdata = "{\"bin\":\"" + cm.bin + "\"" 
-//										+ ",\"code\":\"" + code + "\"";
-
-					// Abi abi = Abi.fromJson(cm.abi);
-					// Entry onlyFunc = abi.get(0);
-					// if(onlyFunc.type == Type.function){
-					// onlyFunc.inputs.size();
-					// onlyFunc.outputs.size();
-					// onlyFunc.constant;
-					// }
 
 					CallTransaction.Contract contract = new CallTransaction.Contract(cm.abi);
-					
-					// if (contract.functions != null && contract.functions.length > 0) {
-					// for (int i = 0; i < contract.functions.length; i++) {
-					// System.out.println("contract.functions[" + i + "]:「" +
-					// contract.functions[i].toString() + "」");
-					// }
-					// }
 
 					// 合约构造函数
 					CallTransaction.Function cfun = contract.getConstructor();
@@ -70,39 +53,25 @@ public class SolidityBuild implements CodeBuild.Build {
 					if (cfun != null) {
 						byte[] functionCallBytes = null;
 						if (args != null && args.length > 0) {
-							String str = "";
-							for(Object o:args) {
-								str += String.valueOf(o) + ",";
-							}
-							str = str.substring(0, str.length()-1);
-							fun += "{\"name\":\"\"";
-							fun += ",\"args\":\"" + str + "\"";
+//							String str = "";
+//							for(Object o:args) {
+//								str += String.valueOf(o) + ",";
+//							}
+//							str = str.substring(0, str.length()-1);
+//							fun += "{\"name\":\"\"";
+//							fun += ",\"args\":\"" + str + "\"";
 							argsBytes = Hex.toHexString(cfun.encodeArguments(args));
-							fun += ",\"argsBytes\":\""+Base64.encodeBase64String(cfun.encodeArguments(args))+"\"";
-							fun += ",\"bin\":\"" + Base64.encodeBase64String(cfun.encode(args)) + "\"}";
-//							functionCallBytes = cfun.encode(args);
-							functionCallBytes = cfun.encodeArguments(args);
+//							fun += ",\"argsBytes\":\""+Base64.encodeBase64String(cfun.encodeArguments(args))+"\"";
+//							fun += ",\"bin\":\"" + Base64.encodeBase64String(cfun.encode(args)) + "\"}";
+//							functionCallBytes = cfun.encodeArguments(args);
 						}
-//						else {
-//							fun += "\"name\":\"\"";
-//							fun += ",\"args\":\"\"";
-//							fun += ",\"argsBytes\":\"\"";
-//							functionCallBytes = cfun.encode();
-//							//functionCallBytes = cfun.encode();
-//						}
-//						fun += ",\"bin\":\"" + Base64.encodeBase64String(functionCallBytes) + "\"}";
-//						exdata += ",\"funs\":[" + fun+"]";
 					}
-//					else {
-////						ret.error = "未找到构造方法";
-//						exdata += ",\"funs\":[]";
-//					}
-					ret.exdata = "{\"bin\":\"" + cm.bin + argsBytes + "\"" 
-							+ ",\"code\":\"" + code + "\",\"funs\":[" + fun+"]}";
-//					ret.exdata = exdata;
+					ret.data = cm.bin + argsBytes;
+					ret.abi = cm.abi;
+					ret.exdata = code;
 				}
 			}else {
-				ret.error = "未找到合约";
+				ret.error = "No contract found";
 			}
 		}
 		return ret;
