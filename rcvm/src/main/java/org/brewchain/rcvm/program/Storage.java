@@ -26,10 +26,10 @@ public class Storage implements EvmApi, ProgramListenerAware {
 		return repository.getEncApi();
 	}
 
-	@Override
-	public void saveCode(ByteString code, ByteString addr) {
-		repository.saveCode(code, addr);
-	}
+//	@Override
+//	public void saveCode(ByteString code, ByteString addr) {
+//		repository.saveCode(code, addr);
+//	}
 
 	private final EvmApi repository;
 	private final DataWord address;
@@ -51,29 +51,29 @@ public class Storage implements EvmApi, ProgramListenerAware {
 		return repository.GetAccount(arg0);
 	}
 
-	@Override
-	public Account GetAccountOrCreate(ByteString arg0) {
-		// TODO Auto-generated method stub
-		return repository.GetAccountOrCreate(arg0);
-	}
-
-	@Override
-	public MultiTransaction GetTransaction(String arg0) {
-		// TODO Auto-generated method stub
-		return repository.GetTransaction(arg0);
-	}
-
-	@Override
-	public void ICO(ByteString arg0, String arg1) {
-		// TODO Auto-generated method stub
-		repository.ICO(arg0, arg1);
-	}
-
-	@Override
-	public int IncreaseNonce(ByteString arg0) {
-		// TODO Auto-generated method stub
-		return repository.IncreaseNonce(arg0);
-	}
+//	@Override
+//	public Account GetAccountOrCreate(ByteString arg0) {
+//		// TODO Auto-generated method stub
+//		return repository.GetAccountOrCreate(arg0);
+//	}
+//
+//	@Override
+//	public MultiTransaction GetTransaction(String arg0) {
+//		// TODO Auto-generated method stub
+//		return repository.GetTransaction(arg0);
+//	}
+//
+//	@Override
+//	public void ICO(ByteString arg0, String arg1) {
+//		// TODO Auto-generated method stub
+//		repository.ICO(arg0, arg1);
+//	}
+//
+//	@Override
+//	public int IncreaseNonce(ByteString arg0) {
+//		// TODO Auto-generated method stub
+//		return repository.IncreaseNonce(arg0);
+//	}
 
 	@Override
 	public long addBalance(ByteString arg0, long arg1) {
@@ -81,23 +81,23 @@ public class Storage implements EvmApi, ProgramListenerAware {
 		return repository.addBalance(arg0, arg1);
 	}
 
-	@Override
-	public long addCryptoBalance(ByteString arg0, String arg1, AccountCryptoToken.Builder arg2) {
-		// TODO Auto-generated method stub
-		return repository.addCryptoBalance(arg0, arg1, arg2);
-	}
-
-	@Override
-	public long addTokenBalance(ByteString arg0, String arg1, long arg2) {
-		// TODO Auto-generated method stub
-		return repository.addTokenBalance(arg0, arg1, arg2);
-	}
-
-	@Override
-	public long addTokenLockBalance(ByteString arg0, String arg1, long arg2) {
-		// TODO Auto-generated method stub
-		return repository.addTokenLockBalance(arg0, arg1, arg2);
-	}
+//	@Override
+//	public long addCryptoBalance(ByteString arg0, String arg1, AccountCryptoToken.Builder arg2) {
+//		// TODO Auto-generated method stub
+//		return repository.addCryptoBalance(arg0, arg1, arg2);
+//	}
+//
+//	@Override
+//	public long addTokenBalance(ByteString arg0, String arg1, long arg2) {
+//		// TODO Auto-generated method stub
+//		return repository.addTokenBalance(arg0, arg1, arg2);
+//	}
+//
+//	@Override
+//	public long addTokenLockBalance(ByteString arg0, String arg1, long arg2) {
+//		// TODO Auto-generated method stub
+//		return repository.addTokenLockBalance(arg0, arg1, arg2);
+//	}
 
 	@Override
 	public long getBalance(ByteString arg0) {
@@ -105,23 +105,23 @@ public class Storage implements EvmApi, ProgramListenerAware {
 		return repository.getBalance(arg0);
 	}
 
-	@Override
-	public byte[] getContractAddressByTransaction(MultiTransaction arg0) {
-		// TODO Auto-generated method stub
-		return repository.getContractAddressByTransaction(arg0);
-	}
-
-	@Override
-	public int getNonce(ByteString arg0) {
-		// TODO Auto-generated method stub
-		return repository.getNonce(arg0);
-	}
-
-	@Override
-	public boolean isContract(ByteString arg0) {
-		// TODO Auto-generated method stub
-		return repository.isContract(arg0);
-	}
+//	@Override
+//	public byte[] getContractAddressByTransaction(MultiTransaction arg0) {
+//		// TODO Auto-generated method stub
+//		return repository.getContractAddressByTransaction(arg0);
+//	}
+//
+//	@Override
+//	public int getNonce(ByteString arg0) {
+//		// TODO Auto-generated method stub
+//		return repository.getNonce(arg0);
+//	}
+//
+//	@Override
+//	public boolean isContract(ByteString arg0) {
+//		// TODO Auto-generated method stub
+//		return repository.isContract(arg0);
+//	}
 
 	@Override
 	public boolean isExist(ByteString arg0) {
@@ -129,17 +129,17 @@ public class Storage implements EvmApi, ProgramListenerAware {
 		return repository.isExist(arg0);
 	}
 
-	@Override
-	public boolean isExistsToken(String arg0) {
-		// TODO Auto-generated method stub
-		return repository.isExistsToken(arg0);
-	}
-
-	@Override
-	public int setNonce(ByteString arg0, int arg1) {
-		// TODO Auto-generated method stub
-		return repository.setNonce(arg0, arg1);
-	}
+//	@Override
+//	public boolean isExistsToken(String arg0) {
+//		// TODO Auto-generated method stub
+//		return repository.isExistsToken(arg0);
+//	}
+//
+//	@Override
+//	public int setNonce(ByteString arg0, int arg1) {
+//		// TODO Auto-generated method stub
+//		return repository.setNonce(arg0, arg1);
+//	}
 
 	@Override
 	public Map<String, byte[]> getStorage(ByteString arg0, List<byte[]> arg1) {
@@ -156,31 +156,31 @@ public class Storage implements EvmApi, ProgramListenerAware {
 		repository.saveStorage(arg0, arg1, arg2);
 	}
 
-	@Override
-	public Account CreateAccount(ByteString arg0) {
-		return repository.CreateAccount(arg0);
-	}
-
-	@Override
-	public List<AccountCryptoToken> getCryptoTokenBalance(ByteString arg0, ByteString arg1) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public long getTokenBalance(ByteString arg0, ByteString arg1) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public long getTokenLockedBalance(ByteString arg0, ByteString arg1) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public byte[] getBlockHashByNumber(int arg0) {
-		return repository.getBlockHashByNumber(arg0);
-	}
+//	@Override
+//	public Account CreateAccount(ByteString arg0) {
+//		return repository.CreateAccount(arg0);
+//	}
+//
+//	@Override
+//	public List<AccountCryptoToken> getCryptoTokenBalance(ByteString arg0, ByteString arg1) {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
+//
+//	@Override
+//	public long getTokenBalance(ByteString arg0, ByteString arg1) {
+//		// TODO Auto-generated method stub
+//		return 0;
+//	}
+//
+//	@Override
+//	public long getTokenLockedBalance(ByteString arg0, ByteString arg1) {
+//		// TODO Auto-generated method stub
+//		return 0;
+//	}
+//
+//	@Override
+//	public byte[] getBlockHashByNumber(int arg0) {
+//		return repository.getBlockHashByNumber(arg0);
+//	}
 }
