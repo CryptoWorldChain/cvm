@@ -37,6 +37,7 @@ public class CodeBuild{
     }
 	public class Result{
 		public String data;
+		public String abi;
 		public String exdata;
 		public String error;
 	}
