@@ -48,10 +48,10 @@ message AccountCryptoToken {
     int64 ownertime = 9; // 所有人获取时间
 }
 
-message ICO {
-    repeated ICOValue value = 1;
+message ERC20Token {
+    repeated ERC20TokenValue value = 1;
 }
-message ICOValue {
+message ERC20TokenValue {
     string token = 1;
     string address = 2;
     int64 timestamp = 3;

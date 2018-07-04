@@ -14,7 +14,7 @@ message BlockHeader {
 	string txTrieRoot = 3;
 	string receiptTrieRoot = 4;
 	int64 timestamp = 5;
-	int32 number = 6;
+	int64 number = 6;
 	int32 reward = 7;
 	string extraData = 8;
 	string blockHash = 9;
