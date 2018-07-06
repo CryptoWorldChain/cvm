@@ -21,8 +21,6 @@ message AccountValue {
     bytes codeHash = 10;
     bytes code = 11;
     bytes data = 12;
-    bytes creator = 13;
-    int64 timestamp = 14;
 }
 
 message AccountTokenValue {
