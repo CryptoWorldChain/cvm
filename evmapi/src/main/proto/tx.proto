@@ -24,6 +24,7 @@ message MultiTransaction {
 	MultiTransactionBody txBody = 2;
 	string status = 3;
 	MultiTransactionNode txNode = 4;
+	bytes result = 5;
 } 
 
 message MultiTransactionBody {

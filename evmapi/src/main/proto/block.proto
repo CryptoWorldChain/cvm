@@ -6,6 +6,7 @@ message BlockEntity {
 	BlockHeader header = 1;
 	BlockBody body = 2;
 	BlockMiner miner = 3;
+	int32 version = 50;
 }
 
 message BlockHeader {
