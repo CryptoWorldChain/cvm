@@ -98,8 +98,8 @@ public class BIUtil {
 
 
     public static void transfer(EvmApi repository, byte[] fromAddr, byte[] toAddr, BigInteger value){
-        repository.addBalance(ByteString.copyFrom(fromAddr), value.negate().longValue());
-        repository.addBalance(ByteString.copyFrom(toAddr), value.longValue());
+        repository.addBalance(ByteString.copyFrom(fromAddr), value.negate());
+        repository.addBalance(ByteString.copyFrom(toAddr), value);
     }
 
     public static boolean exitLong(BigInteger value){

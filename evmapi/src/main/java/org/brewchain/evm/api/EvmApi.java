@@ -1,5 +1,6 @@
 package org.brewchain.evm.api;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -72,7 +73,7 @@ public interface EvmApi {
 	 * @return
 	 * @throws Exception
 	 */
-	public long addBalance(ByteString addr, long balance);
+	public BigInteger addBalance(ByteString addr, BigInteger balance);
 //
 	/**
 	 * 获取账户余额
@@ -80,7 +81,7 @@ public interface EvmApi {
 	 * @param addr
 	 * @return
 	 */
-	public long getBalance(ByteString addr);
+	public BigInteger getBalance(ByteString addr);
 //
 //	/**
 //	 * 增加用户代币账户余额

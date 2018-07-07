@@ -5,11 +5,9 @@ package org.brewchain.evmapi.gens;
 message SingleTransaction {
 	string txHash = 1;
 	int32 nonce = 2;
-	int32 fee = 3;
-	int32 feeLimit = 4;
 	string receiveAddress= 5;
 	string senderAddress = 6;
-	int64 amount= 7;
+	bytes amount= 7;
 	string data= 8;
 	int64 timestamp = 9;
 	string exdata = 10;
@@ -40,10 +38,8 @@ message MultiTransactionBody {
 
 message MultiTransactionInput {
 	int32 nonce = 1;
-	int32 fee = 2;
-	int32 feeLimit = 3;
 	bytes address = 4;
-	int64 amount= 5;
+	bytes amount= 5;
 	bytes pubKey = 6;
 	string token = 7;
 	string symbol = 8;
@@ -52,7 +48,7 @@ message MultiTransactionInput {
 
 message MultiTransactionOutput {
 	bytes address= 1;
-	int64 amount= 2;
+	bytes amount= 2;
 	string symbol = 3;
 	bytes cryptoToken = 4;
 }

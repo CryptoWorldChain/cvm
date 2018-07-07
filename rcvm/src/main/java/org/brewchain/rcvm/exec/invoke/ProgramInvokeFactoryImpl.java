@@ -40,7 +40,7 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
 		byte[] caller = Hex.decode(tx.getTxBody().getInputs(0).getAddress().toByteArray());
 
 		/*** BALANCE op ***/
-		byte[] balance = ByteUtil.longToBytes(repository.getBalance(tx.getTxBody().getInputs(0).getAddress()));
+		byte[] balance = ByteUtil.bigIntegerToBytes(repository.getBalance(tx.getTxBody().getInputs(0).getAddress()));
 
 		/*** GASPRICE op ***/
 		byte[] gasPrice = ByteUtil.ZERO_BYTE_ARRAY;
@@ -49,7 +49,7 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
 		byte[] gas = ByteUtil.ZERO_BYTE_ARRAY;
 
 		/*** CALLVALUE op ***/
-		byte[] callValue = ByteUtil.longToBytes(tx.getTxBody().getInputs(0).getAmount());
+		byte[] callValue = tx.getTxBody().getInputs(0).getAmount().toByteArray();
 		// StringUtils.isBlank(tx.getTxBody().getExdata()) ? ByteUtil.EMPTY_BYTE_ARRAY
 		// : Hex.decode(tx.getTxBody().getExdata().toByteArray());
 

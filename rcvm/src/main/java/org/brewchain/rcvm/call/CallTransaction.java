@@ -63,15 +63,15 @@ public class CallTransaction {
 		MultiTransactionInput.Builder oMultiTransactionInput1 = MultiTransactionInput.newBuilder();
 		
 		oMultiTransactionInput1.setAddress(ByteString.copyFrom(Hex.decode(fromAddress)));
-		oMultiTransactionInput1.setAmount(value);
-		oMultiTransactionInput1.setFee((int)gasPrice);
-		oMultiTransactionInput1.setFeeLimit(0);
+//		oMultiTransactionInput1.setAmount(value);
+//		oMultiTransactionInput1.setFee((int)gasPrice);
+//		oMultiTransactionInput1.setFeeLimit(0);
 		oMultiTransactionInput1.setNonce(0);
 		oMultiTransactionBody.addInputs(oMultiTransactionInput1);
 		
 		MultiTransactionOutput.Builder oMultiTransactionOutput1 = MultiTransactionOutput.newBuilder();
 		oMultiTransactionOutput1.setAddress(ByteString.copyFrom(Hex.decode(toAddress)));
-		oMultiTransactionOutput1.setAmount(value);
+		//oMultiTransactionOutput1.setAmount(value);
 		oMultiTransactionBody.addOutputs(oMultiTransactionOutput1);
 	
 		oMultiTransactionBody.setData(ByteString.copyFrom(Hex.decode(callData)));

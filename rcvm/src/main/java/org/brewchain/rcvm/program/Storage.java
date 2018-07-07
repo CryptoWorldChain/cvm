@@ -1,5 +1,6 @@
 package org.brewchain.rcvm.program;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -76,7 +77,7 @@ public class Storage implements EvmApi, ProgramListenerAware {
 //	}
 
 	@Override
-	public long addBalance(ByteString arg0, long arg1) {
+	public BigInteger addBalance(ByteString arg0, BigInteger arg1) {
 		// TODO Auto-generated method stub
 		return repository.addBalance(arg0, arg1);
 	}
@@ -100,7 +101,7 @@ public class Storage implements EvmApi, ProgramListenerAware {
 //	}
 
 	@Override
-	public long getBalance(ByteString arg0) {
+	public BigInteger getBalance(ByteString arg0) {
 		// TODO Auto-generated method stub
 		return repository.getBalance(arg0);
 	}

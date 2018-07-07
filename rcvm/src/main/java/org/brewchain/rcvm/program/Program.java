@@ -388,7 +388,7 @@ public class Program {
 
 		byte[] owner = getOwnerAddress().getLast20Bytes();
 		byte[] obtainer = obtainerAddress.getLast20Bytes();
-		BigInteger balance = BigInteger.valueOf(getStorage().getBalance(ByteString.copyFrom(owner)));
+		BigInteger balance = getStorage().getBalance(ByteString.copyFrom(owner));
 
 		log.info("Transfer to: [{}] heritage: [{}]", Hex.toHexString(obtainer), balance);
 
@@ -396,7 +396,7 @@ public class Program {
 
 		if (FastByteComparisons.compareTo(owner, 0, 20, obtainer, 0, 20) == 0) {
 			// if owner == obtainer just zeroing account according to Yellow Paper
-			getStorage().addBalance(ByteString.copyFrom(owner), balance.negate().longValue());
+			getStorage().addBalance(ByteString.copyFrom(owner), balance.negate());
 		} else {
 			transfer(getStorage(), owner, obtainer, balance);
 		}
@@ -543,7 +543,7 @@ public class Program {
 		// 2.1 PERFORM THE VALUE (endowment) PART
 		BigInteger endowment = msg.getEndowment().value();
 
-		BigInteger senderBalance = BigInteger.valueOf(getStorage().getBalance(codeAddressBS));
+		BigInteger senderBalance =getStorage().getBalance(codeAddressBS);
 		if (isNotCovers(senderBalance, endowment)) {
 			stackPushZero();
 			return;
@@ -559,8 +559,8 @@ public class Program {
 			// This keeps track of the calls created for a test
 			getResult().addCallCreate(data, contextAddress, msg.getEndowment().getNoLeadZeroesData());
 		} else {
-			getStorage().addBalance(ByteString.copyFrom(senderAddress), endowment.negate().longValue());
-			contextBalance = BigInteger.valueOf(getStorage().addBalance(ByteString.copyFrom(contextAddress), endowment.longValue()));
+			getStorage().addBalance(ByteString.copyFrom(senderAddress), endowment.negate());
+			contextBalance = getStorage().addBalance(ByteString.copyFrom(contextAddress), endowment);
 		}
 
 		// CREATE CALL INTERNAL TRANSACTION
@@ -661,7 +661,7 @@ public class Program {
 //	 }
 
 	public DataWord getBalance(DataWord address) {
-		BigInteger balance = BigInteger.valueOf(getStorage().getBalance(ByteString.copyFrom(address.getNoLeadZeroesData())));
+		BigInteger balance = getStorage().getBalance(ByteString.copyFrom(address.getNoLeadZeroesData()));
 		return new DataWord(balance.toByteArray());
 	}
 
@@ -1073,7 +1073,7 @@ public class Program {
 		byte[] contextAddress = msg.getType().callIsStateless() ? senderAddress : codeAddress;
 
 		BigInteger endowment = msg.getEndowment().value();
-		BigInteger senderBalance = BigInteger.valueOf(getStorage().getBalance(senderAddressBS));
+		BigInteger senderBalance = getStorage().getBalance(senderAddressBS);
 		if (senderBalance.compareTo(endowment) < 0) {
 			stackPushZero();
 			return;
