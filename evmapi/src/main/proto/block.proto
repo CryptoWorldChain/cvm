@@ -16,7 +16,6 @@ message BlockHeader {
 	string receiptTrieRoot = 4;
 	int64 timestamp = 5;
 	int64 number = 6;
-	int32 reward = 7;
 	string extraData = 8;
 	string blockHash = 9;
 	repeated string txHashs = 10;
@@ -29,7 +28,7 @@ message BlockBody {
 
 message BlockMiner {
 	string node = 1;
-	int32 reward = 3;
+	bytes reward = 3;
 	string address = 4;
 	string bcuid = 5;
 }
