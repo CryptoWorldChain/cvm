@@ -18,12 +18,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-/**
- * Creates a contract function call transaction.
- * Serializes arguments according to the function ABI .
- *
- * Created by Anton Nashatyrev on 25.08.2015.
- */
 public class CallTransaction {
 
     private final static ObjectMapper DEFAULT_MAPPER = new ObjectMapper()
