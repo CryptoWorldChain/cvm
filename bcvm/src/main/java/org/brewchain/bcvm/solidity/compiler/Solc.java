@@ -39,7 +39,7 @@ public class Solc {
 
     private void initBundled() throws IOException {
 //        File tmpDir = new File(System.getProperty("java.io.tmpdir"), "solc");
-        File tmpDir = new File("tmp/test/", "solc");
+        File tmpDir = new File("tmp/", "solc");
         tmpDir.mkdirs();
 
         InputStream is = getClass().getResourceAsStream("/native/" + getOS() + "/solc/file.list");
