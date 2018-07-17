@@ -12,7 +12,6 @@ message SingleTransaction {
 	int64 timestamp = 9;
 	string exdata = 10;
 	string signature = 11;
-	string pubKey = 12;
 	repeated string delegate = 13;
 	string token = 14;
 }
@@ -40,7 +39,6 @@ message MultiTransactionInput {
 	int32 nonce = 1;
 	bytes address = 4;
 	bytes amount= 5;
-	bytes pubKey = 6;
 	string token = 7;
 	string symbol = 8;
 	bytes cryptoToken = 9;
@@ -55,7 +53,6 @@ message MultiTransactionOutput {
 
 message MultiTransactionSignature {
 	bytes signature = 1;
-	bytes pubKey = 2;
 }
 
 message MultiTransactionNode {
