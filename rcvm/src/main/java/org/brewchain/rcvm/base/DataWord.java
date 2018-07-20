@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DataWord implements Comparable<DataWord> {
 
-	/* Maximum value of the DataWord */
 	public static final BigInteger _2_256 = BigInteger.valueOf(2).pow(256);
 	public static final BigInteger MAX_VALUE = _2_256.subtract(BigInteger.ONE);
 	public static final DataWord ZERO = new DataWord(new byte[32]); // don't push it in to the stack
