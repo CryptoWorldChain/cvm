@@ -73,7 +73,7 @@ public class CallTransaction {
 	
 		// 签名
 		MultiTransactionSignature.Builder oMultiTransactionSignature1 = MultiTransactionSignature.newBuilder();
-		oMultiTransactionSignature1.setPubKey(ByteString.copyFrom(Hex.decode(pubkey)));
+//		oMultiTransactionSignature1.setPubKey(ByteString.copyFrom(Hex.decode(pubkey)));
 		oMultiTransactionSignature1.setSignature(ByteString.copyFrom(Hex.decode(sign)));
 		oMultiTransactionBody.addSignatures(oMultiTransactionSignature1);
 		
