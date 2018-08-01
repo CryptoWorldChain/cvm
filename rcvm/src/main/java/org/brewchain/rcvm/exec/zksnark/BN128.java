@@ -23,9 +23,6 @@ public abstract class BN128<T extends Field<T>> {
     abstract protected T b();
     abstract protected T one();
 
-    /**
-     * Transforms given Jacobian to affine coordinates and then creates a point
-     */
     public BN128<T> toAffine() {
 
         if (isZero()) {
