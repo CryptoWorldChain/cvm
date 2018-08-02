@@ -15,7 +15,6 @@ public class SolidityFunRun implements Fun.Run{
 
 	private String codeHash;
 	private String code;
-//	private String data;
 	
 	public SolidityFunRun() {
 		
@@ -31,15 +30,10 @@ public class SolidityFunRun implements Fun.Run{
 		this.code = code;
 	}
 
-//	@Override
-//	public void setData(String data) {
-//		this.data = data;
-//	}
 
 	public SolidityFunRun(String codeHash,String code,String data) {
 		this.codeHash = codeHash;
 		this.code = code;
-//		this.data = data;
 	}
 
 	@Override
