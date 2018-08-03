@@ -12,6 +12,7 @@ import org.brewchain.bcvm.CodeBuild;
 import org.brewchain.bcvm.call.CallTransaction;
 import org.brewchain.bcvm.solidity.compiler.CompilationResult;
 import org.brewchain.bcvm.solidity.compiler.SolidityCompiler;
+import org.brewchain.bcvm.utils.ByteUtil;
 import org.brewchain.bcvm.utils.VMUtil;
 import org.spongycastle.util.encoders.Hex;
 
@@ -46,16 +47,15 @@ public class SolidityBuild implements CodeBuild.Build {
 					CallTransaction.Contract contract = new CallTransaction.Contract(cm.abi);
 
 					// 合约构造函数
-					CallTransaction.Function cfun = contract.getConstructor();
-//					String fun = "";
-					String argsBytes = "";
-					if (cfun != null) {
-//						byte[] functionCallBytes = null;
-						if (args != null && args.length > 0) {
-							argsBytes = Hex.toHexString(cfun.encodeArguments(args));
-						}
+					CallTransaction.Function constructorfun = contract.getConstructor();
+//					String argsBytes = "";
+					if (constructorfun != null&&args != null && args.length > 0) {
+//							argsBytes = Hex.toHexString(cfun.encodeArguments(args));
+						ret.data = Hex.toHexString(ByteUtil.merge(Hex.decode(cm.bin) , constructorfun.encodeArguments(args)));
+					}else {
+						ret.data = cm.bin;
 					}
-					ret.data = cm.bin + argsBytes;
+					
 					ret.abi = cm.abi;
 					ret.exdata = code;
 				}
