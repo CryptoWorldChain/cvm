@@ -4,26 +4,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.brewchain.evmapi.gens.Tx.MultiTransaction;
 import org.brewchain.evm.api.EvmApi;
 import org.brewchain.rcvm.exec.tx.MultiTransactionTask;
-import org.brewchain.rcvm.jsonrpc.TransactionReceipt;
 import org.brewchain.rcvm.jsonrpc.TypeConverter;
-//import org.brewchain.rcvm.jsonrpc.JsonRpc.CallArguments;
-//import org.brewchain.rcvm.jsonrpc.JsonRpc.CompilationInfo;
-//import org.brewchain.rcvm.jsonrpc.JsonRpcImpl.BinaryCallArguments;
 import org.brewchain.rcvm.solidity.compiler.SolidityCompiler;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class MTransactionHelper {
 
-//	@ActorRequire(name = "Transaction_Helper", scope = "global")
-//	TransactionHelper transactionHelper;
-//
-//	@ActorRequire(name = "Account_Helper", scope = "global")
-//	AccountHelper accountHelper;
-	
-//	EvmApi accountHelper;
-	
 	SolidityCompiler solidityCompiler;
 	
     public CallArguments genCallArguments(String from,String to,long fee,long feeLimit,long value,String code) {

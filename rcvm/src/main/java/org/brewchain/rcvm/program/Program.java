@@ -67,7 +67,6 @@ public class Program {
 
 	private static final int MAX_DEPTH = 1024;
 
-	// Max size for stack checks
 	private static final int MAX_STACKSIZE = 1024;
 
 	private MultiTransaction transaction;

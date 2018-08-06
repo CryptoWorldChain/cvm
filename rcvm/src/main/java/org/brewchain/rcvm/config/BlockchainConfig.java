@@ -1,7 +1,6 @@
 package org.brewchain.rcvm.config;
 
 import java.math.BigInteger;
-import java.util.List;
 
 import org.brewchain.evmapi.gens.Block.BlockHeader;
 import org.brewchain.rcvm.base.DataWord;

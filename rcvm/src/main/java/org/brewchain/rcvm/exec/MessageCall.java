@@ -4,9 +4,6 @@ import org.brewchain.rcvm.base.DataWord;
 
 public class MessageCall {
 
-    /**
-     * Type of internal call. Either CALL, CALLCODE or POST
-     */
     private final OpCode type;
 
     /**

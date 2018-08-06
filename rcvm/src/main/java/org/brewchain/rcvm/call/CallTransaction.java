@@ -47,14 +47,6 @@ public class CallTransaction {
     				long nonce, long gasPrice, String fromAddress, String pubkey
     				, String toAddress, long value, String sign, byte[] callData) {
  
-//	    	MultiTransaction tx = new MultiTransaction(longToBytesNoLeadZeroes(nonce),
-//	        longToBytesNoLeadZeroes(gasPrice),
-//	        longToBytesNoLeadZeroes(gasLimit),
-//	        toAddress == null ? null : Hex.decode(toAddress),
-//	        longToBytesNoLeadZeroes(value),
-//	        data,
-//	        null);
-//	    	return tx;
     	
     	
 	    	// 发送多重签名账户创建交易并转账
@@ -81,7 +73,7 @@ public class CallTransaction {
 	
 		// 签名
 		MultiTransactionSignature.Builder oMultiTransactionSignature1 = MultiTransactionSignature.newBuilder();
-		oMultiTransactionSignature1.setPubKey(ByteString.copyFrom(Hex.decode(pubkey)));
+//		oMultiTransactionSignature1.setPubKey(ByteString.copyFrom(Hex.decode(pubkey)));
 		oMultiTransactionSignature1.setSignature(ByteString.copyFrom(Hex.decode(sign)));
 		oMultiTransactionBody.addSignatures(oMultiTransactionSignature1);
 		

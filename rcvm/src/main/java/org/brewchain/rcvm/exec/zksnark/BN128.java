@@ -14,18 +14,12 @@ public abstract class BN128<T extends Field<T>> {
         this.z = z;
     }
 
-    /**
-     * Point at infinity in Ethereum notation: should return (0; 0; 0),
-     * {@link #isZero()} method called for that point, also, returns {@code true}
-     */
+    
     abstract protected BN128<T> zero();
     abstract protected BN128<T> instance(T x, T y, T z);
     abstract protected T b();
     abstract protected T one();
 
-    /**
-     * Transforms given Jacobian to affine coordinates and then creates a point
-     */
     public BN128<T> toAffine() {
 
         if (isZero()) {
