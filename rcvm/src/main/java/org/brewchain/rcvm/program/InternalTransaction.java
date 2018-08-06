@@ -1,22 +1,14 @@
 package org.brewchain.rcvm.program;
 
-import static org.apache.commons.lang3.ArrayUtils.getLength;
 import static org.apache.commons.lang3.ArrayUtils.isEmpty;
-import static org.apache.commons.lang3.ArrayUtils.nullToEmpty;
-//import static org.ethereum.util.ByteUtil.toHexString;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.security.interfaces.ECKey;
 
 import org.brewchain.rcvm.utils.ByteUtil;
 import org.brewchain.rcvm.utils.RLP;
-import org.brewchain.rcvm.utils.RLPList;
 import org.brewchain.rcvm.base.DataWord;
 
-//import com.sleepycat.je.Transaction;
-
-//public class InternalTransaction extends Transaction {
 
 public class InternalTransaction {
 	
