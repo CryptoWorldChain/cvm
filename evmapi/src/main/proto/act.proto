@@ -37,13 +37,21 @@ message AccountCryptoValue {
 message AccountCryptoToken {
     bytes hash = 1; // Token的hash，hash(index,total,code,name,timestamp)
     int64 timestamp = 2; // Token创建时间
-    int32 index = 3; // 该Token发行时的索引
-    int32 total = 4; // 该Token的发行总数量
-    bytes code = 5; // Token的编号
-    bytes name = 6; // Token的名称
+    int64 index = 3; // 该Token发行时的索引
+    int64 total = 4; // 该Token的发行总数量
+    string code = 5; // Token的编号
+    string name = 6; // Token的名称
     bytes owner = 7; // 所有人的账户地址
     int32 nonce = 8; // 交易次数
     int64 ownertime = 9; // 所有人获取时间
+    bytes extData = 10;
+}
+
+message CryptoTokenValue {
+	int64 total = 1;
+	int64 current = 2;
+	int64 timestamp = 3;
+	bytes owner = 4;
 }
 
 message ERC20Token {

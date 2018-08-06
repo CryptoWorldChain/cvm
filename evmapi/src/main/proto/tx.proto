@@ -64,3 +64,12 @@ message MultiTransactionNode {
 message BroadcastTransactionMsg {
 	repeated string txHexStr = 1;
 }
+
+message CryptoTokenData {
+	int64 total = 1;
+	string symbol = 2;
+	bytes extData = 3;
+	repeated string name = 4;
+	repeated string code = 5;
+	
+}
