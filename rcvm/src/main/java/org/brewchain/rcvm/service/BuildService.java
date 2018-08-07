@@ -13,8 +13,6 @@ import org.brewchain.cvm.pbgens.Cvm.PRetBuild;
 import org.brewchain.cvm.pbgens.Cvm.PSBuildCode;
 import org.brewchain.evm.api.EvmApi;
 import org.brewchain.rcvm.call.CallTransaction;
-import org.brewchain.rcvm.exec.TransactionExecutor;
-import org.brewchain.rcvm.jsonrpc.TransactionReceipt;
 import org.brewchain.rcvm.solidity.compiler.CompilationResult;
 import org.brewchain.rcvm.solidity.compiler.SolidityCompiler;
 import org.brewchain.rcvm.utils.VMUtil;
@@ -39,12 +37,6 @@ public class BuildService extends SessionModules<PSBuildCode> {
 	
 	
 	EvmApi evmapi;
-	
-//	@ActorRequire(name = "Account_Helper", scope = "global")
-//	AccountHelper accountHelper;
-//	
-//	@ActorRequire(name = "Transaction_Helper", scope = "global")
-//	TransactionHelper transactionHelper;
 	
 	@Override
 	public String getModule() {
@@ -117,10 +109,6 @@ public class BuildService extends SessionModules<PSBuildCode> {
 //									ByteUtil.merge(Hex.decode(contract.getBinary()), functionCallBytes), contract, null,
 //									new TransactionResult())
 							
-//							System.out.println("cm.bin="+cm.bin);
-//							System.out.println("Hex.decode(cm.bin)="+Hex.decode(cm.bin));
-//							System.out.println("functionCallBytes="+functionCallBytes);
-//							System.out.println("ByteUtil.merge(Hex.decode(cm.bin), functionCallBytes)="+ByteUtil.merge(Hex.decode(cm.bin), functionCallBytes));
 							//ByteUtil.merge(Hex.decode(cm.bin), functionCallBytes);
 						}
 						

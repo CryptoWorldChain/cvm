@@ -61,10 +61,6 @@ public abstract class SolidityType {
         return decode(encoded, 0);
     }
 
-    /**
-     * @return fixed size in bytes. For the dynamic types returns IntType.getFixedSize()
-     * which is effectively the int offset to dynamic data
-     */
     public int getFixedSize() {
         return 32;
     }
