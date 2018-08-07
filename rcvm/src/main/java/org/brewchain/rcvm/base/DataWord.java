@@ -3,7 +3,6 @@ package org.brewchain.rcvm.base;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 
-import org.apache.felix.ipojo.util.Log;
 import org.brewchain.rcvm.utils.ByteArrayWrapper;
 import org.brewchain.rcvm.utils.ByteUtil;
 import org.brewchain.rcvm.utils.FastByteComparisons;

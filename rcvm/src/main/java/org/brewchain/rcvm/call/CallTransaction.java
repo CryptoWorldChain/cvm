@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.brewchain.evm.api.EvmApi;
-//import org.brewchain.account.core.TransactionHelper;
 import org.brewchain.evmapi.gens.Tx.MultiTransaction;
 import org.brewchain.evmapi.gens.Tx.MultiTransactionBody;
 import org.brewchain.evmapi.gens.Tx.MultiTransactionInput;
@@ -22,7 +20,6 @@ import org.fc.brewchain.bcapi.EncAPI;
 import org.brewchain.rcvm.base.LogInfo;
 import org.brewchain.rcvm.solidity.SolidityType;
 import org.brewchain.rcvm.solidity.SolidityType.IntType;
-//import org.brewchain.rcvm.utils.HashUtil;
 import org.spongycastle.util.encoders.Hex;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
@@ -37,7 +34,6 @@ public class CallTransaction {
 
 	@ActorRequire(name = "bc_encoder", scope = "global")
 	static EncAPI encApi;
-//	public EvmApi transactionHelper;
 	
     private final static ObjectMapper DEFAULT_MAPPER = new ObjectMapper()
             .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
