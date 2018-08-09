@@ -70,9 +70,6 @@ public class Constants {
 
     public int getMAX_CONTRACT_SZIE() { return Integer.MAX_VALUE; }
 
-    /**
-     * Introduced in the Homestead release
-     */
     public boolean createEmptyContractOnOOG() {
         return true;
     }
