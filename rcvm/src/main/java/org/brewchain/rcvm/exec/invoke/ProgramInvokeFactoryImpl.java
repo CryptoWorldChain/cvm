@@ -22,15 +22,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
 
-	// Invocation by the wire tx
 	@Override
 	public ProgramInvoke createProgramInvoke(MultiTransaction tx, BlockEntity block, EvmApi repository) {
 
-		/*** ADDRESS op ***/
-		// YP: Get address of currently executing account.
 		byte[] address = Hex.decode(tx.getTxBody().getOutputs(0).getAddress().toByteArray());
 
-		/*** ORIGIN op ***/
 		// YP: This is the sender of original transaction; it is never a contract.
 		byte[] origin = Hex.decode(tx.getTxBody().getInputs(0).getAddress().toByteArray());
 
