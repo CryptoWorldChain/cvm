@@ -1,20 +1,14 @@
 package org.brewchain.rcvm.exec.invoke;
 
-import static org.apache.commons.lang3.ArrayUtils.nullToEmpty;
 
 import java.math.BigInteger;
 
-import org.brewchain.evmapi.gens.Block;
 import org.brewchain.evmapi.gens.Block.BlockEntity;
-import org.brewchain.evmapi.gens.Block.BlockHeader;
 import org.brewchain.evmapi.gens.Tx.MultiTransaction;
-import org.apache.commons.lang3.StringUtils;
 import org.brewchain.evm.api.EvmApi;
 import org.brewchain.rcvm.base.DataWord;
 import org.brewchain.rcvm.program.Program;
 import org.brewchain.rcvm.utils.ByteUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
 import lombok.extern.slf4j.Slf4j;
