@@ -54,7 +54,7 @@ public class Solc {
                 solc = targetFile;
                 solc.setExecutable(true);
             }
-            targetFile.deleteOnExit();
+//            targetFile.deleteOnExit();
         }
     }
 
