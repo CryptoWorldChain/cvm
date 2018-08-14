@@ -5,6 +5,7 @@ import static org.brewchain.bcvm.solidity.compiler.SolidityCompiler.Options.BIN;
 import static org.brewchain.bcvm.solidity.compiler.SolidityCompiler.Options.INTERFACE;
 import static org.brewchain.bcvm.solidity.compiler.SolidityCompiler.Options.METADATA;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -63,6 +64,39 @@ public class SolidityBuild implements CodeBuild.Build {
 				ret.error = "No contract found";
 			}
 		}
+		deletePathFile();
 		return ret;
+	}
+	public boolean deletePathFile() {
+		boolean bool=false;
+		try {
+			File file = new File("tmp/solc");
+			if(file.exists()) {
+				File files[] = file.listFiles();
+				if (files != null)  
+		            for (File f : files) {  
+		                if (!f.isDirectory()) { // 判断是否为文件夹  
+//		                    try {  
+//		                        f.delete();  
+//		                    } catch (Exception e) {  
+//		                    }  
+//		                } else {  
+		                    if (f.exists()) { // 判断是否存在  
+		                        try {  
+		                            f.delete();  
+		                        } catch (Exception e) { 
+			                        	e.getStackTrace();
+			                			log.debug("SolidityBuild file error",e);
+		                        }  
+		                    }  
+		                }  
+		            } 
+			}
+			bool = true;
+		} catch (Exception e) {
+			e.getStackTrace();
+			log.debug("SolidityBuild error",e);
+		}
+		return bool;
 	}
 }
