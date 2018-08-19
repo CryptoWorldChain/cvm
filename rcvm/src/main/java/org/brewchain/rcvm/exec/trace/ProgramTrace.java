@@ -6,7 +6,6 @@ import static org.brewchain.rcvm.exec.trace.Serializers.serializeFieldsOnly;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.brewchain.rcvm.base.DataWord;
 import org.brewchain.rcvm.exec.OpCode;
 import org.brewchain.rcvm.exec.invoke.ProgramInvoke;
 import org.fc.brewchain.bcapi.EncAPI;
