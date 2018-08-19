@@ -62,7 +62,9 @@ message MultiTransactionNode {
 }
 
 message BroadcastTransactionMsg {
-	repeated string txHexStr = 1;
+	//repeated string txHexStr = 1;
+	repeated bytes txHash = 1;
+	repeated bytes txDatas = 2;
 }
 
 message CryptoTokenData {
