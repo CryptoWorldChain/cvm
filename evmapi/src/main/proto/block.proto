@@ -31,5 +31,5 @@ message BlockMiner {
 	bytes reward = 3;
 	string address = 4;
 	string bcuid = 5;
-	string term = 6;
+	string termuid = 6;
 }
