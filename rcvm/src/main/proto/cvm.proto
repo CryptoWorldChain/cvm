@@ -25,7 +25,6 @@ message PSBuildCode{//编译
 	int64 fee_limit = 8; //默认=fee
 
 	string sign = 10;//创建合约交易签名
-
 }
 
 message PRetBuild{
@@ -67,7 +66,6 @@ message PSRunContract{//运行合约
 	//int64  value = 11; //
 
 	string sign = 12;//执行合约交易签名
-
 }
 
 message PRetRun{
@@ -82,7 +80,6 @@ message PSRunFun{//运行方法
 	string name = 3; //方法名称
 	repeated PMFunPut inputs = 4;//方法的输入
 	repeated PMFunPut outputs = 5;//方法的输出
-
 
 	int64 fee = 7;
 	int64 fee_limit = 8; //默认=fee

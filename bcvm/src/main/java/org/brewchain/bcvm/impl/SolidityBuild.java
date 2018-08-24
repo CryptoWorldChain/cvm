@@ -64,7 +64,7 @@ public class SolidityBuild implements CodeBuild.Build {
 				ret.error = "No contract found";
 			}
 		}
-		deletePathFile();
+//		deletePathFile();
 		return ret;
 	}
 	public boolean deletePathFile() {
