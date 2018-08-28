@@ -538,10 +538,10 @@ public class Program {
 				Hex.toHexString(contextAddress), msg.getOutDataOffs().longValue(), msg.getOutDataSize().longValue());
 
 		// Repository track = getStorage().startTracking();
-
+		BigInteger decimals = new BigInteger("1000000000000000000");
 		// 2.1 PERFORM THE VALUE (endowment) PART
 		BigInteger endowment = msg.getEndowment().value();
-
+		endowment = endowment.multiply(decimals);
 		BigInteger senderBalance =getStorage().getBalance(codeAddressBS);
 		if (isNotCovers(senderBalance, endowment)) {
 			stackPushZero();
